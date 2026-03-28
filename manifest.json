@@ -1,0 +1,20 @@
+{
+  "name": "Link'em",
+  "description": "Add links to web pages wherever you want!",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "index.html",
+    "default_icon": "icons/linkem_icon_128.png"
+  },
+  "icons": {
+    "16": "icons/linkem_icon_16.png",
+    "32": "icons/linkem_icon_32.png",
+    "48": "icons/linkem_icon_48.png",
+    "128": "icons/linkem_icon_128.png",
+    "512": "icons/linkem_icon_512.png"
+  },
+  "permissions": [
+    "contextMenus"
+  ]
+}
