@@ -4,7 +4,7 @@ export class LinkInjector {
   static injectLinks(links: CustomLink[]): void {
     links.forEach(link => {
       if (link.conditions.every(this.checkCondition)) {
-        console.log("Injecting link!")
+        console.log("Conditions passed! Injecting link!")
         this.injectLink(link);
       }
     });
@@ -19,6 +19,7 @@ export class LinkInjector {
       case 'url_contains':
         return window.location.href.includes(condition.value);
       case 'xpath_match':
+        console.log("Condition: xpath", condition.value, "is present")
         return !!document.evaluate(condition.value, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
       case 'value_match':
         return document.body.textContent?.includes(condition.value) || false;
@@ -31,6 +32,7 @@ export class LinkInjector {
     link.conditions.forEach(condition => {
       if (condition.type === 'xpath_match') {
         const element = document.evaluate(condition.value, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as Element;
+        console.log("Found element to inject to: ", element)
         if (element && !element.hasAttribute('data-linkem-injected')) {
           this.applyLinkToElement(element, link);
           element.setAttribute('data-linkem-injected', 'true');

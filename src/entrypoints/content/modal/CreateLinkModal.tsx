@@ -5,11 +5,12 @@ import { LinksStorage } from '../../../general/storage';
 interface CreateLinkModalProps {
   selectedText: string;
   url: string;
+  xpath: string;
   onClose: () => void;
   onSave: () => void;
 }
 
-export const CreateLinkModal: React.FC<CreateLinkModalProps> = ({ selectedText, url, onClose, onSave }) => {
+export const CreateLinkModal: React.FC<CreateLinkModalProps> = ({ selectedText, url, xpath, onClose, onSave }) => {
   const [name, setName] = useState('');
   const [position, setPosition] = useState<'on_text' | 'next_to_text'>('on_text');
   const [displayName, setDisplayName] = useState('');
@@ -20,9 +21,12 @@ export const CreateLinkModal: React.FC<CreateLinkModalProps> = ({ selectedText, 
   useEffect(() => {
     setName(`Link to ${selectedText.slice(0, 20)}`);
     setHrefPathFormat('https://example.com/search/{text_value}');
-    // Add default condition
-    setConditions([{ type: 'url_start', value: url.split('?')[0] }]);
-  }, [selectedText, url]);
+    // Add default conditions
+    setConditions([
+      { type: 'url_start', value: url.split('?')[0] },
+      { type: 'xpath_match', value: xpath }
+    ]);
+  }, [selectedText, url, xpath]);
 
   const addCondition = () => {
     setConditions([...conditions, { type: 'url_start', value: '' }]);

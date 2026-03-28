@@ -1,7 +1,13 @@
+import { getXPath } from '@/utils/xpath';
 import { LinksStorage } from '../../general/storage';
 import { LinkInjector } from './LinkInjector';
 import { showCreateLinkModal } from './modal';
 
+let lastXPath = '';
+
+document.addEventListener('contextmenu', (event) => {
+  lastXPath = getXPath(event.target as Element);
+});
 
 export default defineContentScript({
   matches: ['*://*/*'],
@@ -22,7 +28,7 @@ export default defineContentScript({
     // Listen for messages from background
     browser.runtime.onMessage.addListener((message) => {
       if (message.action === 'showCreateLinkModal') {
-        showCreateLinkModal(message.selectedText, message.url, () => injectLinks());
+        showCreateLinkModal(message.selectedText, message.url, lastXPath, () => injectLinks());
       }
     });
   },

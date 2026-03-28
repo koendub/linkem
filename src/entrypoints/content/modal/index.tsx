@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { CreateLinkModal } from './CreateLinkModal';
 
 
-export function showCreateLinkModal(selectedText: string, url: string, onSave: () => void) {
+export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: () => void) {
   // Create modal container
   const modalContainer = document.createElement('div');
   modalContainer.id = 'linkem-modal-container';
@@ -21,6 +21,7 @@ export function showCreateLinkModal(selectedText: string, url: string, onSave: (
       <CreateLinkModal
         selectedText={selectedText}
         url={url}
+        xpath={xpath}
         onClose={handleClose}
         onSave={onSave}
       />
