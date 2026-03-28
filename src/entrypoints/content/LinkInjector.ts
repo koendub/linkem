@@ -3,7 +3,7 @@ import { CustomLink, Condition } from '../../general/models';
 export class LinkInjector {
   static injectLinks(links: CustomLink[]): void {
     links.forEach(link => {
-      if (this.checkConditions(link.conditions)) {
+      if (link.conditions.every(this.checkCondition)) {
         console.log("Injecting link!")
         this.injectLink(link);
       }
@@ -25,10 +25,6 @@ export class LinkInjector {
       default:
         return false;
     }
-  }
-
-  private static checkConditions(conditions: Condition[]): boolean {
-    return conditions.every(this.checkCondition);
   }
 
   private static injectLink(link: CustomLink): void {
