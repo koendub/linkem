@@ -4,21 +4,32 @@ Add links to web pages wherever you want!
 
 # Usage
 
-## Usage 1: Adding your own links
+## Usage #1: Adding your own links
+
+The main usage of this extension is creating your own links in web pages.
+To do this, follow these steps:
 
  - In your browser (with this plugin) select any text and right click it
- - From the list of options, select `Link'em: Create Link`
+ - From the list of options, select `Link'em: Create New Link`
  - In the new little window that appears, customize your new link
-	- Choose between `on text`, or `next to text`
-	- In case of `next to text`, choose a name or icon to show
-	- Create the link, using a format string like `http://to_website/query/{text_value}`
-	- Select the conditions that need to be met to add this link, like: 'url start', 'xpath match', 'value match' etc.
+	 - Choose between `on text`, or `next to text`
+	 - In case of `next to text`, choose a name or icon to show
+	 - Create the link, using a format string like `http://to_website/query/{text_value}`
+	 - Select the conditions that need to be met to add this link, like: 'url start', 'xpath match', 'value match' etc.
+	 - Select visibility for this link, choosing between `private` and `public`
+	 - After clicking `save`, your new link will be stored on your device
+
+Right after clicking save, and any other time you visit this website, the link will be
+injected into the website (assuming conditions are met, like the selected element is still there)
+
+## Usage #2: Managing your links
+
 
 
 ## Usage 2: Importing link libraries
 
 Im sure everybody would love a link from their delivery notice email to their product order page.
-Or maybe one from 
+Or maybe one from the website you use 
 
 Since maybe people would want these links, they can be shared.
 Users can create 'link libraries'. A library consists of links, or sub libraries.
@@ -43,4 +54,4 @@ Available format values are:
 
 # Technical details
 
-Made with React + TypeScript + Vite + crxjs
+Made with WXT + React + TypeScript

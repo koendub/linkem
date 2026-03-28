@@ -1,6 +1,6 @@
 {
-  "name": "wxt-react-starter",
-  "description": "manifest.json description",
+  "name": "linkem",
+  "description": "Add links to web pages wherever you want!",
   "private": true,
   "version": "0.0.0",
   "type": "module",
