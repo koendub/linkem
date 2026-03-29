@@ -39,3 +39,17 @@ export class LinksStorage {
     }
   }
 }
+
+export class SettingsStorage {
+  private static readonly STORAGE_KEY = 'linkem_settings';
+
+  static async getSettings(): Promise<{ defaultLinkPosition: 'on_text' | 'next_to_text' }> {
+    const result = await browser.storage.local.get(this.STORAGE_KEY);
+    // @ts-ignore
+    return result[this.STORAGE_KEY] || { defaultLinkPosition: 'next_to_text' };
+  }
+
+  static async saveSettings(settings: { defaultLinkPosition: 'on_text' | 'next_to_text' }): Promise<void> {
+    await browser.storage.local.set({ [this.STORAGE_KEY]: settings });
+  }
+}

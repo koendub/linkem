@@ -6,14 +6,15 @@ import { Link, Plus, Trash2, X, Save, ChevronDown } from 'lucide-react';
 import { Accordion } from '@base-ui/react';
 
 interface EditLinkViewProps {
-  selectedText: string;
-  url: string;
-  xpath: string;
+  link?: CustomLink;
+  selectedText?: string;
+  url?: string;
+  xpath?: string;
   onClose: () => void;
   onSave: () => void;
 }
 
-export function EditLinkView({ selectedText, url, xpath, onClose, onSave }: EditLinkViewProps) {
+export function EditLinkView({ link, selectedText, url, xpath, onClose, onSave }: EditLinkViewProps) {
   const [name, setName] = useState('');
   const [position, setPosition] = useState<'on_text' | 'next_to_text' | 'user_default'>('user_default');
   const [displayName, setDisplayName] = useState('');
@@ -21,15 +22,25 @@ export function EditLinkView({ selectedText, url, xpath, onClose, onSave }: Edit
   const [conditions, setConditions] = useState<LinkCondition[]>([]);
   const [visibility, setVisibility] = useState<'private' | 'public'>('private');
 
+  const isEditing = !!link;
+
   useEffect(() => {
-    setName(`Link to ${selectedText.slice(0, 20)}`);
-    setHrefPathFormat('https://example.com/search/{text-value}');
-    // Add default conditions
-    setConditions([
-      { type: 'url_start', value: url.split('?')[0] },
-      { type: 'xpath_exists', value: xpath }
-    ]);
-  }, [selectedText, url, xpath]);
+    if (isEditing && link) {
+      setName(link.name);
+      setPosition(link.location.position);
+      setDisplayName(link.location.displayName || '');
+      setHrefPathFormat(link.hrefPathFormat);
+      setConditions(link.conditions);
+      setVisibility(link.visibility);
+    } else {
+      setName(`Link to ${selectedText?.slice(0, 20) || ''}`);
+      setHrefPathFormat('https://example.com/search/{text-value}');
+      setConditions([
+        { type: 'url_start', value: url?.split('?')[0] || '' },
+        { type: 'xpath_exists', value: xpath || '' }
+      ]);
+    }
+  }, [link, selectedText, url, xpath, isEditing]);
 
   const updateCondition = (index: number, condition: LinkCondition) => {
     const newConditions = [...conditions];
@@ -38,23 +49,28 @@ export function EditLinkView({ selectedText, url, xpath, onClose, onSave }: Edit
   };
 
   const handleSave = async () => {
-    const location: LinkLocation = {
-      onXPath: xpath,
-      onSelectedTextRe: selectedText,
-      position,
-      displayName: position === 'next_to_text' ? displayName : undefined
+    if (isEditing && link) {
+      const updatedLink = { ...link, name, hrefPathFormat, conditions, visibility, location: { ...link.location, position, displayName: position === 'next_to_text' ? displayName : undefined } };
+      await LinksStorage.saveLink(updatedLink);
+    } else {
+      const location: LinkLocation = {
+        onXPath: xpath || '',
+        onSelectedTextRe: selectedText || '',
+        position,
+        displayName: position === 'next_to_text' ? displayName : undefined
+      }
+      const newLink: CustomLink = {
+        id: Date.now().toString(),
+        name,
+        creator: 'user',
+        visibility,
+        createdAt: new Date(),
+        location,
+        hrefPathFormat,
+        conditions,
+      };
+      await LinksStorage.saveLink(newLink);
     }
-    const link: CustomLink = {
-      id: Date.now().toString(),
-      name,
-      creator: 'user',
-      visibility,
-      createdAt: new Date(),
-      location,
-      hrefPathFormat,
-      conditions,
-    };
-    await LinksStorage.saveLink(link);
     onSave();
     onClose();
   };
@@ -63,7 +79,7 @@ export function EditLinkView({ selectedText, url, xpath, onClose, onSave }: Edit
     <div className="bg-slate-900 text-slate-100 p-8 rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-scroll border border-slate-700 no-scrollbar">
       <h2 className="text-3xl font-bold text-slate-100 mb-8 flex items-center">
         <Link className="w-6 h-6 inline mr-3 text-blue-400" />
-        Create New Link
+        {isEditing ? 'Edit Link' : 'Create New Link'}
       </h2>
       <div className="space-y-8">
         <div className="space-y-6">
