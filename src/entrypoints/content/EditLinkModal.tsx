@@ -1,13 +1,23 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { EditLinkView } from '@/components/EditLinkView';
+import styleText from '../../components/style.css?inline';
 
 
 export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: () => void) {
+  // Create shadow root to isolate styles, also import the tailwind styles
+  const shadowRootContainer = document.createElement('div');
+  document.body.appendChild(shadowRootContainer);
+  const shadowRoot = shadowRootContainer.attachShadow({ mode: 'open' });
+
+  const style = document.createElement("style");
+  style.textContent = styleText;
+  shadowRoot.appendChild(style);
+
   // Create modal container
   const modalContainer = document.createElement('div');
   modalContainer.id = 'linkem-modal-container';
-  document.body.appendChild(modalContainer);
+  shadowRoot.appendChild(modalContainer);
 
   const root = ReactDOM.createRoot(modalContainer);
 

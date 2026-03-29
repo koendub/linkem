@@ -19,7 +19,7 @@ export class LinkInjector {
         return window.location.href.startsWith(condition.value);
       case 'url_contains':
         return window.location.href.includes(condition.value);
-      case 'xpath_match':
+      case 'xpath_exists':
         console.log("Condition: xpath", condition.value, "is present")
         return !!document.evaluate(condition.value, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
       case 'value_match':
@@ -46,14 +46,15 @@ export class LinkInjector {
     const text = element.textContent || '';
     const href = formatLinkHref(link, text);
 
-    if (link.location.position === 'on_text') {
+    const position = link.location.position === 'user_default' ? 'next_to_text' : link.location.position;
+    if (position === 'on_text') {
       const a = document.createElement('a');
       a.href = href;
       a.textContent = text;
       a.target = '_blank';
       element.textContent = '';
       element.appendChild(a);
-    } else if (link.location.position === 'next_to_text') {
+    } else if (position === 'next_to_text') {
       const a = document.createElement('a');
       a.href = href;
       a.textContent = link.location.displayName || link.name;
