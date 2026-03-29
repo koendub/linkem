@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CustomLink } from '../../models';
 import { LinksStorage } from '../../utils/storage';
-import './App.css';
 
 const App: React.FC = () => {
   const [links, setLinks] = useState<CustomLink[]>([]);

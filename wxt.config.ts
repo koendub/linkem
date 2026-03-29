@@ -1,4 +1,5 @@
 import { defineConfig } from 'wxt';
+import tailwindcss from '@tailwindcss/vite';
 
 // See https://wxt.dev/api/config.html
 export default defineConfig({
@@ -6,5 +7,10 @@ export default defineConfig({
   srcDir: "src",
   manifest: {
     permissions: ['storage', 'contextMenus', 'activeTab', 'tabs']
-  }
+  },
+  vite: () => ({
+    plugins: [
+      tailwindcss(),
+    ]
+  })
 });

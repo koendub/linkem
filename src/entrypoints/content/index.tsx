@@ -2,6 +2,7 @@ import { getXPath } from '@/utils/xpath';
 import { LinksStorage } from '../../utils/storage';
 import { LinkInjector } from './LinkInjector';
 import { showCreateLinkModal } from './EditLinkModal';
+import '../../components/style.css';
 
 let lastXPath = '';
 
@@ -43,5 +44,3 @@ async function injectLinks() {
     console.error('Failed to inject links:', error);
   }
 }
-
-
