@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { CreateLinkModal } from './CreateLinkModal';
+import { EditLinkView } from '@/components/EditLinkView';
 
 
 export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: () => void) {
@@ -18,13 +18,26 @@ export function showCreateLinkModal(selectedText: string, url: string, xpath: st
 
   root.render(
     <React.StrictMode>
-      <CreateLinkModal
-        selectedText={selectedText}
-        url={url}
-        xpath={xpath}
-        onClose={handleClose}
-        onSave={onSave}
-      />
+      <div style={{
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(0,0,0,0.5)',
+        zIndex: '10000',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <EditLinkView
+          selectedText={selectedText}
+          url={url}
+          xpath={xpath}
+          onClose={handleClose}
+          onSave={onSave}
+        />
+      </div>
     </React.StrictMode>
   );
 }

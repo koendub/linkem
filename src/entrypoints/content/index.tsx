@@ -1,7 +1,7 @@
 import { getXPath } from '@/utils/xpath';
-import { LinksStorage } from '../../general/storage';
+import { LinksStorage } from '../../utils/storage';
 import { LinkInjector } from './LinkInjector';
-import { showCreateLinkModal } from './modal';
+import { showCreateLinkModal } from './EditLinkModal';
 
 let lastXPath = '';
 

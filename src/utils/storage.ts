@@ -1,4 +1,4 @@
-import { CustomLink } from './models';
+import { CustomLink } from '../models';
 
 export class LinksStorage {
   private static readonly STORAGE_KEY = 'linkem_links';

@@ -1,4 +1,5 @@
-import { CustomLink, Condition } from '../../general/models';
+import { formatLinkHref } from '@/utils/href';
+import { CustomLink, LinkCondition } from '../../models';
 
 export class LinkInjector {
   static injectLinks(links: CustomLink[]): void {
@@ -10,7 +11,7 @@ export class LinkInjector {
     });
   }
 
-  private static checkCondition(condition: Condition): boolean {
+  private static checkCondition(condition: LinkCondition): boolean {
     console.log("Checking condition", condition.type);
     switch (condition.type) {
       case 'url_start':
@@ -29,34 +30,33 @@ export class LinkInjector {
   }
 
   private static injectLink(link: CustomLink): void {
-    link.conditions.forEach(condition => {
-      if (condition.type === 'xpath_match') {
-        const element = document.evaluate(condition.value, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as Element;
-        console.log("Found element to inject to: ", element)
-        if (element && !element.hasAttribute('data-linkem-injected')) {
-          this.applyLinkToElement(element, link);
-          element.setAttribute('data-linkem-injected', 'true');
-        }
-      }
-    });
+    // Get the element to inject the link into
+    const inElement = document.evaluate(
+      link.location.onXPath,
+      document,
+      null, XPathResult.FIRST_ORDERED_NODE_TYPE,
+      null
+    ).singleNodeValue as Element;
+    if (!inElement || inElement.hasAttribute('data-linkem-injected')) return;
+    this.applyLinkToElement(link, inElement);
+    inElement.setAttribute('data-linkem-injected', 'true');
   }
 
-  private static applyLinkToElement(element: Element, link: CustomLink): void {
+  private static applyLinkToElement(link: CustomLink, element: Element): void {
     const text = element.textContent || '';
-    const href = link.hrefPathFormat.replace('{text_value}', encodeURIComponent(text));
+    const href = formatLinkHref(link, text);
 
-    console.log("Applying link...", link.position)
-    if (link.position === 'on_text') {
+    if (link.location.position === 'on_text') {
       const a = document.createElement('a');
       a.href = href;
       a.textContent = text;
       a.target = '_blank';
       element.textContent = '';
       element.appendChild(a);
-    } else if (link.position === 'next_to_text') {
+    } else if (link.location.position === 'next_to_text') {
       const a = document.createElement('a');
       a.href = href;
-      a.textContent = link.displayName || link.name;
+      a.textContent = link.location.displayName || link.name;
       a.target = '_blank';
       a.style.marginLeft = '5px';
       element.appendChild(a);

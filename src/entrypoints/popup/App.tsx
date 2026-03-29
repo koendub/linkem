@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { CustomLink } from '../../general/models';
-import { LinksStorage } from '../../general/storage';
+import { CustomLink } from '../../models';
+import { LinksStorage } from '../../utils/storage';
 import './App.css';
 
 const App: React.FC = () => {
