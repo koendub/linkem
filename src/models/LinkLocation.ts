@@ -10,7 +10,7 @@ export interface LinkLocation {
    * This can be literal text, but more likely is a regex expression, like "[0-9]{4}".
    * If this is undefined, we consider the whole content of the XPath element to be selected.
    */
-  onSelectedTextRe?: string;
+  onSelectedTextRegex?: string;
 
   /**
    * The position where the link should be displayed. In the case of 'on_text', the link is

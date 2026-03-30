@@ -45,7 +45,6 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                 value={linkObj.name}
                 onChange={(e) => setLinkObj({ ...linkObj, name: e.target.value })}
                 placeholder="Enter link name"
-                className='w-full'
               />
             </div>
             <div>
@@ -54,7 +53,6 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                 value={linkObj.hrefPathFormat}
                 onChange={(e) => setLinkObj({ ...linkObj, hrefPathFormat: e.target.value })}
                 placeholder="https://example.com/search/{text-value}"
-                className='w-full'
               />
               <small className="text-gray-500 text-xs mt-2 block">
                 Use <span className="bg-blue-100 px-2 py-1 rounded font-mono text-blue-700">{`{text-value}`}</span> to insert the selected text.
@@ -62,6 +60,30 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
             </div>
           </div>
           <Accordion.Root multiple className="space-y-3">
+
+            {/* Sharing Accordion */}
+            <Accordion.Item value="sharing" className="border border-gray-300 rounded-lg bg-white">
+              <Accordion.Header>
+                <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
+                  Sharing
+                  <ChevronDown className="w-5 h-5 transition-transform duration-200" />
+                </Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel className="smooth-accordion-panel">
+                <div className="px-4 py-3 space-y-3">
+                  <div>
+                    <label>Visibility</label>
+                    <select
+                      value={linkObj.visibility}
+                      onChange={(e) => setLinkObj({ ...linkObj, visibility: e.target.value as any })}
+                    >
+                      <option value="private">Private</option>
+                      <option value="public">Public</option>
+                    </select>
+                  </div>
+                </div>
+              </Accordion.Panel>
+            </Accordion.Item>
 
             {/* Link Location Accordion */}
             <Accordion.Item value="location" className="border border-gray-300 rounded-lg bg-white">
@@ -87,13 +109,29 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                   {linkObj.location.position === 'next_to_text' && (
                     <div>
                       <label>Display Name</label>
-                        <input
-                          value={linkObj.location.displayName}
-                          onChange={(e) => setLinkObj({ ...linkObj, location: { ...linkObj.location, displayName: e.target.value } })}
-                          placeholder="Enter display name"
-                        />
+                      <input
+                        value={linkObj.location.displayName}
+                        onChange={(e) => setLinkObj({ ...linkObj, location: { ...linkObj.location, displayName: e.target.value } })}
+                        placeholder="Enter display name"
+                      />
                     </div>
                   )}
+                  <div>
+                    <label>On Element XPath</label>
+                    <input
+                      value={linkObj.location.onXPath}
+                      onChange={(e) => setLinkObj({ ...linkObj, location: { ...linkObj.location, onXPath: e.target.value } })}
+                      placeholder="Enter display name"
+                    />
+                  </div>
+                  <div>
+                    <label>On Text Regex</label>
+                    <input
+                      value={linkObj.location.onSelectedTextRegex}
+                      onChange={(e) => setLinkObj({ ...linkObj, location: { ...linkObj.location, onSelectedTextRegex: e.target.value } })}
+                      placeholder="Enter display name"
+                    />
+                  </div>
                 </div>
               </Accordion.Panel>
             </Accordion.Item>
@@ -108,6 +146,7 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
               </Accordion.Header>
               <Accordion.Panel className="smooth-accordion-panel">
                 <div className="px-4 py-3">
+                  <p className='text-sm text-gray-800 mb-1'>Add conditions. A custom link will only be shown if all its conditions are met.</p>
                   <div className="space-y-2">
                     {linkObj.conditions.map((cond, index) => (
                       <div key={index} className="flex flex-wrap gap-2 items-center p-2 bg-gray-50 border border-gray-200 rounded-lg">
@@ -147,34 +186,10 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
               </Accordion.Panel>
             </Accordion.Item>
 
-            {/* Sharing Accordion */}
-            <Accordion.Item value="sharing" className="border border-gray-300 rounded-lg bg-white">
-              <Accordion.Header>
-                <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
-                  Sharing
-                  <ChevronDown className="w-5 h-5 transition-transform duration-200" />
-                </Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel className="smooth-accordion-panel">
-                <div className="px-4 py-3 space-y-3">
-                  <div>
-                    <label>Visibility</label>
-                    <select
-                      value={linkObj.visibility}
-                      onChange={(e) => setLinkObj({ ...linkObj, visibility: e.target.value as any })}
-                    >
-                      <option value="private">Private</option>
-                      <option value="public">Public</option>
-                    </select>
-                  </div>
-                </div>
-              </Accordion.Panel>
-            </Accordion.Item>
-
           </Accordion.Root>
         </div>
       </div>
-      <div className="flex justify-end space-x-3 mt-1 pt-2 border-t border-gray-200">
+      <div className="flex justify-end space-x-3 mt-2 pt-2 border-t border-gray-200">
         <button
           onClick={onClose}
           className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg flex items-center transition-colors"

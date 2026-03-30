@@ -62,7 +62,7 @@ export class LinkInjector {
       ? (await SettingsStorage.getSettings()).defaultLinkPosition
       : link.location.position;
 
-    const pattern = link.location.onSelectedTextRe;
+    const pattern = link.location.onSelectedTextRegex;
 
     // If no pattern is provided, use the full text
     if (!pattern) {

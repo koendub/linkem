@@ -27,3 +27,7 @@ export function getXPath(element: Element): string {
   }
   return path.length ? '/' + path.join('/') : '';
 }
+
+export function getElementByXPath(xpath: string): Element | null {
+  return document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as Element
+}

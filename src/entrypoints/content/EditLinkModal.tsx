@@ -6,6 +6,70 @@ import { UnstoredLink } from '@/models';
 
 
 export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: () => void) {
+  const initialLinkData = createInitialLinkData(selectedText, url, xpath);
+
+  const modalContainer = createShadowRootContainer();
+  const root = ReactDOM.createRoot(modalContainer);
+
+  const handleClose = () => {
+    root.unmount();
+    document.body.removeChild(modalContainer);
+  };
+
+  root.render(
+    <React.StrictMode>
+      <div className='fixed top-0 left-0 w-full h-full bg-black/50 z-10000 flex items-center justify-center'>
+        <div className='w-2/3 h-2/3 rounded-lg overflow-hidden shadow-lg'>
+          <EditLinkView
+            link={initialLinkData}
+            onClose={handleClose}
+            onSave={onSave}
+          />
+        </div>
+      </div>
+    </React.StrictMode>
+  );
+}
+
+function createInitialLinkData(selectedText: string, url: string, xpath: string): UnstoredLink {
+  // Try to guess the most applicable regex for the selected text
+  let selectedTextRe = selectedText; 
+
+  // If the selected text is all the text within this element, just replace everything with .+
+  // Because the user probably just meant this element in the page, and doesn't care about the exact text
+  if (selectedText.trim().length > 0) {
+    const element = getElementByXPath(xpath);
+    if (element && element.textContent?.trim() === selectedText.trim()) {
+      selectedTextRe = '.+';
+    }
+  }
+
+  // Replace all sequences of digits with \d+
+  selectedTextRe = selectedTextRe.replace(/\d+/g, '\\d+');
+
+  return {
+    // Basic info
+    name: `Link to ${selectedText?.slice(0, 20) || ''}`,
+    creator: 'user',
+    visibility: 'private',
+    createdAt: new Date(),
+
+    // Link content
+    location: {
+      onXPath: xpath || '',
+      onSelectedTextRegex: selectedTextRe,
+      position: 'user_default',
+      displayName: '',
+    },
+    hrefPathFormat: '...',
+    conditions: [
+      { type: 'url_start', value: url?.split('?')[0] || '' },
+      { type: 'xpath_exists', value: xpath || '' }
+    ],
+  };
+}
+
+function createShadowRootContainer(): HTMLDivElement {
   // Create shadow root to isolate styles, also import the tailwind styles
   const shadowRootContainer = document.createElement('div');
   document.body.appendChild(shadowRootContainer);
@@ -19,57 +83,5 @@ export function showCreateLinkModal(selectedText: string, url: string, xpath: st
   const modalContainer = document.createElement('div');
   modalContainer.id = 'linkem-modal-container';
   shadowRoot.appendChild(modalContainer);
-
-  const root = ReactDOM.createRoot(modalContainer);
-
-  const handleClose = () => {
-    root.unmount();
-    document.body.removeChild(modalContainer);
-  };
-
-  const initialLinkData: UnstoredLink = {
-    // Basic info
-    name: `Link to ${selectedText?.slice(0, 20) || ''}`,
-    creator: 'user',
-    visibility: 'private',
-    createdAt: new Date(),
-
-    // Link content
-    location: {
-      onXPath: xpath || '',
-      onSelectedTextRe: selectedText || '',
-      position: 'user_default',
-      displayName: '',
-    },
-    hrefPathFormat: '...',
-    conditions: [
-      { type: 'url_start', value: url?.split('?')[0] || '' },
-      { type: 'xpath_exists', value: xpath || '' }
-    ],
-  };
-
-  root.render(
-    <React.StrictMode>
-      <div style={{
-        position: 'fixed',
-        top: '0',
-        left: '0',
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        zIndex: '10000',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div className='w-2/3 h-2/3 rounded-lg overflow-hidden shadow-lg'>
-          <EditLinkView
-            link={initialLinkData}
-            onClose={handleClose}
-            onSave={onSave}
-          />
-        </div>
-      </div>
-    </React.StrictMode>
-  );
+  return modalContainer;
 }
