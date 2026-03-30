@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { CustomLink, LinkCondition } from '../../models';
-import { EditLinkView } from '../../components/EditLinkView';
+import { CustomLink, LinkCondition } from '../../../models';
+import { EditLinkView } from '../../../components/EditLinkView';
 import { Edit, Trash2 } from 'lucide-react';
 
 interface LinksTabProps {
@@ -13,6 +13,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editingLink, setEditingLink] = useState<CustomLink | null>(null);
   const [currentUrl, setCurrentUrl] = useState<string>('');
+  const editPanelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -21,6 +22,21 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
       }
     });
   }, []);
+
+  // If there is a click anywhere outside the edit panel, close it
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const editPanel = editPanelRef.current;
+      if (editPanel && !editPanel.contains(event.target as Node)) {
+        setEditingLink(null);
+        onRefresh();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [onRefresh]);
 
   const checkUrlCondition = (condition: LinkCondition, url: string): boolean => {
     switch (condition.type) {
@@ -133,7 +149,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
       </div>
 
       {/* Sliding edit panel */}
-      <div className={`absolute inset-0 bg-white transition-transform duration-300 ease-in-out ${editingLink ? 'translate-x-0' : 'translate-x-full'}`}>
+      <div ref={editPanelRef} className={`absolute inset-0 bg-white transition-transform duration-300 ease-in-out ${editingLink ? 'translate-x-0' : 'translate-x-full'}`}>
         {editingLink && <EditLinkView link={editingLink} onClose={() => setEditingLink(null)} onSave={handleCloseEdit} />}
       </div>
     </div>

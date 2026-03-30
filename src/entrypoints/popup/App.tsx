@@ -3,9 +3,9 @@ import { Tabs } from '@base-ui/react/tabs';
 import { Link, Share, Settings } from 'lucide-react';
 import { CustomLink } from '../../models';
 import { LinksStorage } from '../../utils/storage';
-import LinksTab from './LinksTab';
-import ShareTab from './ShareTab';
-import SettingsTab from './SettingsTab';
+import LinksTab from './tabs/LinksTab';
+import ShareTab from './tabs/ShareTab';
+import SettingsTab from './tabs/SettingsTab';
 
 const App: React.FC = () => {
   const [links, setLinks] = useState<CustomLink[]>([]);

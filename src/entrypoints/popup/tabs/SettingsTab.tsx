@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { SettingsStorage } from '../../utils/storage';
+import { SettingsStorage } from '../../../utils/storage';
 import { Settings } from 'lucide-react';
 
 const SettingsTab: React.FC = () => {
