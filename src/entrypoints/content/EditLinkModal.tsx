@@ -62,11 +62,13 @@ export function showCreateLinkModal(selectedText: string, url: string, xpath: st
         alignItems: 'center',
         justifyContent: 'center'
       }}>
-        <EditLinkView
-          link={initialLinkData}
-          onClose={handleClose}
-          onSave={onSave}
-        />
+        <div className='w-2/3 h-2/3 rounded-lg overflow-hidden shadow-lg'>
+          <EditLinkView
+            link={initialLinkData}
+            onClose={handleClose}
+            onSave={onSave}
+          />
+        </div>
       </div>
     </React.StrictMode>
   );

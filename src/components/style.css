@@ -26,12 +26,13 @@
 }
 
 @layer base {
+  input:not([type]),
   input[type="text"],
   input[type="email"],
   input[type="password"],
   textarea,
   select {
-    @apply w-full px-4 py-2 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors;
+    @apply w-full px-4 py-2 bg-white border border-gray-600 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors;
   }
 
   select option {
@@ -48,14 +49,6 @@
 }
 
 @layer utilities {
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
   /* Button variants */
   .btn-primary {
     @apply px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg;
