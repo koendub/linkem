@@ -2,13 +2,13 @@ import { formatLinkHref } from '@/utils/href';
 import { CustomLink, LinkCondition } from '../../models';
 
 export class LinkInjector {
-  static injectLinks(links: CustomLink[]): void {
-    links.forEach(link => {
+  static async injectLinks(links: CustomLink[]): Promise<void> {
+    for (const link of links) {
       if (link.conditions.every(this.checkCondition)) {
         console.log("Conditions passed! Injecting link!")
-        this.injectLink(link);
+        await this.injectLink(link);
       }
-    });
+    };
   }
 
   private static checkCondition(condition: LinkCondition): boolean {
@@ -29,7 +29,7 @@ export class LinkInjector {
     }
   }
 
-  private static injectLink(link: CustomLink): void {
+  private static async injectLink(link: CustomLink): Promise<void> {
     // Get the element to inject the link into
     const inElement = document.evaluate(
       link.location.onXPath,
@@ -38,15 +38,18 @@ export class LinkInjector {
       null
     ).singleNodeValue as Element;
     if (!inElement || inElement.hasAttribute('data-linkem-injected')) return;
-    this.applyLinkToElement(link, inElement);
+    await this.applyLinkToElement(link, inElement);
     inElement.setAttribute('data-linkem-injected', 'true');
   }
 
-  private static applyLinkToElement(link: CustomLink, element: Element): void {
+  private static async applyLinkToElement(link: CustomLink, element: Element): Promise<void> {
     const text = element.textContent || '';
     const href = formatLinkHref(link, text);
 
-    const position = link.location.position === 'user_default' ? 'next_to_text' : link.location.position;
+    const position = link.location.position === 'user_default'
+      ? (await SettingsStorage.getSettings()).defaultLinkPosition
+      : link.location.position;
+
     if (position === 'on_text') {
       const a = document.createElement('a');
       a.href = href;

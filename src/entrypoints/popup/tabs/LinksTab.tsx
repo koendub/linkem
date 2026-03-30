@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { CustomLink, LinkCondition } from '../../../models';
 import { EditLinkView } from '../../../components/EditLinkView';
 import { Edit, Trash2 } from 'lucide-react';

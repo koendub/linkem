@@ -38,7 +38,7 @@ async function injectLinks() {
   try {
     console.log('Injecting links...')
     const links = await LinksStorage.getAllLinks();
-    LinkInjector.injectLinks(links);
+    await LinkInjector.injectLinks(links);
   } catch (error) {
     console.error('Failed to inject links:', error);
   }
