@@ -7,7 +7,7 @@ import { Accordion } from '@base-ui/react';
 import './style.css';
 
 interface EditLinkViewProps {
-  link?: CustomLink;
+  existingLink?: CustomLink;
   selectedText?: string;
   url?: string;
   xpath?: string;
@@ -15,63 +15,49 @@ interface EditLinkViewProps {
   onSave: () => void;
 }
 
-export function EditLinkView({ link, selectedText, url, xpath, onClose, onSave }: EditLinkViewProps) {
-  const [name, setName] = useState('');
-  const [position, setPosition] = useState<'on_text' | 'next_to_text' | 'user_default'>('user_default');
-  const [displayName, setDisplayName] = useState('');
-  const [hrefPathFormat, setHrefPathFormat] = useState('');
-  const [conditions, setConditions] = useState<LinkCondition[]>([]);
-  const [visibility, setVisibility] = useState<'private' | 'public'>('private');
+export function EditLinkView({ existingLink, selectedText, url, xpath, onClose, onSave }: EditLinkViewProps) {
+  const [linkObj, setLinkObj] = useState<Omit<CustomLink, 'id'>>({
+    // Basic info
+    name: '',
+    creator: 'user',
+    visibility: 'private',
+    createdAt: new Date(),
 
-  const isEditing = !!link;
+    // Link content
+    location: {
+      onXPath: '',
+      onSelectedTextRe: '',
+      position: 'user_default',
+      displayName: '',
+    },
+    hrefPathFormat: '',
+    conditions: [],
+  });
 
   useEffect(() => {
-    if (isEditing && link) {
-      setName(link.name);
-      setPosition(link.location.position);
-      setDisplayName(link.location.displayName || '');
-      setHrefPathFormat(link.hrefPathFormat);
-      setConditions(link.conditions);
-      setVisibility(link.visibility);
+    if (existingLink) {
+      setLinkObj({ ...existingLink });
     } else {
-      setName(`Link to ${selectedText?.slice(0, 20) || ''}`);
-      setHrefPathFormat('https://example.com/search/{text-value}');
-      setConditions([
-        { type: 'url_start', value: url?.split('?')[0] || '' },
-        { type: 'xpath_exists', value: xpath || '' }
-      ]);
+      setLinkObj({
+        ...linkObj,
+        name: `Link to ${selectedText?.slice(0, 20) || ''}`,
+        hrefPathFormat: 'https://example.com/search/{text-value}',
+        conditions: [
+          { type: 'url_start', value: url?.split('?')[0] || '' },
+          { type: 'xpath_exists', value: xpath || '' }
+        ],
+      });
     }
-  }, [link, selectedText, url, xpath, isEditing]);
+  }, [existingLink, selectedText, url, xpath]);
 
   const updateCondition = (index: number, condition: LinkCondition) => {
-    const newConditions = [...conditions];
+    const newConditions = [...linkObj.conditions];
     newConditions[index] = condition;
-    setConditions(newConditions);
+    setLinkObj({ ...linkObj, conditions: newConditions });
   };
 
   const handleSave = async () => {
-    if (isEditing && link) {
-      const updatedLink = { ...link, name, hrefPathFormat, conditions, visibility, location: { ...link.location, position, displayName: position === 'next_to_text' ? displayName : undefined } };
-      await LinksStorage.saveLink(updatedLink);
-    } else {
-      const location: LinkLocation = {
-        onXPath: xpath || '',
-        onSelectedTextRe: selectedText || '',
-        position,
-        displayName: position === 'next_to_text' ? displayName : undefined
-      }
-      const newLink: CustomLink = {
-        id: Date.now().toString(),
-        name,
-        creator: 'user',
-        visibility,
-        createdAt: new Date(),
-        location,
-        hrefPathFormat,
-        conditions,
-      };
-      await LinksStorage.saveLink(newLink);
-    }
+    await LinksStorage.saveLink(linkObj);
     onSave();
     onClose();
   };
@@ -81,15 +67,15 @@ export function EditLinkView({ link, selectedText, url, xpath, onClose, onSave }
       <div className="flex-1 overflow-y-auto pr-2">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
           <Link className="w-6 h-6 mr-3 text-blue-500" />
-          {isEditing ? 'Edit Link' : 'Create New Link'}
+          {existingLink ? 'Edit Link' : 'Create New Link'}
         </h2>
         <div className="space-y-6">
           <div className="space-y-4">
             <div>
               <label>Name</label>
               <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={linkObj.name}
+                onChange={(e) => setLinkObj({ ...linkObj, name: e.target.value })}
                 placeholder="Enter link name"
                 className='w-full'
               />
@@ -97,8 +83,8 @@ export function EditLinkView({ link, selectedText, url, xpath, onClose, onSave }
             <div>
               <label>Href Path Format</label>
               <input
-                value={hrefPathFormat}
-                onChange={(e) => setHrefPathFormat(e.target.value)}
+                value={linkObj.hrefPathFormat}
+                onChange={(e) => setLinkObj({ ...linkObj, hrefPathFormat: e.target.value })}
                 placeholder="https://example.com/search/{text-value}"
                 className='w-full'
               />
@@ -122,20 +108,20 @@ export function EditLinkView({ link, selectedText, url, xpath, onClose, onSave }
                   <div>
                     <label>Position</label>
                     <select
-                      value={position}
-                      onChange={(e) => setPosition(e.target.value as any)}
+                      value={linkObj.location.position}
+                      onChange={(e) => setLinkObj({ ...linkObj, location: { ...linkObj.location, position: e.target.value as any } })}
                     >
                       <option value="user_default">User Default</option>
                       <option value="on_text">On Text</option>
                       <option value="next_to_text">Next to Text</option>
                     </select>
                   </div>
-                  {position === 'next_to_text' && (
+                  {linkObj.location.position === 'next_to_text' && (
                     <div>
                       <label>Display Name</label>
                         <input
-                          value={displayName}
-                          onChange={(e) => setDisplayName(e.target.value)}
+                          value={linkObj.location.displayName}
+                          onChange={(e) => setLinkObj({ ...linkObj, location: { ...linkObj.location, displayName: e.target.value } })}
                           placeholder="Enter display name"
                         />
                     </div>
@@ -155,10 +141,10 @@ export function EditLinkView({ link, selectedText, url, xpath, onClose, onSave }
               <Accordion.Panel className="smooth-accordion-panel">
                 <div className="px-4 py-3">
                   <div className="space-y-2">
-                    {conditions.map((cond, index) => (
+                    {linkObj.conditions.map((cond, index) => (
                       <div key={index} className="flex flex-wrap gap-2 items-center p-2 bg-gray-50 border border-gray-200 rounded-lg">
                         <button
-                          onClick={() => setConditions(conditions.filter((_, i) => i !== index))}
+                          onClick={() => setLinkObj({ ...linkObj, conditions: linkObj.conditions.filter((_, i) => i !== index) })}
                           className="p-2 bg-red-500 hover:bg-red-600 rounded-lg text-white transition-colors flex items-center justify-center w-auto!"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -183,7 +169,7 @@ export function EditLinkView({ link, selectedText, url, xpath, onClose, onSave }
                     ))}
                   </div>
                   <button
-                    onClick={() => setConditions([...conditions, { type: 'url_start', value: '' }])}
+                    onClick={() => setLinkObj({ ...linkObj, conditions: [...linkObj.conditions, { type: 'url_start', value: '' }] })}
                     className="mt-3 px-4 py-1 mx-auto bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center transition-colors"
                   >
                     <Plus className="w-4 h-4 mr-1" />
@@ -206,8 +192,8 @@ export function EditLinkView({ link, selectedText, url, xpath, onClose, onSave }
                   <div>
                     <label>Visibility</label>
                     <select
-                      value={visibility}
-                      onChange={(e) => setVisibility(e.target.value as any)}
+                      value={linkObj.visibility}
+                      onChange={(e) => setLinkObj({ ...linkObj, visibility: e.target.value as any })}
                     >
                       <option value="private">Private</option>
                       <option value="public">Public</option>

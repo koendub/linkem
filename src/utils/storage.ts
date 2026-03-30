@@ -14,30 +14,28 @@ export class LinksStorage {
     }));
   }
 
-  static async saveLink(link: CustomLink): Promise<void> {
+  static async saveLink(link: CustomLink | Omit<CustomLink, 'id'>): Promise<CustomLink> {
     const links = await this.getAllLinks();
-    const existingIndex = links.findIndex(l => l.id === link.id);
-    if (existingIndex >= 0) {
+    let addedLink: CustomLink;
+    if ('id' in link && link.id) {
+      // Update existing link
+      const existingIndex = links.findIndex(l => l.id === link.id);
       links[existingIndex] = link;
+      addedLink = link as CustomLink;
     } else {
-      links.push(link);
+      // Add new link
+      const newLink = { ...link, id: crypto.randomUUID() };
+      links.push(newLink);
+      addedLink = newLink as CustomLink;
     }
     await browser.storage.local.set({ [this.STORAGE_KEY]: links });
+    return addedLink;
   }
 
   static async deleteLink(linkId: string): Promise<void> {
     const links = await this.getAllLinks();
     const filtered = links.filter(l => l.id !== linkId);
     await browser.storage.local.set({ [this.STORAGE_KEY]: filtered });
-  }
-
-  static async updateLink(linkId: string, updates: Partial<CustomLink>): Promise<void> {
-    const links = await this.getAllLinks();
-    const link = links.find(l => l.id === linkId);
-    if (link) {
-      Object.assign(link, updates);
-      await this.saveLink(link);
-    }
   }
 }
 

@@ -28,7 +28,7 @@ export default defineContentScript({
     // Listen for messages from background
     browser.runtime.onMessage.addListener((message) => {
       if (message.action === 'showCreateLinkModal') {
-        showCreateLinkModal(message.selectedText, message.url, lastXPath, () => injectLinks());
+        showCreateLinkModal(message.selectedText, message.url, lastXPath, async () => await injectLinks());
       }
     });
   },
