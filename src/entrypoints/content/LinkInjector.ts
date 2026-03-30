@@ -5,23 +5,19 @@ export class LinkInjector {
   static async injectLinks(links: CustomLink[]): Promise<void> {
     for (const link of links) {
       if (link.conditions.every(this.checkCondition)) {
-        console.log("Conditions passed! Injecting link!")
         await this.injectLink(link);
       }
     };
   }
 
   private static checkCondition(condition: LinkCondition): boolean {
-    console.log("Checking condition", condition.type);
     switch (condition.type) {
       case 'url_start':
-        console.log("Condition: does", window.location.href, "start with", condition.value);
         return window.location.href.startsWith(condition.value);
       case 'url_contains':
         return window.location.href.includes(condition.value);
       case 'xpath_exists':
-        console.log("Condition: xpath", condition.value, "is present")
-        return !!document.evaluate(condition.value, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        return !!getElementByXPath(condition.value);
       case 'value_match':
         return document.body.textContent?.includes(condition.value) || false;
       default:
@@ -31,12 +27,7 @@ export class LinkInjector {
 
   private static async injectLink(link: CustomLink): Promise<void> {
     // Get the element to inject the link into
-    const inElement = document.evaluate(
-      link.location.onXPath,
-      document,
-      null, XPathResult.FIRST_ORDERED_NODE_TYPE,
-      null
-    ).singleNodeValue as Element;
+    const inElement = getElementByXPath(link.location.onXPath);
     if (!inElement || inElement.hasAttribute('data-linkem-injected')) return;
     await this.applyLinkToElement(link, inElement);
     inElement.setAttribute('data-linkem-injected', 'true');

@@ -12,8 +12,6 @@ document.addEventListener('contextmenu', (event) => {
 export default defineContentScript({
   matches: ['*://*/*'],
   main() {
-    console.log('Link\'em content script loaded.');
-
     // Inject links when DOM is ready
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', injectLinks);
@@ -36,7 +34,6 @@ export default defineContentScript({
 
 async function injectLinks() {
   try {
-    console.log('Injecting links...')
     const links = await LinksStorage.getAllLinks();
     await LinkInjector.injectLinks(links);
   } catch (error) {

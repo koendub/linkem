@@ -1,7 +1,5 @@
 
 export default defineBackground(() => {
-  console.log('Link\'em background script loaded.');
-
   // Create context menu
   browser.contextMenus.create({
     id: 'create-link',
@@ -12,7 +10,6 @@ export default defineBackground(() => {
   // Handle context menu click
   browser.contextMenus.onClicked.addListener(async (info, tab) => {
     if (info.menuItemId === 'create-link' && info.selectionText && tab?.id) {
-      console.log(info)
       // Send message to content script to show create link modal
       browser.tabs.sendMessage(tab.id, {
         action: 'showCreateLinkModal',
