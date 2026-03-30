@@ -106,16 +106,15 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                       <option value="next_to_text">Next to Text</option>
                     </select>
                   </div>
-                  {linkObj.location.position === 'next_to_text' && (
-                    <div>
-                      <label>Display Name</label>
-                      <input
-                        value={linkObj.location.displayName}
-                        onChange={(e) => setLinkObj({ ...linkObj, location: { ...linkObj.location, displayName: e.target.value } })}
-                        placeholder="Enter display name"
-                      />
-                    </div>
-                  )}
+                  <div>
+                    <label className='p-0 m-0'>Display Name</label>
+                    <div className='text-xs text-gray-500 mb-1'>(for when position is 'Next to Text')</div>
+                    <input
+                      value={linkObj.location.displayName}
+                      onChange={(e) => setLinkObj({ ...linkObj, location: { ...linkObj.location, displayName: e.target.value } })}
+                      placeholder="Enter display name"
+                    />
+                  </div>
                   <div>
                     <label>On Element XPath</label>
                     <input
