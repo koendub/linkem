@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { EditLinkView } from '@/components/EditLinkView';
 import styleText from '../../components/style.css?inline';
+import { UnstoredLink } from '@/models';
 
 
 export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: () => void) {
@@ -26,6 +27,27 @@ export function showCreateLinkModal(selectedText: string, url: string, xpath: st
     document.body.removeChild(modalContainer);
   };
 
+  const initialLinkData: UnstoredLink = {
+    // Basic info
+    name: `Link to ${selectedText?.slice(0, 20) || ''}`,
+    creator: 'user',
+    visibility: 'private',
+    createdAt: new Date(),
+
+    // Link content
+    location: {
+      onXPath: xpath || '',
+      onSelectedTextRe: selectedText || '',
+      position: 'user_default',
+      displayName: '',
+    },
+    hrefPathFormat: '...',
+    conditions: [
+      { type: 'url_start', value: url?.split('?')[0] || '' },
+      { type: 'xpath_exists', value: xpath || '' }
+    ],
+  };
+
   root.render(
     <React.StrictMode>
       <div style={{
@@ -41,9 +63,7 @@ export function showCreateLinkModal(selectedText: string, url: string, xpath: st
         justifyContent: 'center'
       }}>
         <EditLinkView
-          selectedText={selectedText}
-          url={url}
-          xpath={xpath}
+          link={initialLinkData}
           onClose={handleClose}
           onSave={onSave}
         />

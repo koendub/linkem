@@ -14,3 +14,5 @@ export interface CustomLink {
   hrefPathFormat: string;
   conditions: LinkCondition[];
 }
+
+export type UnstoredLink = Omit<CustomLink, 'id'>;

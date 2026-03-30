@@ -1,54 +1,22 @@
 import { useState, useEffect } from 'react';
-import { CustomLink, LinkCondition } from '../models';
+import { CustomLink, LinkCondition, UnstoredLink } from '../models';
 import { LinksStorage } from '../utils/storage';
-import { LinkLocation } from '@/models/LinkLocation';
 import { Link, Plus, Trash2, X, Save, ChevronDown } from 'lucide-react';
 import { Accordion } from '@base-ui/react';
 import './style.css';
 
 interface EditLinkViewProps {
-  existingLink?: CustomLink;
-  selectedText?: string;
-  url?: string;
-  xpath?: string;
+  link: CustomLink | UnstoredLink;
   onClose: () => void;
   onSave: () => void;
 }
 
-export function EditLinkView({ existingLink, selectedText, url, xpath, onClose, onSave }: EditLinkViewProps) {
-  const [linkObj, setLinkObj] = useState<Omit<CustomLink, 'id'>>({
-    // Basic info
-    name: '',
-    creator: 'user',
-    visibility: 'private',
-    createdAt: new Date(),
-
-    // Link content
-    location: {
-      onXPath: '',
-      onSelectedTextRe: '',
-      position: 'user_default',
-      displayName: '',
-    },
-    hrefPathFormat: '',
-    conditions: [],
-  });
+export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
+  const [linkObj, setLinkObj] = useState<CustomLink | UnstoredLink>(link);
 
   useEffect(() => {
-    if (existingLink) {
-      setLinkObj({ ...existingLink });
-    } else {
-      setLinkObj({
-        ...linkObj,
-        name: `Link to ${selectedText?.slice(0, 20) || ''}`,
-        hrefPathFormat: 'https://example.com/search/{text-value}',
-        conditions: [
-          { type: 'url_start', value: url?.split('?')[0] || '' },
-          { type: 'xpath_exists', value: xpath || '' }
-        ],
-      });
-    }
-  }, [existingLink, selectedText, url, xpath]);
+    setLinkObj({ ...link });
+  }, [link]);
 
   const updateCondition = (index: number, condition: LinkCondition) => {
     const newConditions = [...linkObj.conditions];
@@ -67,7 +35,7 @@ export function EditLinkView({ existingLink, selectedText, url, xpath, onClose, 
       <div className="flex-1 overflow-y-auto pr-2">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
           <Link className="w-6 h-6 mr-3 text-blue-500" />
-          {existingLink ? 'Edit Link' : 'Create New Link'}
+          {'id' in linkObj ? 'Edit Link' : 'Create New Link'}
         </h2>
         <div className="space-y-6">
           <div className="space-y-4">

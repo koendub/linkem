@@ -20,15 +20,20 @@ export class LinksStorage {
     if ('id' in link && link.id) {
       // Update existing link
       const existingIndex = links.findIndex(l => l.id === link.id);
-      links[existingIndex] = link;
+      links[existingIndex] = link as CustomLink;
       addedLink = link as CustomLink;
     } else {
       // Add new link
       const newLink = { ...link, id: crypto.randomUUID() };
-      links.push(newLink);
+      links.push(newLink as CustomLink);
       addedLink = newLink as CustomLink;
     }
-    await browser.storage.local.set({ [this.STORAGE_KEY]: links });
+    // Convert dates back to strings before saving (JSON doesn't support Date objects)
+    const linksToSave = links.map(l => ({
+      ...l,
+      createdAt: l.createdAt instanceof Date ? l.createdAt.toISOString() : l.createdAt
+    }));
+    await browser.storage.local.set({ [this.STORAGE_KEY]: linksToSave });
     return addedLink;
   }
 
