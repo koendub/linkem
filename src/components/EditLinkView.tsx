@@ -152,36 +152,38 @@ export function EditLinkView({ link, selectedText, url, xpath, onClose, onSave }
               </Accordion.Trigger>
             </Accordion.Header>
             <Accordion.Panel className="smooth-accordion-panel">
-              <div className="px-4 py-3 space-y-3 flex flex-col items-center">
-                {conditions.map((cond, index) => (
-                  <div key={index} className="px-3 py-2 flex items-center space-x-3 w-full bg-gray-50 rounded-lg border border-gray-200">
-                    <select
-                      value={cond.type}
-                      onChange={(e) => updateCondition(index, { ...cond, type: e.target.value as any })}
-                      className="flex-1"
-                    >
-                      <option value="url_start">URL Starts With</option>
-                      <option value="url_contains">URL Contains</option>
-                      <option value="xpath_exists">XPath Exists</option>
-                      <option value="value_match">Value Match</option>
-                    </select>
-                    <input
-                      value={cond.value}
-                      onChange={(e) => updateCondition(index, { ...cond, value: e.target.value })}
-                      placeholder="Condition value"
-                      className="flex-1"
-                    />
-                    <button
-                      onClick={() => setConditions(conditions.filter((_, i) => i !== index))}
-                      className="p-2 bg-red-500 hover:bg-red-600 rounded-lg text-white transition-colors flex items-center justify-center"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                ))}
+              <div className="px-4 py-3">
+                <div className="space-y-2">
+                  {conditions.map((cond, index) => (
+                    <div key={index} className="flex flex-wrap gap-2 items-center p-2 bg-gray-50 border border-gray-200 rounded-lg">
+                      <button
+                        onClick={() => setConditions(conditions.filter((_, i) => i !== index))}
+                        className="p-2 bg-red-500 hover:bg-red-600 rounded-lg text-white transition-colors flex items-center justify-center w-auto!"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                      <select
+                        value={cond.type}
+                        onChange={(e) => updateCondition(index, { ...cond, type: e.target.value as any })}
+                        className="w-auto!"
+                      >
+                        <option value="url_start">URL Starts With</option>
+                        <option value="url_contains">URL Contains</option>
+                        <option value="xpath_exists">XPath Exists</option>
+                        <option value="value_match">Value Match</option>
+                      </select>
+                      <input
+                        value={cond.value}
+                        onChange={(e) => updateCondition(index, { ...cond, value: e.target.value })}
+                        placeholder="Condition value"
+                        className='flex-1'
+                      />
+                    </div>
+                  ))}
+                </div>
                 <button
                   onClick={() => setConditions([...conditions, { type: 'url_start', value: '' }])}
-                  className="mt-3 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center transition-colors"
+                  className="mt-3 px-4 py-1 mx-auto bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center transition-colors"
                 >
                   <Plus className="w-4 h-4 mr-1" />
                   Add Condition

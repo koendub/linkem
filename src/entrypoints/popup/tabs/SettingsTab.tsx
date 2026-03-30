@@ -4,7 +4,7 @@ import { Settings } from 'lucide-react';
 import { UserSettings } from '@/models/UserSettings';
 
 const SettingsTab: React.FC = () => {
-  const [settings, setSettings] = useState<UserSettings>({ defaultLinkPosition: 'next_to_text' });
+  const [settings, setSettings] = useState<UserSettings | null>(null);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -14,8 +14,14 @@ const SettingsTab: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    SettingsStorage.saveSettings({ ...settings });
+    if (settings) {
+      SettingsStorage.saveSettings({ ...settings });
+    }
   }, [settings]);
+
+  if (!settings) {
+    return <div className="p-5 h-full box-border">Loading...</div>;
+  }
 
   return (
     <div className="p-5 h-full box-border">
