@@ -96,8 +96,8 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                   <div>
                     <label>Position</label>
                     <select
-                      value={linkObj.location.position}
-                      onChange={(e) => setLinkObj({ ...linkObj, location: { ...linkObj.location, position: e.target.value as any } })}
+                      value={linkObj.position}
+                      onChange={(e) => setLinkObj({ ...linkObj, position: e.target.value as any })}
                     >
                       <option value="user_default">User Default</option>
                       <option value="on_text">On Text</option>
@@ -108,24 +108,24 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                     <label className='p-0 m-0'>Display Name</label>
                     <div className='text-xs text-gray-500 mb-1'>(for when position is 'Next to Text')</div>
                     <input
-                      value={linkObj.location.displayName}
-                      onChange={(e) => setLinkObj({ ...linkObj, location: { ...linkObj.location, displayName: e.target.value } })}
+                      value={linkObj.displayName}
+                      onChange={(e) => setLinkObj({ ...linkObj, displayName: e.target.value })}
                       placeholder="Enter display name"
                     />
                   </div>
                   <div>
                     <label>On Element XPath</label>
                     <input
-                      value={linkObj.location.onXPath}
-                      onChange={(e) => setLinkObj({ ...linkObj, location: { ...linkObj.location, onXPath: e.target.value } })}
+                      value={linkObj.onXPath}
+                      onChange={(e) => setLinkObj({ ...linkObj, onXPath: e.target.value })}
                       placeholder="Enter display name"
                     />
                   </div>
                   <div>
                     <label>On Text Regex</label>
                     <input
-                      value={linkObj.location.onSelectedTextRegex}
-                      onChange={(e) => setLinkObj({ ...linkObj, location: { ...linkObj.location, onSelectedTextRegex: e.target.value } })}
+                      value={linkObj.onSelectedTextRegex}
+                      onChange={(e) => setLinkObj({ ...linkObj, onSelectedTextRegex: e.target.value })}
                       placeholder="Enter display name"
                     />
                   </div>

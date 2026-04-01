@@ -54,18 +54,17 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
     visibility: 'private',
     createdAt: new Date(),
 
-    // Link content
-    location: {
-      onXPath: xpath || '',
-      onSelectedTextRegex: selectedTextRe,
-      position: 'user_default',
-      displayName: '',
-    },
-    hrefPathFormat: '...',
     conditions: [
       { type: 'url_start', value: url?.split('?')[0] || '' },
       { type: 'xpath_exists', value: xpath || '' }
     ],
+
+    // Link content
+    hrefPathFormat: '...',
+    onXPath: xpath || '',
+    onSelectedTextRegex: selectedTextRe,
+    position: 'user_default',
+    displayName: '',
   };
 }
 
