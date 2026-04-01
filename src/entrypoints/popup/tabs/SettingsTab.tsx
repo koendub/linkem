@@ -1,21 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { SettingsStorage } from '../../../utils/storage';
 import { Settings } from 'lucide-react';
 import { UserSettings } from '@/models/UserSettings';
+import { LocalSettingsStorage } from '@/utils/storage/local_settings_storage';
 
 const SettingsTab: React.FC = () => {
   const [settings, setSettings] = useState<UserSettings | null>(null);
 
   useEffect(() => {
     const loadSettings = async () => {
-      setSettings(await SettingsStorage.getSettings());
+      setSettings(await LocalSettingsStorage.getSettings());
     };
     loadSettings();
   }, []);
 
   useEffect(() => {
     if (settings) {
-      SettingsStorage.saveSettings({ ...settings });
+      LocalSettingsStorage.saveSettings({ ...settings });
     }
   }, [settings]);
 

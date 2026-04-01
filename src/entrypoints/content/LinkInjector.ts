@@ -1,5 +1,6 @@
 import { formatLinkHref } from '@/utils/href';
 import { CustomLink, LinkCondition } from '../../models';
+import { LocalSettingsStorage } from '@/utils/storage/local_settings_storage';
 
 export class LinkInjector {
   static async injectLinks(links: CustomLink[]): Promise<void> {
@@ -50,7 +51,7 @@ export class LinkInjector {
     const href = formatLinkHref(link, text);
 
     const position = link.location.position === 'user_default'
-      ? (await SettingsStorage.getSettings()).defaultLinkPosition
+      ? (await LocalSettingsStorage.getSettings()).defaultLinkPosition
       : link.location.position;
 
     const pattern = link.location.onSelectedTextRegex;

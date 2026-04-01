@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { EditLinkView } from '@/components/EditLinkView';
 import styleText from '../../components/style.css?inline';
-import { UnstoredLink } from '@/models';
+import { CustomLink, UnstoredLink } from '@/models';
 
 
-export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: () => void) {
+export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: (link: CustomLink | UnstoredLink) => void) {
   const initialLinkData = createInitialLinkData(selectedText, url, xpath);
 
   const modalContainer = createShadowRootContainer();

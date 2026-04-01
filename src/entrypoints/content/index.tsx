@@ -1,5 +1,5 @@
 import { getXPath } from '@/utils/xpath';
-import { LinksStorage } from '../../utils/storage';
+import { LocalLinksStorage } from '../../utils/storage/local_links_storage';
 import { LinkInjector } from './LinkInjector';
 import { showCreateLinkModal } from './EditLinkModal';
 
@@ -26,7 +26,10 @@ export default defineContentScript({
     // Listen for messages from background
     browser.runtime.onMessage.addListener((message) => {
       if (message.action === 'showCreateLinkModal') {
-        showCreateLinkModal(message.selectedText, message.url, lastXPath, async () => await injectLinks());
+        showCreateLinkModal(message.selectedText, message.url, lastXPath, async (link) => {
+          await LocalLinksStorage.saveLink(link);
+          await injectLinks()
+        });
       }
     });
   },
@@ -34,7 +37,7 @@ export default defineContentScript({
 
 async function injectLinks() {
   try {
-    const links = await LinksStorage.getAllLinks();
+    const links = await LocalLinksStorage.getAllLinks();
     await LinkInjector.injectLinks(links);
   } catch (error) {
     console.error('Failed to inject links:', error);

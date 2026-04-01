@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Tabs } from '@base-ui/react/tabs';
 import { Link, Share, Settings } from 'lucide-react';
 import { CustomLink } from '../../models';
-import { LinksStorage } from '../../utils/storage';
+import { LocalLinksStorage } from '../../utils/storage/local_links_storage';
 import LinksTab from './tabs/LinksTab';
 import ShareTab from './tabs/ShareTab';
 import SettingsTab from './tabs/SettingsTab';
@@ -16,14 +16,14 @@ const App: React.FC = () => {
   }, []);
 
   const loadLinks = async () => {
-    const allLinks = await LinksStorage.getAllLinks();
+    const allLinks = await LocalLinksStorage.getAllLinks();
     setLinks(allLinks);
   };
 
   
 
   const handleDelete = async (id: string) => {
-    await LinksStorage.deleteLink(id);
+    await LocalLinksStorage.deleteLink(id);
     loadLinks();
   };
 

@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { CustomLink, LinkCondition, UnstoredLink } from '../models';
-import { LinksStorage } from '../utils/storage';
 import { Link, Plus, Trash2, X, Save, ChevronDown } from 'lucide-react';
 import { Accordion } from '@base-ui/react';
 import './style.css';
 
 interface EditLinkViewProps {
   link: CustomLink | UnstoredLink;
+  onSave: (link: CustomLink | UnstoredLink) => void;
   onClose: () => void;
-  onSave: () => void;
 }
 
 export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
@@ -25,8 +24,7 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
   };
 
   const handleSave = async () => {
-    await LinksStorage.saveLink(linkObj);
-    onSave();
+    onSave(linkObj);
     onClose();
   };
 

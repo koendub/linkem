@@ -1,7 +1,8 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { CustomLink, LinkCondition } from '../../../models';
+import { CustomLink, LinkCondition, UnstoredLink } from '../../../models';
 import { EditLinkView } from '../../../components/EditLinkView';
 import { Edit, Trash2 } from 'lucide-react';
+import { LocalLinksStorage } from '@/utils/storage/local_links_storage';
 
 interface LinksTabProps {
   links: CustomLink[];
@@ -70,7 +71,8 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
     setEditingLink(link);
   };
 
-  const handleCloseEdit = () => {
+  const handleSaveEdit = async (link: CustomLink | UnstoredLink) => {
+    await LocalLinksStorage.saveLink(link);
     setEditingLink(null);
     onRefresh();
   };
@@ -150,7 +152,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
 
       {/* Sliding edit panel */}
       <div ref={editPanelRef} className={`absolute inset-0 bg-white transition-transform duration-300 ease-in-out ${editingLink ? 'translate-x-0' : 'translate-x-full'}`}>
-        {editingLink && <EditLinkView link={editingLink} onClose={() => setEditingLink(null)} onSave={handleCloseEdit} />}
+        {editingLink && <EditLinkView link={editingLink} onClose={() => setEditingLink(null)} onSave={handleSaveEdit} />}
       </div>
     </div>
   );
