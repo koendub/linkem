@@ -1,11 +1,11 @@
 import { formatLinkHref } from '@/utils/href';
-import { CustomLink, LinkCondition } from '../models';
+import { LinkWithConditions, Condition } from '@/types/supabase';
 import { LocalSettingsStorage } from '@/utils/storage/local_settings_storage';
 
 
-export async function injectLink(link: CustomLink): Promise<void> {
+export async function injectLink(link: LinkWithConditions): Promise<void> {
   if (!link.conditions.every(checkCondition)) return;
-  const inElement = getElementByXPath(link.onXPath);
+  const inElement = getElementByXPath(link.on_xpath);
   if (!inElement || inElement.hasAttribute('data-linkem-injected')) return;
   await applyLinkToElement(link, inElement);
   inElement.setAttribute('data-linkem-injected', 'true');
@@ -13,7 +13,7 @@ export async function injectLink(link: CustomLink): Promise<void> {
 
 /////////////////////////////////////////////////////////// Helper functions
 
-function checkCondition(condition: LinkCondition): boolean {
+function checkCondition(condition: Condition): boolean {
   switch (condition.type) {
     case 'url_start':
       return window.location.href.startsWith(condition.value);
@@ -40,15 +40,15 @@ function createLinkElement(href: string, text: string, marginLeft?: boolean): HT
   return a;
 }
 
-async function applyLinkToElement(link: CustomLink, element: Element): Promise<void> {
+async function applyLinkToElement(link: LinkWithConditions, element: Element): Promise<void> {
   const text = element.textContent || '';
   const href = formatLinkHref(link, text);
 
   const position = link.position === 'user_default'
-    ? (await LocalSettingsStorage.getSettings()).defaultLinkPosition
+    ? (await LocalSettingsStorage.getSettings()).default_link_position
     : link.position;
 
-  const pattern = link.onSelectedTextRegex;
+  const pattern = link.on_selected_text_regex;
 
   // If no pattern is provided, use the full text
   if (!pattern) {
@@ -56,7 +56,7 @@ async function applyLinkToElement(link: CustomLink, element: Element): Promise<v
       element.textContent = '';
       element.appendChild(createLinkElement(href, text));
     } else if (position === 'next_to_text') {
-      element.appendChild(createLinkElement(href, link.displayName || link.name, true));
+      element.appendChild(createLinkElement(href, link.display_name || link.name, true));
     }
     return;
   }
@@ -67,7 +67,7 @@ async function applyLinkToElement(link: CustomLink, element: Element): Promise<v
 
   if (!match) {
     // No match found, append the link at the end
-    element.appendChild(createLinkElement(href, link.displayName || link.name, true));
+    element.appendChild(createLinkElement(href, link.display_name || link.name, true));
     return;
   }
 
@@ -90,7 +90,7 @@ async function applyLinkToElement(link: CustomLink, element: Element): Promise<v
     element.appendChild(document.createTextNode(matchedText));
 
     // Add the link after the matched text
-    element.appendChild(createLinkElement(href, link.displayName || link.name, true));
+    element.appendChild(createLinkElement(href, link.display_name || link.name, true));
   }
 
   // Add the remaining unrelated text after the match

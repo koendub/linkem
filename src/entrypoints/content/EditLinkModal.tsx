@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { EditLinkView } from '@/components/EditLinkView';
 import styleText from '../../components/style.css?inline';
-import { CustomLink, UnstoredLink } from '@/models';
+import { LinkWithConditions, UnstoredLinkWithConditions } from '@/types';
 
 
-export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: (link: CustomLink | UnstoredLink) => void) {
+export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: (link: LinkWithConditions | UnstoredLinkWithConditions) => void) {
   const initialLinkData = createInitialLinkData(selectedText, url, xpath);
 
   const modalContainer = createShadowRootContainer();
@@ -31,7 +31,7 @@ export function showCreateLinkModal(selectedText: string, url: string, xpath: st
   );
 }
 
-function createInitialLinkData(selectedText: string, url: string, xpath: string): UnstoredLink {
+function createInitialLinkData(selectedText: string, url: string, xpath: string): UnstoredLinkWithConditions {
   // Try to guess the most applicable regex for the selected text
   let selectedTextRe = selectedText; 
 
@@ -50,21 +50,20 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
   return {
     // Basic info
     name: `Link to ${selectedText?.slice(0, 20) || ''}`,
-    creator: 'user',
     visibility: 'private',
-    createdAt: new Date(),
+    icon: null,
 
     conditions: [
-      { type: 'url_start', value: url?.split('?')[0] || '' },
-      { type: 'xpath_exists', value: xpath || '' }
+      { id: '', link_id: '', type: 'url_start', value: url?.split('?')[0] || '', created_at: '' },
+      { id: '', link_id: '', type: 'xpath_exists', value: xpath || '', created_at: '' }
     ],
 
     // Link content
-    hrefPathFormat: '...',
-    onXPath: xpath || '',
-    onSelectedTextRegex: selectedTextRe,
+    href_path_format: '...',
+    on_xpath: xpath || '',
+    on_selected_text_regex: selectedTextRe,
     position: 'user_default',
-    displayName: '',
+    display_name: '',
   };
 }
 

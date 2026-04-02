@@ -1,18 +1,18 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { CustomLink, LinkCondition, UnstoredLink } from '../../../models';
+import { LinkWithConditions, Condition, UnstoredLinkWithConditions } from '@/types';
 import { EditLinkView } from '../../../components/EditLinkView';
 import { Edit, Trash2 } from 'lucide-react';
 import { LocalLinksStorage } from '@/utils/storage/local_links_storage';
 
 interface LinksTabProps {
-  links: CustomLink[];
+  links: LinkWithConditions[];
   onDelete: (id: string) => void;
   onRefresh: () => void;
 }
 
 const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [editingLink, setEditingLink] = useState<CustomLink | null>(null);
+  const [editingLink, setEditingLink] = useState<LinkWithConditions | null>(null);
   const [currentUrl, setCurrentUrl] = useState<string>('');
   const editPanelRef = useRef<HTMLDivElement | null>(null);
 
@@ -39,7 +39,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
     };
   }, [onRefresh]);
 
-  const checkUrlCondition = (condition: LinkCondition, url: string): boolean => {
+  const checkUrlCondition = (condition: Condition, url: string): boolean => {
     switch (condition.type) {
       case 'url_start':
         return url.startsWith(condition.value);
@@ -54,7 +54,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
     }
   };
 
-  const doesLinkApplyToUrl = (link: CustomLink, url: string): boolean => {
+  const doesLinkApplyToUrl = (link: LinkWithConditions, url: string): boolean => {
     return link.conditions.every(condition => checkUrlCondition(condition, url));
   };
 
@@ -67,11 +67,11 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
     return { currentPageLinks, otherLinks };
   }, [links, searchTerm, currentUrl]);
 
-  const handleEdit = (link: CustomLink) => {
+  const handleEdit = (link: LinkWithConditions) => {
     setEditingLink(link);
   };
 
-  const handleSaveEdit = async (link: CustomLink | UnstoredLink) => {
+  const handleSaveEdit = async (link: LinkWithConditions | UnstoredLinkWithConditions) => {
     await LocalLinksStorage.saveLink(link);
     setEditingLink(null);
     onRefresh();
@@ -102,7 +102,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
                   <div className="flex justify-between items-center">
                     <div className="flex-1">
                       <div className="font-semibold text-sm text-gray-900 mb-1">{link.name}</div>
-                      <div className="text-xs text-gray-500">{link.hrefPathFormat}</div>
+                      <div className="text-xs text-gray-500">{link.href_path_format}</div>
                     </div>
                     <div className="flex gap-1">
                       <button onClick={() => handleEdit(link)} className="p-1.5 border-none rounded bg-blue-500 text-white cursor-pointer flex items-center justify-center transition-colors duration-200 hover:bg-blue-600">
@@ -127,7 +127,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
                   <div className="flex justify-between items-center">
                     <div className="flex-1">
                       <div className="font-semibold text-sm text-gray-900 mb-1">{link.name}</div>
-                      <div className="text-xs text-gray-500">{link.hrefPathFormat}</div>
+                      <div className="text-xs text-gray-500">{link.href_path_format}</div>
                     </div>
                     <div className="flex gap-1">
                       <button onClick={() => handleEdit(link)} className="p-1.5 border-none rounded bg-blue-500 text-white cursor-pointer flex items-center justify-center transition-colors duration-200 hover:bg-blue-600">

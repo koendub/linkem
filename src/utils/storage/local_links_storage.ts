@@ -1,38 +1,36 @@
-import { CustomLink } from '../../models';
+import { Link, Condition, LinkWithConditions, UnstoredLinkWithConditions } from '@/types';
 
 export class LocalLinksStorage {
   private static readonly STORAGE_KEY = 'linkem_links';
 
-  static async getAllLinks(): Promise<CustomLink[]> {
+  static async getAllLinks(): Promise<LinkWithConditions[]> {
     const result = await browser.storage.local.get(this.STORAGE_KEY);
     // @ts-ignore
-    const links: CustomLink[] = result[this.STORAGE_KEY] || [];
-    return links.map((link: CustomLink) => ({
-      ...link,
-      createdAt: new Date(link.createdAt)
-    }));
+    const links: LinkWithConditions[] = result[this.STORAGE_KEY] || [];
+    return links;
   }
 
-  static async saveLink(link: CustomLink | Omit<CustomLink, 'id'>): Promise<CustomLink> {
+  static async saveLink(link: LinkWithConditions | UnstoredLinkWithConditions): Promise<LinkWithConditions> {
     const links = await this.getAllLinks();
-    let addedLink: CustomLink;
+    let addedLink: LinkWithConditions;
     if ('id' in link && link.id) {
       // Update existing link
       const existingIndex = links.findIndex(l => l.id === link.id);
-      links[existingIndex] = link as CustomLink;
-      addedLink = link as CustomLink;
+      links[existingIndex] = link as LinkWithConditions;
+      addedLink = link as LinkWithConditions;
     } else {
       // Add new link
-      const newLink = { ...link, id: crypto.randomUUID() };
-      links.push(newLink as CustomLink);
-      addedLink = newLink as CustomLink;
+      const newLink = {
+        ...link,
+        id: crypto.randomUUID(),
+        user_id: 'local-user', // placeholder for local storage
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+      links.push(newLink as LinkWithConditions);
+      addedLink = newLink as LinkWithConditions;
     }
-    // Convert dates back to strings before saving (JSON doesn't support Date objects)
-    const linksToSave = links.map(l => ({
-      ...l,
-      createdAt: l.createdAt instanceof Date ? l.createdAt.toISOString() : l.createdAt
-    }));
-    await browser.storage.local.set({ [this.STORAGE_KEY]: linksToSave });
+    await browser.storage.local.set({ [this.STORAGE_KEY]: links });
     return addedLink;
   }
 

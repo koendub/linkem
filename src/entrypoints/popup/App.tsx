@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs } from '@base-ui/react/tabs';
 import { Link, Share, Settings } from 'lucide-react';
-import { CustomLink } from '../../models';
+import { LinkWithConditions } from '@/types/supabase';
 import { LocalLinksStorage } from '../../utils/storage/local_links_storage';
 import LinksTab from './tabs/LinksTab';
 import ShareTab from './tabs/ShareTab';
 import SettingsTab from './tabs/SettingsTab';
 
 const App: React.FC = () => {
-  const [links, setLinks] = useState<CustomLink[]>([]);
+  const [links, setLinks] = useState<LinkWithConditions[]>([]);
   const [currentUrl, setCurrentUrl] = useState<string>('');
 
   useEffect(() => {

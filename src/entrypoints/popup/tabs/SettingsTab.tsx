@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Settings } from 'lucide-react';
-import { UserSettings } from '@/models/UserSettings';
+import { UserSettings } from '@/types/supabase';
 import { LocalSettingsStorage } from '@/utils/storage/local_settings_storage';
 
 const SettingsTab: React.FC = () => {
@@ -15,7 +15,7 @@ const SettingsTab: React.FC = () => {
 
   useEffect(() => {
     if (settings) {
-      LocalSettingsStorage.saveSettings({ ...settings });
+      LocalSettingsStorage.saveSettings(settings);
     }
   }, [settings]);
 
@@ -34,12 +34,12 @@ const SettingsTab: React.FC = () => {
           Default Link Display Position
         </label>
         <div className="flex flex-col gap-2">
-          <label className={`flex items-center p-2 border border-gray-300 rounded-md cursor-pointer transition-colors duration-200 ${settings.defaultLinkPosition === 'on_text' ? 'bg-blue-50' : 'bg-white'}`}>
+          <label className={`flex items-center p-2 border border-gray-300 rounded-md cursor-pointer transition-colors duration-200 ${settings.default_link_position === 'on_text' ? 'bg-blue-50' : 'bg-white'}`}>
             <input
               type="radio"
               value="on_text"
-              checked={settings.defaultLinkPosition === 'on_text'}
-              onChange={() => setSettings({ ...settings, defaultLinkPosition: 'on_text' })}
+              checked={settings.default_link_position === 'on_text'}
+              onChange={() => setSettings({ ...settings, default_link_position: 'on_text' })}
               className="mr-2"
             />
             <div>
@@ -47,12 +47,12 @@ const SettingsTab: React.FC = () => {
               <div className="text-xs text-gray-500">Replaces selected text with link</div>
             </div>
           </label>
-          <label className={`flex items-center p-2 border border-gray-300 rounded-md cursor-pointer transition-colors duration-200 ${settings.defaultLinkPosition === 'next_to_text' ? 'bg-blue-50' : 'bg-white'}`}>
+          <label className={`flex items-center p-2 border border-gray-300 rounded-md cursor-pointer transition-colors duration-200 ${settings.default_link_position === 'next_to_text' ? 'bg-blue-50' : 'bg-white'}`}>
             <input
               type="radio"
               value="next_to_text"
-              checked={settings.defaultLinkPosition === 'next_to_text'}
-              onChange={() => setSettings({ ...settings, defaultLinkPosition: 'next_to_text' })}
+              checked={settings.default_link_position === 'next_to_text'}
+              onChange={() => setSettings({ ...settings, default_link_position: 'next_to_text' })}
               className="mr-2"
             />
             <div>

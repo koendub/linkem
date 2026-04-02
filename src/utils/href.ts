@@ -1,4 +1,4 @@
-import { CustomLink } from "@/models";
+import { Link } from "@/types/supabase";
 
 class CustomHrefFormatException extends Error {
   constructor(errorInSection: string, msg: string) {
@@ -20,7 +20,7 @@ const regexFor = (name: string) => new RegExp(String.raw`{${name}(:[^}]*?)?}`, '
 const hrefReplacers = [
   {
     name: "text-value",
-    func: (selectedText: string, _: string | null) => selectedText
+    func: (selectedText: string, _args: string | null) => selectedText
   },
   {
     name: "url-part-after",
@@ -60,7 +60,7 @@ const hrefReplacers = [
  * @param selectedText The currently selected text on the page, which can be used in the formatting
  * @returns The formatted href without placeholders.
  */
-export function formatLinkHref(link: CustomLink, selectedText: string) {
+export function formatLinkHref(link: Link, selectedText: string) {
   return hrefReplacers.reduce((curr, replacer) => {
     try {
       return curr.replace(
@@ -70,5 +70,5 @@ export function formatLinkHref(link: CustomLink, selectedText: string) {
     } catch(e: any) {
       throw new CustomHrefFormatException(replacer.name, e.message);
     }
-  }, link.hrefPathFormat);
+  }, link.href_path_format);
 }

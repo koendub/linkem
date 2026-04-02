@@ -1,23 +1,23 @@
 import { useState, useEffect } from 'react';
-import { CustomLink, LinkCondition, UnstoredLink } from '../models';
+import { LinkWithConditions, UnstoredLinkWithConditions, Condition } from '@/types';
 import { Link, Plus, Trash2, X, Save, ChevronDown } from 'lucide-react';
 import { Accordion } from '@base-ui/react';
 import './style.css';
 
 interface EditLinkViewProps {
-  link: CustomLink | UnstoredLink;
-  onSave: (link: CustomLink | UnstoredLink) => void;
+  link: LinkWithConditions | UnstoredLinkWithConditions;
+  onSave: (link: LinkWithConditions | UnstoredLinkWithConditions) => void;
   onClose: () => void;
 }
 
 export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
-  const [linkObj, setLinkObj] = useState<CustomLink | UnstoredLink>(link);
+  const [linkObj, setLinkObj] = useState<LinkWithConditions | UnstoredLinkWithConditions>(link);
 
   useEffect(() => {
     setLinkObj({ ...link });
   }, [link]);
 
-  const updateCondition = (index: number, condition: LinkCondition) => {
+  const updateCondition = (index: number, condition: Condition) => {
     const newConditions = [...linkObj.conditions];
     newConditions[index] = condition;
     setLinkObj({ ...linkObj, conditions: newConditions });
@@ -48,8 +48,8 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
             <div>
               <label>Href Path Format</label>
               <input
-                value={linkObj.hrefPathFormat}
-                onChange={(e) => setLinkObj({ ...linkObj, hrefPathFormat: e.target.value })}
+                value={linkObj.href_path_format}
+                onChange={(e) => setLinkObj({ ...linkObj, href_path_format: e.target.value })}
                 placeholder="https://example.com/search/{text-value}"
               />
               <small className="text-gray-500 text-xs mt-2 block">
@@ -108,24 +108,24 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                     <label className='p-0 m-0'>Display Name</label>
                     <div className='text-xs text-gray-500 mb-1'>(for when position is 'Next to Text')</div>
                     <input
-                      value={linkObj.displayName}
-                      onChange={(e) => setLinkObj({ ...linkObj, displayName: e.target.value })}
+                      value={linkObj.display_name || ''}
+                      onChange={(e) => setLinkObj({ ...linkObj, display_name: e.target.value })}
                       placeholder="Enter display name"
                     />
                   </div>
                   <div>
                     <label>On Element XPath</label>
                     <input
-                      value={linkObj.onXPath}
-                      onChange={(e) => setLinkObj({ ...linkObj, onXPath: e.target.value })}
+                      value={linkObj.on_xpath}
+                      onChange={(e) => setLinkObj({ ...linkObj, on_xpath: e.target.value })}
                       placeholder="Enter display name"
                     />
                   </div>
                   <div>
                     <label>On Text Regex</label>
                     <input
-                      value={linkObj.onSelectedTextRegex}
-                      onChange={(e) => setLinkObj({ ...linkObj, onSelectedTextRegex: e.target.value })}
+                      value={linkObj.on_selected_text_regex || ''}
+                      onChange={(e) => setLinkObj({ ...linkObj, on_selected_text_regex: e.target.value })}
                       placeholder="Enter display name"
                     />
                   </div>
@@ -173,7 +173,7 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                     ))}
                   </div>
                   <button
-                    onClick={() => setLinkObj({ ...linkObj, conditions: [...linkObj.conditions, { type: 'url_start', value: '' }] })}
+                    onClick={() => setLinkObj({ ...linkObj, conditions: [...linkObj.conditions, { id: '', link_id: '', type: 'url_start', value: '', created_at: new Date().toISOString() }] })}
                     className="mt-3 px-4 py-1 mx-auto bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center transition-colors"
                   >
                     <Plus className="w-4 h-4 mr-1" />
