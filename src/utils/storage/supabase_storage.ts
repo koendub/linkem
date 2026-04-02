@@ -79,7 +79,7 @@ export class SupabaseStorage {
     }
 
     // Group conditions by link_id
-    const conditionsByLinkId = (conditions || []).reduce((acc: Record<string, Condition[]>, cond) => {
+    const conditionsByLinkId = (conditions as Condition[] || []).reduce((acc: Record<string, Condition[]>, cond) => {
       if (!acc[cond.link_id]) {
         acc[cond.link_id] = []
       }

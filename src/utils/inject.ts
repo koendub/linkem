@@ -3,41 +3,63 @@ import { LinkWithConditions, Condition } from '@/types';
 import { LocalSettingsStorage } from '@/utils/storage/local_settings_storage';
 
 
-export async function injectLink(link: LinkWithConditions): Promise<void> {
-  if (!link.conditions.every(checkCondition)) return;
-  const inElement = getElementByXPath(link.on_xpath);
-  if (!inElement || inElement.hasAttribute('data-linkem-injected')) return;
-  await applyLinkToElement(link, inElement);
-  inElement.setAttribute('data-linkem-injected', 'true');
-}
+/////////////////////////////////////////////////////////// Checking link applicability
 
-/////////////////////////////////////////////////////////// Helper functions
-
-function checkCondition(condition: Condition): boolean {
-  switch (condition.type) {
-    case 'url_start':
-      return window.location.href.startsWith(condition.value);
-    case 'url_contains':
-      return window.location.href.includes(condition.value);
-    case 'xpath_exists':
-      return !!getElementByXPath(condition.value);
-    case 'value_match':
-      return document.body.textContent?.includes(condition.value) || false;
-    default:
-      return false;
+const conditionDetails = {
+  'url_start': {
+    check: (c: Condition) => window.location.href.startsWith(c.value),
+    explanation: (c: Condition) => `URL does not start with "${c.value}".`
+  },
+  'url_contains': {
+    check: (c: Condition) => window.location.href.includes(c.value),
+    explanation: (c: Condition) => `URL does not contain "${c.value}".`
+  },
+  'xpath_exists': {
+    check: (c: Condition) => !!getElementByXPath(c.value),
+    explanation: (c: Condition) => `No element matches the XPath "${c.value}".`
+  },
+  'value_match': {
+    check: (c: Condition) => document.body.textContent?.includes(c.value) || false,
+    explanation: (c: Condition) => `The page does not contain the text "${c.value}".`
   }
 }
 
-function createLinkElement(href: string, text: string, marginLeft?: boolean): HTMLAnchorElement {
-  const a = document.createElement('a');
-  a.href = href;
-  a.textContent = text;
-  a.target = '_blank';
-  a.style.color = '#5607f5';
-  if (marginLeft) {
-    a.style.marginLeft = '5px';
+export function getLinksForHostMap(allLinks: LinkWithConditions[]): Map<string, LinkWithConditions[]> {
+  function getLinkHost(link: LinkWithConditions): string {
+    const hostConditions = link.conditions.filter(c => c.type === 'url_start');
+    if (hostConditions.length === 0) return '*';
+    if (hostConditions.length > 1) {
+      console.warn(`Link ${link.id} has multiple url_start conditions, which should not happen.`);
+    }
+    const smallest = hostConditions.reduce((sm, cur) => {
+      return cur.value.length < sm.value.length ? cur : sm;
+    }, link.conditions[0]);
+    return new URL(smallest.value).host;
   }
-  return a;
+
+  const map = new Map<string, LinkWithConditions[]>();
+  allLinks.forEach(link => {
+    const host = getLinkHost(link);
+    if (!map.has(host)) map.set(host, []);
+    map.get(host)!.push(link);
+  });
+  return map;
+}
+
+export function getFailingConditions(conditions: Condition[]): string[] {
+  const failing = conditions.filter(c => !conditionDetails[c.type]!.check(c));
+  return failing.map(c => conditionDetails[c.type]!.explanation(c));
+}
+
+/////////////////////////////////////////////////////////// Inserting links into the page
+
+export async function injectMatchingLinks(links: LinkWithConditions[]): Promise<void> {
+  for (const link of links) {
+    if (link.conditions.every(c => conditionDetails[c.type]!.check(c))) {
+      const inElement = getElementByXPath(link.on_xpath);
+      if (inElement) await applyLinkToElement(link, inElement);
+    }
+  }
 }
 
 async function applyLinkToElement(link: LinkWithConditions, element: Element): Promise<void> {
@@ -49,14 +71,22 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
     : link.position;
 
   const pattern = link.on_selected_text_regex;
+  
+  // Check if the link is already injected in this element, if so, dont inject it again
+  const linksInElement = element.getElementsByClassName('linkem-injected-link');
+  for (const existingLink of linksInElement) {
+    if (existingLink.classList.contains('link-' + link.id)) {
+      return;
+    }
+  }
 
   // If no pattern is provided, use the full text
   if (!pattern) {
     if (position === 'on_text') {
       element.textContent = '';
-      element.appendChild(createLinkElement(href, text));
+      element.appendChild(createNewLinkElement(link.id, href, text));
     } else if (position === 'next_to_text') {
-      element.appendChild(createLinkElement(href, link.display_name || link.name, true));
+      element.appendChild(createNewLinkElement(link.id, href, link.display_name || link.name, true));
     }
     return;
   }
@@ -67,7 +97,7 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
 
   if (!match) {
     // No match found, append the link at the end
-    element.appendChild(createLinkElement(href, link.display_name || link.name, true));
+    element.appendChild(createNewLinkElement(link.id, href, link.display_name || link.name, true));
     return;
   }
 
@@ -84,13 +114,11 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
 
   if (position === 'on_text') {
     // Wrap the matched text in a link
-    element.appendChild(createLinkElement(href, matchedText));
+    element.appendChild(createNewLinkElement(link.id, href, matchedText));
   } else if (position === 'next_to_text') {
-    // Add the matched text as regular text
+    // Add the matched text as regular text, then add the link after it
     element.appendChild(document.createTextNode(matchedText));
-
-    // Add the link after the matched text
-    element.appendChild(createLinkElement(href, link.display_name || link.name, true));
+    element.appendChild(createNewLinkElement(link.id, href, link.display_name || link.name, true));
   }
 
   // Add the remaining unrelated text after the match
@@ -98,4 +126,18 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
   if (endIndex < text.length) {
     element.appendChild(document.createTextNode(text.substring(endIndex)));
   }
+}
+
+function createNewLinkElement(linkId: string, href: string, text: string, marginLeft?: boolean): HTMLAnchorElement {
+  const a = document.createElement('a');
+  a.href = href;
+  a.textContent = text;
+  a.target = '_blank';
+  a.style.color = '#5607f5';
+  a.classList.add('linkem-injected-link');
+  a.classList.add('link-' + linkId);
+  if (marginLeft) {
+    a.style.marginLeft = '5px';
+  }
+  return a;
 }

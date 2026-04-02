@@ -22,7 +22,7 @@ export class LocalLinksStorage {
       // Add new link
       const newLink = {
         ...link,
-        id: crypto.randomUUID(),
+        id: 'local-' + crypto.randomUUID(),
         user_id: 'local-user', // placeholder for local storage
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

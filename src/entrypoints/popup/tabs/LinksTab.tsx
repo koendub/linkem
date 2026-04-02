@@ -59,9 +59,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
   };
 
   const filteredLinks = useMemo(() => {
-    const filtered = links.filter(link =>
-      link.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filtered = links.filter(link => link.name.toLowerCase().includes(searchTerm.toLowerCase()));
     const currentPageLinks = filtered.filter(link => doesLinkApplyToUrl(link, currentUrl));
     const otherLinks = filtered.filter(link => !doesLinkApplyToUrl(link, currentUrl));
     return { currentPageLinks, otherLinks };

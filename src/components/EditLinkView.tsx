@@ -28,6 +28,7 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
     onClose();
   };
 
+  const urlStartConditionIdx = linkObj.conditions.findIndex(c => c.type === 'url_start');
   return (
     <div className="bg-white text-gray-900 p-4 w-full h-full overflow-y-auto border-l border-gray-200 flex flex-col">
       <div className="flex-1 pr-2">
@@ -158,10 +159,16 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                           onChange={(e) => updateCondition(index, { ...cond, type: e.target.value as any })}
                           className="w-auto!"
                         >
-                          <option value="url_start">URL Starts With</option>
-                          <option value="url_contains">URL Contains</option>
                           <option value="xpath_exists">XPath Exists</option>
                           <option value="value_match">Value Match</option>
+                          <option value="url_contains">URL Contains</option>
+                          {
+                            // Only allow one url_start condition, so only show the option if there isn't
+                            // already one or if this condition is the existing url_start condition
+                            (urlStartConditionIdx === index || urlStartConditionIdx === -1) && (
+                              <option value="url_start">URL Starts With</option>
+                            )
+                          }
                         </select>
                         <input
                           value={cond.value}
@@ -173,7 +180,7 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                     ))}
                   </div>
                   <button
-                    onClick={() => setLinkObj({ ...linkObj, conditions: [...linkObj.conditions, { id: '', link_id: '', type: 'url_start', value: '', created_at: new Date().toISOString() }] })}
+                    onClick={() => setLinkObj({ ...linkObj, conditions: [...linkObj.conditions, { id: '', link_id: '', type: 'value_match', value: '', created_at: new Date().toISOString() }] })}
                     className="mt-3 px-4 py-1 mx-auto bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center transition-colors"
                   >
                     <Plus className="w-4 h-4 mr-1" />

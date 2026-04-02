@@ -1,10 +1,10 @@
-import { Database } from "./supabase";
+import { Database, Tables } from "./supabase";
 
 // Type helpers
-export type Profile = Database['public']['Tables']['profiles']['Row']
-export type Link = Database['public']['Tables']['links']['Row']
-export type Condition = Database['public']['Tables']['conditions']['Row']
-export type UserSettings = Database['public']['Tables']['user_settings']['Row']
+export type Profile = Tables<'profiles'>;
+export type Link = Tables<'links'>;
+export type Condition = Tables<'conditions'> & { type: 'url_start' | 'url_contains' | 'xpath_exists' | 'value_match' };
+export type UserSettings = Tables<'user_settings'>;
 
 export type LinkInsert = Database['public']['Tables']['links']['Insert']
 export type ConditionInsert = Database['public']['Tables']['conditions']['Insert']
@@ -16,3 +16,4 @@ export interface LinkWithConditions extends Link {
 }
 
 export type UnstoredLinkWithConditions = Omit<LinkWithConditions, 'id' | 'user_id' | 'created_at' | 'updated_at'>;
+export type UserSettingsValues = Omit<UserSettings, 'id' | 'user_id' | 'created_at' | 'updated_at'>;

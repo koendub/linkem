@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Settings } from 'lucide-react';
-import { UserSettings } from '@/types';
+import { UserSettingsValues } from '@/types';
 import { LocalSettingsStorage } from '@/utils/storage/local_settings_storage';
 
 const SettingsTab: React.FC = () => {
-  const [settings, setSettings] = useState<UserSettings | null>(null);
+  const [settings, setSettings] = useState<UserSettingsValues | null>(null);
 
   useEffect(() => {
     const loadSettings = async () => {
