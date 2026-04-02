@@ -7,7 +7,7 @@ export class LocalLinksStorage {
     const result = await browser.storage.local.get(this.STORAGE_KEY);
     // @ts-ignore
     const links: CustomLink[] = result[this.STORAGE_KEY] || [];
-    return links.map((link: any) => ({
+    return links.map((link: CustomLink) => ({
       ...link,
       createdAt: new Date(link.createdAt)
     }));

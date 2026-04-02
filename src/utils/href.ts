@@ -2,10 +2,21 @@ import { CustomLink } from "@/models";
 
 class CustomHrefFormatException extends Error {
   constructor(errorInSection: string, msg: string) {
-    super()
+    super(errorInSection + ": " + msg);
   }
 }
 
+/**
+ * The regex for finding a placeholder in the hrefPathFormat, like {text-value} or more
+ * generally {<replacer_name>:<argument>}. The argument part is optional and depends on the replacer.
+ */
+const regexFor = (name: string) => new RegExp(String.raw`{${name}(:[^}]*?)?}`, 'g');
+
+/**
+ * The available replacers that can be used in the hrefPathFormat of a link.
+ * Each replacer has a name, a function that generates the replacement value,
+ * and a regex for finding it in the hrefPathFormat.
+ */
 const hrefReplacers = [
   {
     name: "text-value",
@@ -39,20 +50,21 @@ const hrefReplacers = [
       return params.get(args) || "";
     }
   }
-]
+].map(replacer => ({ ...replacer, regex: regexFor(replacer.name) }));
 
-const regexFor = (name: string) => new RegExp(String.raw`{${name}(:[^}]*?)?}`, 'g');
-
-
-export function highlightLinkHref(link: CustomLink) {
-  return link.hrefPathFormat;
-}
-
+/**
+ * Given a link and the currently selected text, format the href of the link by replacing
+ * the placeholders in the hrefPathFormat with the actual values.
+ * 
+ * @param link The link for which to format the href
+ * @param selectedText The currently selected text on the page, which can be used in the formatting
+ * @returns The formatted href without placeholders.
+ */
 export function formatLinkHref(link: CustomLink, selectedText: string) {
   return hrefReplacers.reduce((curr, replacer) => {
     try {
       return curr.replace(
-        regexFor(replacer.name),
+        replacer.regex,
         (_, arg: string) => replacer.func(selectedText, arg ? arg.slice(1) : null)
       );
     } catch(e: any) {
