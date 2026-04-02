@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs } from '@base-ui/react/tabs';
 import { Link, Share, Settings } from 'lucide-react';
-import { LinkWithConditions } from '@/types/supabase';
+import { LinkWithConditions } from '@/types';
 import { LocalLinksStorage } from '../../utils/storage/local_links_storage';
 import LinksTab from './tabs/LinksTab';
 import ShareTab from './tabs/ShareTab';

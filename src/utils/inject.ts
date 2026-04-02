@@ -1,5 +1,5 @@
 import { formatLinkHref } from '@/utils/href';
-import { LinkWithConditions, Condition } from '@/types/supabase';
+import { LinkWithConditions, Condition } from '@/types';
 import { LocalSettingsStorage } from '@/utils/storage/local_settings_storage';
 
 

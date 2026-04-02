@@ -1,4 +1,4 @@
-import { UserSettings } from '@/types/supabase';
+import { UserSettings } from '@/types';
 
 export class LocalSettingsStorage {
   private static readonly STORAGE_KEY = 'linkem_settings';

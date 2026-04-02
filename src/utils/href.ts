@@ -1,4 +1,4 @@
-import { Link } from "@/types/supabase";
+import { Link } from "@/types";
 
 class CustomHrefFormatException extends Error {
   constructor(errorInSection: string, msg: string) {

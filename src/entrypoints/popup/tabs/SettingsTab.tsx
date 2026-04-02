@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Settings } from 'lucide-react';
-import { UserSettings } from '@/types/supabase';
+import { UserSettings } from '@/types';
 import { LocalSettingsStorage } from '@/utils/storage/local_settings_storage';
 
 const SettingsTab: React.FC = () => {

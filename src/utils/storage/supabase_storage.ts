@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { Database, Link, Condition, UserSettings, LinkWithConditions } from '@/types/supabase'
+import { Database, Link, Condition, UserSettings, LinkWithConditions } from '@/types'
 
 // Initialize Supabase client
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
