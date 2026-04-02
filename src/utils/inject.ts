@@ -1,6 +1,7 @@
 import { formatLinkHref } from '@/utils/href';
 import { LinkWithConditions, Condition } from '@/types';
 import { LocalSettingsStorage } from '@/utils/storage/local_settings_storage';
+import { LocalLinksStorage } from './storage/local_links_storage';
 
 
 /////////////////////////////////////////////////////////// Checking link applicability
@@ -21,6 +22,19 @@ const conditionDetails = {
   'value_match': {
     check: (c: Condition) => document.body.textContent?.includes(c.value) || false,
     explanation: (c: Condition) => `The page does not contain the text "${c.value}".`
+  }
+}
+
+export async function injectLinks() {
+  try {
+    const links = await LocalLinksStorage.getAllLinks();
+    const hostMap = getLinksForHostMap(links);
+    const hostLinks = hostMap.get(window.location.host)
+    if (hostLinks) {
+      await injectMatchingLinks(hostLinks);
+    }
+  } catch (error) {
+    console.error('Failed to inject links:', error);
   }
 }
 
@@ -63,15 +77,6 @@ export async function injectMatchingLinks(links: LinkWithConditions[]): Promise<
 }
 
 async function applyLinkToElement(link: LinkWithConditions, element: Element): Promise<void> {
-  const text = element.textContent || '';
-  const href = formatLinkHref(link, text);
-
-  const position = link.position === 'user_default'
-    ? (await LocalSettingsStorage.getSettings()).default_link_position
-    : link.position;
-
-  const pattern = link.on_selected_text_regex;
-  
   // Check if the link is already injected in this element, if so, dont inject it again
   const linksInElement = element.getElementsByClassName('linkem-injected-link');
   for (const existingLink of linksInElement) {
@@ -79,6 +84,14 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
       return;
     }
   }
+
+  const position = link.position === 'user_default'
+    ? (await LocalSettingsStorage.getSettings()).default_link_position
+    : link.position;
+  
+  const text = element.textContent || '';
+  const href = formatLinkHref(link, text);
+  const pattern = link.on_selected_text_regex;
 
   // If no pattern is provided, use the full text
   if (!pattern) {

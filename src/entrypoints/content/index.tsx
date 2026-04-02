@@ -1,6 +1,7 @@
 import { getXPath } from '@/utils/xpath';
 import { LocalLinksStorage } from '../../utils/storage/local_links_storage';
 import { showCreateLinkModal } from './EditLinkModal';
+import { injectLinks } from '@/utils/inject';
 
 let lastXPath = '';
 
@@ -33,12 +34,3 @@ export default defineContentScript({
     });
   },
 });
-
-async function injectLinks() {
-  try {
-    const links = await LocalLinksStorage.getAllLinks();
-    injectMatchingLinks(links);
-  } catch (error) {
-    console.error('Failed to inject links:', error);
-  }
-}
