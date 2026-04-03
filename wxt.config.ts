@@ -8,6 +8,12 @@ export default defineConfig({
   manifest: {
     permissions: ['storage', 'contextMenus', 'activeTab', 'tabs']
   },
+  webExt: {
+    startUrls: [
+      'https://oldschool.runescape.wiki/w/Uncut_sapphire',
+      'https://oldschool.runescape.wiki/w/Toktz-xil-ak'
+    ]
+  },
   vite: () => ({
     plugins: [
       tailwindcss(),

@@ -51,6 +51,15 @@ Available format values are:
  - `url_segment:x`: The current website url you are on. 
  - `url_parameter:x`: The value of parameter `x` in the url of the current website
 
+## Sharing links
+
+Locally:
+ - Links are always stored in local storage.
+ - Links can be exported to text and imported. In this case it is stored as if it was made by the current user.
+ - Links can also be bundled together into a link package. This can also be stored
+
+Online:
+ - Links can also 
 
 # Technical details
 
