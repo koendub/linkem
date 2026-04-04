@@ -5,7 +5,9 @@ export type Profile = Tables<'profiles'>;
 export type Link = Tables<'links'>;
 export type Condition = Tables<'conditions'> & { type: 'url_start' | 'url_contains' | 'xpath_exists' | 'value_match' };
 export type UserSettings = Tables<'user_settings'>;
-export type LinkPackage = Tables<'link_packages'>;
+export type LinkPackageBase = Tables<'link_packages'>;
+// LinkPackage extends the base Supabase type to include linkIds for local/in-memory storage
+export type LinkPackage = LinkPackageBase & { linkIds: string[] };
 export type LinkPackageLink = Tables<'link_package_links'>;
 
 export type LinkInsert = Database['public']['Tables']['links']['Insert']

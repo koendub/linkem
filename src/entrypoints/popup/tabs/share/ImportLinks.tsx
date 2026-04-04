@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { ExportedLink, ExportedLinkPackage, LinkWithConditions, UnstoredLinkWithConditions } from '@/types';
+import { ExportedLink, ExportedLinkPackage } from '@/types';
 import { LocalLinksStorage } from '@/utils/storage/local_links_storage';
-import { decodeFromBase64 } from '@/utils/encoding';
+import { importFromBase64, convertExportedLinkToInternal } from '@/utils/share';
 import { ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react';
 
 interface ImportLinksProps {
@@ -16,8 +16,6 @@ const ImportLinks: React.FC<ImportLinksProps> = ({ onBack, onImportComplete }) =
   const [isLoading, setIsLoading] = useState(false);
   const [importedCount, setImportedCount] = useState(0);
 
-
-
   const handleImport = async () => {
     setError(null);
     setSuccess(false);
@@ -31,36 +29,22 @@ const ImportLinks: React.FC<ImportLinksProps> = ({ onBack, onImportComplete }) =
     setIsLoading(true);
 
     try {
-      const data = decodeFromBase64<ExportedLinkPackage | ExportedLink>(input.trim());
+      const data = importFromBase64(input.trim());
 
       let linksToImport: ExportedLink[] = [];
 
-      if (isPackage(data)) {
+      // Extract links based on format
+      if ('links' in data && Array.isArray(data.links)) {
+        // It's a package
         linksToImport = data.links;
-      } else if (isSingleLink(data)) {
-        linksToImport = [data];
-      } else {
-        throw new Error('Invalid format: must be a link package or single link');
+      } else if ('href_path_format' in data) {
+        // It's a single link
+        linksToImport = [data as ExportedLink];
       }
 
       // Import each link
       for (const linkData of linksToImport) {
-        const newLink: UnstoredLinkWithConditions = {
-          name: linkData.name,
-          href_path_format: linkData.href_path_format,
-          display_name: linkData.display_name,
-          on_xpath: linkData.on_xpath,
-          on_selected_text_regex: linkData.on_selected_text_regex,
-          position: linkData.position,
-          icon: linkData.icon,
-          visibility: linkData.visibility,
-          conditions: linkData.conditions as any,
-          // Don't set ID - let saveLink generate it
-          // user_id: 'local-user',
-          // created_at: new Date().toISOString(),
-          // updated_at: new Date().toISOString(),
-        };
-
+        const newLink = convertExportedLinkToInternal(linkData);
         await LocalLinksStorage.saveLink(newLink);
       }
 
@@ -118,7 +102,7 @@ const ImportLinks: React.FC<ImportLinksProps> = ({ onBack, onImportComplete }) =
         {/* Error Message */}
         {error && (
           <div className="flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
-            <AlertCircle size={20} className="text-red-600 mt-0.5 flex-shrink-0" />
+            <AlertCircle size={20} className="text-red-600 mt-0.5 shrink-0" />
             <div>
               <p className="font-semibold text-red-900">Import Error</p>
               <p className="text-sm text-red-700 mt-1">{error}</p>
@@ -129,7 +113,7 @@ const ImportLinks: React.FC<ImportLinksProps> = ({ onBack, onImportComplete }) =
         {/* Success Message */}
         {success && (
           <div className="flex items-start gap-3 bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
-            <CheckCircle size={20} className="text-green-600 mt-0.5 flex-shrink-0" />
+            <CheckCircle size={20} className="text-green-600 mt-0.5 shrink-0" />
             <div>
               <p className="font-semibold text-green-900">Import Successful</p>
               <p className="text-sm text-green-700 mt-1">

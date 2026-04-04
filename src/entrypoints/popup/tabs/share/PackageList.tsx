@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { LinkPackage, LinkWithConditions, ExportedLinkPackage, ExportedLink } from '@/types';
-import { encodeToBase64 } from '@/utils/encoding';
+import { LinkPackage, LinkWithConditions } from '@/types';
+import { exportToBase64 } from '@/utils/share';
 import { Share, Plus, Trash2, Copy, Check } from 'lucide-react';
 
 interface PackageListProps {
@@ -40,43 +40,19 @@ const PackageList: React.FC<PackageListProps> = ({
     }
   };
 
-  const generateExportData = (pkg: LinkPackage): ExportedLinkPackage => {
-    const packageLinks = links
-      .filter(link => pkg.linkIds.includes(link.id))
-      .map((link): ExportedLink => ({
-        name: link.name,
-        href_path_format: link.href_path_format,
-        display_name: link.display_name,
-        on_xpath: link.on_xpath,
-        on_selected_text_regex: link.on_selected_text_regex,
-        position: link.position,
-        icon: link.icon,
-        visibility: link.visibility,
-        conditions: link.conditions.map(c => ({
-          type: c.type,
-          value: c.value,
-        })),
-      }));
-
-    return {
-      name: pkg.name,
-      links: packageLinks,
-    };
-  };
-
   const handleShareClick = (pkg: LinkPackage) => {
     setSharePackageId(pkg.id);
   };
 
   const handleCopyShare = (pkg: LinkPackage) => {
-    const encoded = encodeToBase64(generateExportData(pkg));
+    const encoded = exportToBase64(pkg, links);
     navigator.clipboard.writeText(encoded);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
   const sharedPackage = sharePackageId ? packages.find(p => p.id === sharePackageId) : null;
-  const sharedEncoded = sharedPackage ? encodeToBase64(generateExportData(sharedPackage)) : '';
+  const sharedEncoded = sharedPackage ? exportToBase64(sharedPackage, links) : '';
 
   return (
     <div className="flex flex-col bg-white min-h-full">

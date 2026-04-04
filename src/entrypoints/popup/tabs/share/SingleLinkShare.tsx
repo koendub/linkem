@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { LinkWithConditions, ExportedLink } from '@/types';
+import { LinkWithConditions } from '@/types';
 import { Share, ArrowLeft, Copy, Check } from 'lucide-react';
-import { encodeToBase64 } from '@/utils/encoding';
+import { exportToBase64 } from '@/utils/share';
 
 interface SingleLinkShareProps {
   links: LinkWithConditions[];
@@ -12,24 +12,19 @@ const SingleLinkShare: React.FC<SingleLinkShareProps> = ({ links, onBack }) => {
   const [shareLinkId, setShareLinkId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
-  // Get all user links
-  const userLinks = links;
-
-  const generateExportData = (link: LinkWithConditions): ExportedLink => ();
-
   const handleShareClick = (linkId: string) => {
     setShareLinkId(shareLinkId === linkId ? null : linkId);
   };
 
   const handleCopyShare = (link: LinkWithConditions) => {
-    const encoded = encodeToBase64(generateExportData(link));
+    const encoded = exportToBase64(link, links);
     navigator.clipboard.writeText(encoded);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const sharedLink = shareLinkId ? userLinks.find(l => l.id === shareLinkId) : null;
-  const sharedEncoded = sharedLink ? encodeToBase64(generateExportData(sharedLink)) : '';
+  const sharedLink = shareLinkId ? links.find(l => l.id === shareLinkId) : null;
+  const sharedEncoded = sharedLink ? exportToBase64(sharedLink, links) : '';
 
   return (
     <div className="flex flex-col min-h-full">
@@ -47,13 +42,13 @@ const SingleLinkShare: React.FC<SingleLinkShareProps> = ({ links, onBack }) => {
 
       {/* Links List */}
       <div className="flex-1 overflow-y-auto p-6 min-h-0">
-        {userLinks.length === 0 ? (
+        {links.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-gray-500">No links available to share</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {userLinks.map((link) => (
+            {links.map((link) => (
               <div key={link.id}>
                 <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition">
                   <div className="flex-1 min-w-0">

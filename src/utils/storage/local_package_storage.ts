@@ -17,11 +17,13 @@ export class LocalPackageStorage {
     if ('id' in pkg && pkg.id) {
       // Update existing package
       const existingIndex = packages.findIndex(p => p.id === pkg.id);
+      const existingPackage = packages[existingIndex];
       if (existingIndex >= 0) {
         savedPackage = {
           ...pkg,
-          createdAt: packages[existingIndex].createdAt,
-          userId: packages[existingIndex].userId,
+          created_at: existingPackage.created_at,
+          updated_at: new Date().toISOString(),
+          user_id: existingPackage.user_id,
         } as LinkPackage;
         packages[existingIndex] = savedPackage;
       } else {
@@ -32,8 +34,9 @@ export class LocalPackageStorage {
       const newPackage: LinkPackage = {
         ...pkg,
         id: Math.random().toString(36).substr(2, 9), // Short random ID
-        createdAt: new Date().toISOString(),
-        userId: 'local-user', // placeholder for local storage
+        updated_at: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        user_id: 'local-user', // placeholder for local storage
       };
       packages.push(newPackage);
       savedPackage = newPackage;
