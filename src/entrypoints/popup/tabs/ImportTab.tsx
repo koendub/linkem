@@ -1,0 +1,209 @@
+import React, { useState, useEffect } from 'react';
+import { Download, Trash2, AlertCircle, CheckCircle } from 'lucide-react';
+import { ExportedLink, ExportedLinkPackage } from '@/types';
+import { LocalLinksStorage } from '@/utils/storage/local_links_storage';
+import { ImportedPackageStorage, ImportedPackage } from '@/utils/storage/imported_package_storage';
+import { importFromBase64, convertExportedLinkToInternal } from '@/utils/share';
+
+const ImportTab: React.FC = () => {
+  const [showImportForm, setShowImportForm] = useState(false);
+  const [input, setInput] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [importedPackages, setImportedPackages] = useState<ImportedPackage[]>([]);
+  const [importedCount, setImportedCount] = useState(0);
+
+  useEffect(() => {
+    loadImportedPackages();
+  }, []);
+
+  const loadImportedPackages = async () => {
+    try {
+      const packages = await ImportedPackageStorage.getAllImportedPackages();
+      setImportedPackages(packages);
+    } catch (error) {
+      console.error('Failed to load imported packages:', error);
+    }
+  };
+
+  const handleImport = async () => {
+    setError(null);
+    setSuccess(false);
+    setImportedCount(0);
+
+    if (!input.trim()) {
+      setError('Please paste your text here');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const data = importFromBase64(input.trim());
+
+      let linksToImport: ExportedLink[] = [];
+      let packageName = 'Imported Package';
+
+      // Extract links and determine package name
+      if ('links' in data && Array.isArray(data.links)) {
+        // It's a package
+        linksToImport = data.links;
+        packageName = (data as ExportedLinkPackage).name || 'Imported Package';
+      } else if ('href_path_format' in data) {
+        // It's a single link
+        linksToImport = [data as ExportedLink];
+        packageName = (data as ExportedLink).name || 'Imported Link';
+      }
+
+      // Import each link
+      const linkIds: string[] = [];
+      for (const linkData of linksToImport) {
+        const newLink = convertExportedLinkToInternal(linkData);
+        const savedLink = await LocalLinksStorage.saveLink(newLink);
+        linkIds.push(savedLink.id);
+      }
+
+      // Save as imported package
+      await ImportedPackageStorage.saveImportedPackage(packageName, linkIds);
+
+      setImportedCount(linksToImport.length);
+      setSuccess(true);
+      setInput('');
+      setShowImportForm(false);
+
+      // Reload imported packages
+      setTimeout(() => {
+        loadImportedPackages();
+        setSuccess(false);
+      }, 2000);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError('Failed to import. Please check the text and try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteImportedPackage = async (packageId: string) => {
+    const pkg = importedPackages.find(p => p.id === packageId);
+    if (!pkg) return;
+
+    try {
+      // Delete all links in the package
+      for (const linkId of pkg.linkIds) {
+        await LocalLinksStorage.deleteLink(linkId);
+      }
+
+      // Delete the imported package record
+      await ImportedPackageStorage.deleteImportedPackage(packageId);
+
+      // Reload
+      loadImportedPackages();
+    } catch (error) {
+      console.error('Failed to delete imported package:', error);
+    }
+  };
+
+  return (
+    <div className="flex flex-col bg-white h-full overflow-y-auto">
+      {/* Import Button / Textfield */}
+      <button
+        onClick={() => setShowImportForm(!showImportForm)}
+        className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium flex items-center justify-center gap-2 mb-6"
+      >
+        <Download size={18} />
+        Import from Text or Id
+      </button>
+
+      {/* Import Form */}
+      {showImportForm && (
+        <div className="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+          <div className="mb-3">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Paste your text here
+            </label>
+            <textarea
+              value={input}
+              onChange={(e) => {
+                setInput(e.target.value);
+                setError(null);
+                setSuccess(false);
+              }}
+              placeholder="paste your text here"
+              className="w-full p-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-24 resize-none"
+            />
+          </div>
+
+          {/* Import Button */}
+          <button
+            onClick={handleImport}
+            disabled={isLoading}
+            className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+          >
+            {isLoading ? 'Importing...' : 'Import'}
+          </button>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
+              <AlertCircle size={18} className="text-red-600 shrink-0 mt-0.5" />
+              <p className="text-sm text-red-700">{error}</p>
+            </div>
+          )}
+
+          {/* Success Message */}
+          {success && (
+            <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start gap-2">
+              <CheckCircle size={18} className="text-green-600 shrink-0 mt-0.5" />
+              <p className="text-sm text-green-700">Successfully imported {importedCount} link{importedCount !== 1 ? 's' : ''}!</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Imported Packages List */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4 text-gray-900">
+          Previously Imported ({importedPackages.length})
+        </h3>
+
+        {importedPackages.length === 0 ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No imported packages yet. Import one to get started!</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {importedPackages.map((pkg) => (
+              <div
+                key={pkg.id}
+                className="border border-gray-200 rounded-lg p-4 flex items-center justify-between bg-white hover:border-gray-300 transition"
+              >
+                <div className="flex-1">
+                  <h4 className="font-semibold text-gray-900">{pkg.name}</h4>
+                  <p className="text-sm text-gray-500 mt-1">
+                    {pkg.linkIds.length} link{pkg.linkIds.length !== 1 ? 's' : ''}
+                  </p>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Imported {new Date(pkg.importedAt).toLocaleDateString()}
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleDeleteImportedPackage(pkg.id)}
+                  className="ml-4 px-3 py-2 bg-red-50 text-red-700 rounded hover:bg-red-100 transition"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default ImportTab;

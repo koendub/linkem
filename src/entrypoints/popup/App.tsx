@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Tabs } from '@base-ui/react/tabs';
-import { Link, Share, Settings } from 'lucide-react';
+import { Link, Download, Upload, Settings } from 'lucide-react';
 import { LinkWithConditions } from '@/types';
 import { LocalLinksStorage } from '../../utils/storage/local_links_storage';
 import LinksTab from './tabs/LinksTab';
-import ShareTab from './tabs/ShareTab';
+import ImportTab from './tabs/ImportTab';
+import ExportTab from './tabs/ExportTab';
 import SettingsTab from './tabs/SettingsTab';
 
 const App: React.FC = () => {
@@ -34,8 +35,11 @@ const App: React.FC = () => {
           <Tabs.Tab value="links" className="border-none cursor-pointer p-2 rounded-md text-gray-500 transition-all duration-200 flex items-center justify-center data-active:bg-blue-500 data-active:text-white">
             <Link size={20} />
           </Tabs.Tab>
-          <Tabs.Tab value="share" className="border-none cursor-pointer p-2 rounded-md text-gray-500 transition-all duration-200 flex items-center justify-center data-active:bg-blue-500 data-active:text-white">
-            <Share size={20} />
+          <Tabs.Tab value="import" className="border-none cursor-pointer p-2 rounded-md text-gray-500 transition-all duration-200 flex items-center justify-center data-active:bg-blue-500 data-active:text-white">
+            <Download size={20} />
+          </Tabs.Tab>
+          <Tabs.Tab value="export" className="border-none cursor-pointer p-2 rounded-md text-gray-500 transition-all duration-200 flex items-center justify-center data-active:bg-blue-500 data-active:text-white">
+            <Upload size={20} />
           </Tabs.Tab>
           <Tabs.Tab value="settings" className="border-none cursor-pointer p-2 rounded-md text-gray-500 transition-all duration-200 flex items-center justify-center data-active:bg-blue-500 data-active:text-white">
             <Settings size={20} />
@@ -44,8 +48,11 @@ const App: React.FC = () => {
         <Tabs.Panel value="links" className="flex-1 overflow-auto">
           <LinksTab links={links} onDelete={handleDelete} onRefresh={loadLinks} />
         </Tabs.Panel>
-        <Tabs.Panel value="share" className="flex-1 overflow-auto">
-          <ShareTab />
+        <Tabs.Panel value="import" className="flex-1 overflow-auto">
+          <ImportTab />
+        </Tabs.Panel>
+        <Tabs.Panel value="export" className="flex-1 overflow-auto">
+          <ExportTab />
         </Tabs.Panel>
         <Tabs.Panel value="settings" className="flex-1 overflow-auto">
           <SettingsTab />
