@@ -1,7 +1,7 @@
 import { formatLinkHref } from '@/utils/href';
 import { LinkWithConditions, Condition } from '@/types';
-import { LocalSettingsStorage } from '@/utils/storage/local_settings_storage';
 import { LocalLinksStorage } from './storage/local_links_storage';
+import { settingsStorage } from './storage/local_storage';
 
 
 /////////////////////////////////////////////////////////// Checking link applicability
@@ -38,19 +38,19 @@ export async function injectLinks() {
   }
 }
 
-export function getLinksForHostMap(allLinks: LinkWithConditions[]): Map<string, LinkWithConditions[]> {
-  function getLinkHost(link: LinkWithConditions): string {
-    const hostConditions = link.conditions.filter(c => c.type === 'url_start');
-    if (hostConditions.length === 0) return '*';
-    if (hostConditions.length > 1) {
-      console.warn(`Link ${link.id} has multiple url_start conditions, which should not happen.`);
-    }
-    const smallest = hostConditions.reduce((sm, cur) => {
-      return cur.value.length < sm.value.length ? cur : sm;
-    }, link.conditions[0]);
-    return new URL(smallest.value).host;
+export function getLinkHost(link: LinkWithConditions): string {
+  const hostConditions = link.conditions.filter(c => c.type === 'url_start');
+  if (hostConditions.length === 0) return '*';
+  if (hostConditions.length > 1) {
+    console.warn(`Link ${link.id} has multiple url_start conditions, which should not happen!`);
   }
+  const smallest = hostConditions.reduce((sm, cur) => {
+    return cur.value.length < sm.value.length ? cur : sm;
+  }, link.conditions[0]);
+  return new URL(smallest.value).host;
+}
 
+export function getLinksForHostMap(allLinks: LinkWithConditions[]): Map<string, LinkWithConditions[]> {
   const map = new Map<string, LinkWithConditions[]>();
   allLinks.forEach(link => {
     const host = getLinkHost(link);
@@ -85,8 +85,10 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
     }
   }
 
+  
+
   const position = link.position === 'user_default'
-    ? (await LocalSettingsStorage.getSettings()).default_link_position
+    ? (await settingsStorage.getItem<string>('default_link_position'))
     : link.position;
   
   const text = element.textContent || '';
