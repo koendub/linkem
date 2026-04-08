@@ -1,19 +1,32 @@
 import { LocalStorage } from "../storage/local_base_storage";
 
 
-export function useStorageValue<V>(storage: LocalStorage<V>, defaultValue: V): { value: V; isLoading: boolean; refresh: () => Promise<void> };
+export function useStorageValue<V>(
+  storage: LocalStorage<V>,
+  defaultValue: V,
+  changed?: (val: V) => Promise<V | null>
+): { value: V; isLoading: boolean; refresh: () => Promise<void>; setValue: (newValueOrUpdater: V | ((val: V | null) => V)) => void };
 
-export function useStorageValue<V>(storage: LocalStorage<V>, defaultValue: null): { value: V | null; isLoading: boolean; refresh: () => Promise<void> };
+export function useStorageValue<V>(
+  storage: LocalStorage<V>,
+  defaultValue: null,
+  changed?: (val: V) => Promise<V | null>
+): { value: V | null; isLoading: boolean; refresh: () => Promise<void>; setValue: (newValueOrUpdater: V | ((val: V | null) => V)) => void };
 
-export function useStorageValue<V>(storage: LocalStorage<V>, defaultValue: V | null = null) {
-  const [value, setValue] = useState<V | null>(null);
+export function useStorageValue<V>(
+  storage: LocalStorage<V>,
+  defaultValue: V | null = null,
+  changed?: (val: V) => Promise<V | null>
+) {
+  const [storageValue, setStorageValue] = useState<{ value: V } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const refresh = useCallback(async () => {
     setIsLoading(true);
     try {
       const val = await storage.getValue();
-      setValue(val);
+      const changedVal = val && changed ? await changed(val) : val;
+      setStorageValue(changedVal ? { value: changedVal } : null);
     } finally {
       setIsLoading(false);
     }
@@ -23,5 +36,16 @@ export function useStorageValue<V>(storage: LocalStorage<V>, defaultValue: V | n
     refresh();
   }, [refresh]);
 
-  return { value: value || defaultValue, isLoading, refresh };
+  const setValue = useCallback(async (newValueOrUpdater: V | ((val: V | null) => V)) => {
+    const newValue = typeof newValueOrUpdater === 'function'
+      ? (newValueOrUpdater as (val: V | null) => V)(storageValue?.value || defaultValue)
+      : newValueOrUpdater;
+    setStorageValue({ value: newValue });
+    storage.setValue(newValue)
+      .catch(err => {
+        console.error('Failed to save value to storage:', err);
+      });
+  }, [storage]);
+
+  return { value: storageValue ? storageValue.value : defaultValue, isLoading, refresh, setValue };
 }

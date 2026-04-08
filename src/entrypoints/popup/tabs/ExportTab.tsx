@@ -5,6 +5,7 @@ import { LocalPackageStorage } from '@/utils/storage/local_package_storage';
 import { exportToBase64 } from '@/utils/share';
 import { Plus, Trash2, Copy, Check, Share } from 'lucide-react';
 import { useStorageValue } from '@/utils/hooks/useStorage';
+import { settingsStorage } from '@/utils/storage/local_base_storage';
 
 interface EditPackageViewProps {
   initialPkg: LinkPackage | UnstoredLinkPackage;
@@ -14,6 +15,11 @@ interface EditPackageViewProps {
 function EditPackageView({ initialPkg, onClose }: EditPackageViewProps) {
   const [pkg, setPkg] = useState<LinkPackage | UnstoredLinkPackage>(initialPkg);
   const { value: allLinks } = useStorageValue(LocalLinksStorage.storage, {});
+
+  // Sync local state when initialPkg changes (e.g., when editing a different package)
+  useEffect(() => {
+    setPkg(initialPkg);
+  }, [initialPkg]);
 
   const handleAddLinkToPackage = async (link: LinkWithConditions) => {
     if (pkg.linkIds.includes(link.id)) return;
@@ -131,8 +137,17 @@ const ExportTab: React.FC = () => {
   const [editingPackage, setEditingPackage] = useState<LinkPackage | UnstoredLinkPackage | null>(null);
   const [showShareId, setShowShareId] = useState<string | null>(null);
   const { value: allLinks } = useStorageValue(LocalLinksStorage.storage, {});
-  const { value: packages, refresh: refreshPackages, isLoading } = useStorageValue(LocalPackageStorage.storage, {});
-  console.log('All packages in ExportTab:', packages);
+
+  const { value: packages, refresh: refreshPackages, isLoading } = useStorageValue(LocalPackageStorage.storage, {}, async (pkgs) => {
+    const myUserId = await settingsStorage.getItem('localUserId');
+    const filteredPkgs = {} as { [id: string]: LinkPackage };
+    Object.values(pkgs).forEach((pkg) => {
+      if (pkg.user_id === myUserId) {
+        filteredPkgs[pkg.id] = pkg;
+      }
+    });
+    return filteredPkgs;
+  });
 
   const handleDeletePackage = async (packageId: string) => {
     await LocalPackageStorage.deletePackage(packageId);
@@ -151,7 +166,7 @@ const ExportTab: React.FC = () => {
     <div className="flex flex-col bg-white p-6 min-h-full overflow-y-auto">
       {/* Link Packages Section */}
       <div className="mb-8">
-        <h3 className="text-lg font-semibold mb-4 text-gray-900">Link Packages</h3>
+        <h3 className="text-lg font-semibold mb-4 text-gray-900">Your Link Packages</h3>
 
         {/* Create Package Button */}
         {!editingPackage && (

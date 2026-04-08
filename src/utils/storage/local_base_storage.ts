@@ -31,6 +31,11 @@ export class LocalStorageDict<D extends { [key: string]: any }> extends LocalSto
     super(storageKey);
   }
 
+  async getValue(forceReload: boolean = false): Promise<D> {
+    const value = await super.getValue(forceReload);
+    return Object.assign({}, this.defaults, value || {}) as D;
+  }
+
   async getItem<V>(valueKey: string, defaultValue: V | undefined = undefined): Promise<V | undefined> {
     const dict = await this.getValue() || {} as D;
     return (dict && dict[valueKey]) || this.defaults[valueKey] || defaultValue;
