@@ -18,7 +18,7 @@ export default function LinksTab() {
 
   const loadLinks = async () => {
     const allLinks = await LocalLinksStorage.getAllLinks();
-    setLinks(allLinks);
+    setLinks(Object.values(allLinks));
   };
 
   const handleDelete = async (linkId: string) => {

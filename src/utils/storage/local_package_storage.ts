@@ -4,13 +4,13 @@ import { LocalLinksStorage } from './local_links_storage';
 
 
 export class LocalPackageStorage {
-  private static storage = new LocalStorageDict<{ [packageId: string]: LinkPackage }>('linkem_packages');
+  static storage = new LocalStorageDict<{ [packageId: string]: LinkPackage }>('linkem_packages');
 
   static async getAllPackages(): Promise<{ [packageId: string]: LinkPackage }> {
     return await this.storage.getValue() || {};
   }
 
-  static async savePackage(pkg: UnstoredLinkPackage | LinkPackage | LinkPackageWithLinks): Promise<void> {
+  static async savePackage(pkg: UnstoredLinkPackage | LinkPackage | LinkPackageWithLinks): Promise<LinkPackage> {
     // If needed, assign IDs and creation timestamps and such
     const now = new Date().toISOString();
     const localUserId = await settingsStorage.getItem('localUserId');
@@ -29,6 +29,7 @@ export class LocalPackageStorage {
     }
     // Then just store it
     await this.storage.updateItems({ [storePkg.id]: storePkg });
+    return storePkg;
   }
 
   static async deletePackage(packageId: string): Promise<void> {

@@ -25,10 +25,10 @@ export function getLinksForHostMap(allLinks: LinkWithConditions[]): Map<string, 
 }
 
 export class LocalLinksStorage {
-  private static storage = new LocalStorageDict<{ [linkId: string]: LinkWithConditions }>('linkem_links');
+  static storage = new LocalStorageDict<{ [linkId: string]: LinkWithConditions }>('linkem_links');
 
-  static async getAllLinks(): Promise<LinkWithConditions[]> {
-    return Object.values(await this.storage.getValue() || {}).flat();
+  static async getAllLinks(): Promise<{ [linkId: string]: LinkWithConditions }> {
+    return await this.storage.getValue() || {};
   }
 
   static async getLinksWithIds(ids: string[]): Promise<LinkWithConditions[]> {
