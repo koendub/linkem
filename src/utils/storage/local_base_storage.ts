@@ -1,4 +1,4 @@
-import { LinkPackage, LinkWithConditions, UserSettingsValues } from "@/types/extra_types";
+import { LinkPackage, LinkWithConditions, LocalUserSettingsValues, UserSettingsValues } from "@/types/extra_types";
 
 // Storage classes
 
@@ -7,12 +7,12 @@ export class LocalStorage<T> {
 
   constructor(private storageKey: string) {}
 
-  async getValue(forceReload: boolean = false): Promise<T> {
+  async getValue(forceReload: boolean = false): Promise<T | null> {
     if (!this.value || forceReload) {
       const stored = await browser.storage.local.get<{ [key: string]: T }>(this.storageKey);
       this.value = stored[this.storageKey] || null;
     }
-    return this.value as T;
+    return this.value as T | null;
   }
 
   async setValue(value: T): Promise<void> {
@@ -26,22 +26,29 @@ export class LocalStorage<T> {
 }
 
 export class LocalStorageDict<D extends { [key: string]: any }> extends LocalStorage<D> {
-  constructor(storageKey: string, private defaults: D = {} as D) {
+  constructor(storageKey: string, private defaults: Partial<D> = {} as D) {
     super(storageKey);
   }
 
   async getItem<V>(valueKey: string, defaultValue: V | undefined = undefined): Promise<V | undefined> {
     const dict = await this.getValue();
-    return dict[valueKey] || this.defaults[valueKey] || defaultValue;
+    return (dict && dict[valueKey]) || this.defaults[valueKey] || defaultValue;
   }
 
-  async setItem<V>(key: string, value: V): Promise<void> {
+  async updateItems(updates: Partial<D>): Promise<void> {
     const dict = await this.getValue() as { [key: string]: any };
-    dict[key] = value;
+    Object.assign(dict, updates);
+    await this.writeValue();
+  }
+
+  async removeItem(key: string): Promise<void> {
+    const dict = await this.getValue() as { [key: string]: any };
+    delete dict[key];
     await this.writeValue();
   }
 }
 
+/*
 export class LocalStoragePerHost<V> {
   private valuesPerHosts: { [host: string]: LocalStorage<V> } = {};
 
@@ -54,12 +61,19 @@ export class LocalStoragePerHost<V> {
     return this.valuesPerHosts[host];
   }
 
-  async getForHost(host: string): Promise<V> {
+  async getForHost(host: string): Promise<V | null> {
     return this.getHostStorage(host).getValue();
   }
 
   async setForHost(host: string, value: V): Promise<void> {
     await this.getHostStorage(host).setValue(value);
+  }
+
+  async editForHost(host: string, editFn: (current: V | null) => V): Promise<void> {
+    const storage = this.getHostStorage(host);
+    const current = await storage.getValue();
+    const edited = editFn(current);
+    await storage.setValue(edited);
   }
 
   async getAll(): Promise<{ [host: string]: V }> {
@@ -77,11 +91,15 @@ export class LocalStoragePerHost<V> {
     return result;
   }
 }
+*/
 
 // Specific storages
 
-export const settingsStorage = new LocalStorageDict<UserSettingsValues>('linkem_settings', { default_link_position: 'next_to_text' });
+export const settingsStorage = new LocalStorageDict<LocalUserSettingsValues>('linkem_settings', { default_link_position: 'next_to_text' });
 
-export const linksPerHostStorage = new LocalStoragePerHost<LinkWithConditions[]>('linkem_links');
-
-export const packagesStorage = new LocalStorageDict<{ [packageId: string]: LinkPackage }>('linkem_imported_packages');
+settingsStorage.getItem('localUserId').then(id => {
+  if (!id) {
+    const newId = 'local-' + crypto.randomUUID();
+    settingsStorage.updateItems({ localUserId: newId });
+  }
+});

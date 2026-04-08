@@ -1,7 +1,7 @@
 import { formatLinkHref } from '@/utils/href';
 import { LinkWithConditions, Condition } from '@/types';
 import { LocalLinksStorage } from './storage/local_links_storage';
-import { settingsStorage } from './storage/local_storage';
+import { settingsStorage } from './storage/local_base_storage';
 
 
 /////////////////////////////////////////////////////////// Checking link applicability
@@ -36,28 +36,6 @@ export async function injectLinks() {
   } catch (error) {
     console.error('Failed to inject links:', error);
   }
-}
-
-export function getLinkHost(link: LinkWithConditions): string {
-  const hostConditions = link.conditions.filter(c => c.type === 'url_start');
-  if (hostConditions.length === 0) return '*';
-  if (hostConditions.length > 1) {
-    console.warn(`Link ${link.id} has multiple url_start conditions, which should not happen!`);
-  }
-  const smallest = hostConditions.reduce((sm, cur) => {
-    return cur.value.length < sm.value.length ? cur : sm;
-  }, link.conditions[0]);
-  return new URL(smallest.value).host;
-}
-
-export function getLinksForHostMap(allLinks: LinkWithConditions[]): Map<string, LinkWithConditions[]> {
-  const map = new Map<string, LinkWithConditions[]>();
-  allLinks.forEach(link => {
-    const host = getLinkHost(link);
-    if (!map.has(host)) map.set(host, []);
-    map.get(host)!.push(link);
-  });
-  return map;
 }
 
 export function getFailingConditions(conditions: Condition[]): string[] {

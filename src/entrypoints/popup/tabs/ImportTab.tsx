@@ -1,115 +1,56 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Download, Trash2, AlertCircle, CheckCircle } from 'lucide-react';
-import { ExportedLink, ExportedLinkPackage } from '@/types';
 import { LocalLinksStorage } from '@/utils/storage/local_links_storage';
-import { ImportedPackageStorage, ImportedPackage } from '@/utils/storage/imported_package_storage';
-import { importFromBase64, convertExportedLinkToInternal } from '@/utils/share';
+import { importFromBase64 } from '@/utils/share';
+import { LinkPackage } from '@/types';
+import { LocalPackageStorage } from '@/utils/storage/local_package_storage';
+import { settingsStorage } from '@/utils/storage/local_base_storage';
 
-const ImportTab: React.FC = () => {
+
+function ImportForm({ onImport }: { onImport: () => void }) {
   const [showImportForm, setShowImportForm] = useState(false);
   const [input, setInput] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [importedPackages, setImportedPackages] = useState<ImportedPackage[]>([]);
-  const [importedCount, setImportedCount] = useState(0);
 
+  // Error and success messages disappear after 5 seconds
   useEffect(() => {
-    loadImportedPackages();
-  }, []);
-
-  const loadImportedPackages = async () => {
-    try {
-      const packages = await ImportedPackageStorage.getAllImportedPackages();
-      setImportedPackages(packages);
-    } catch (error) {
-      console.error('Failed to load imported packages:', error);
-    }
-  };
+    const timers: NodeJS.Timeout[] = [];
+    if (errorMsg) timers.push(setTimeout(() => setErrorMsg(null), 5000));
+    if (successMsg) timers.push(setTimeout(() => setSuccessMsg(null), 5000));
+    return () => timers.forEach(t => clearTimeout(t));
+  }, [errorMsg, successMsg]);
 
   const handleImport = async () => {
-    setError(null);
-    setSuccess(false);
-    setImportedCount(0);
+    setErrorMsg(null);
+    setSuccessMsg(null);
 
     if (!input.trim()) {
-      setError('Please paste your text here');
+      setErrorMsg('Please paste your text here');
       return;
     }
 
     setIsLoading(true);
-
     try {
-      const data = importFromBase64(input.trim());
-
-      let linksToImport: ExportedLink[] = [];
-      let packageName = 'Imported Package';
-
-      // Extract links and determine package name
-      if ('links' in data && Array.isArray(data.links)) {
-        // It's a package
-        linksToImport = data.links;
-        packageName = (data as ExportedLinkPackage).name || 'Imported Package';
-      } else if ('href_path_format' in data) {
-        // It's a single link
-        linksToImport = [data as ExportedLink];
-        packageName = (data as ExportedLink).name || 'Imported Link';
-      }
-
-      // Import each link
-      const linkIds: string[] = [];
-      for (const linkData of linksToImport) {
-        const newLink = convertExportedLinkToInternal(linkData);
-        const savedLink = await LocalLinksStorage.saveLink(newLink);
-        linkIds.push(savedLink.id);
-      }
-
-      // Save as imported package
-      await ImportedPackageStorage.saveImportedPackage(packageName, linkIds);
-
-      setImportedCount(linksToImport.length);
-      setSuccess(true);
+      importFromBase64(input.trim());
+      setSuccessMsg('Successfully imported links!');
       setInput('');
       setShowImportForm(false);
-
-      // Reload imported packages
-      setTimeout(() => {
-        loadImportedPackages();
-        setSuccess(false);
-      }, 2000);
+      onImport();
     } catch (err) {
       if (err instanceof Error) {
-        setError(err.message);
+        setErrorMsg(err.message);
       } else {
-        setError('Failed to import. Please check the text and try again.');
+        setErrorMsg('Failed to import. Please check the text and try again.');
       }
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleDeleteImportedPackage = async (packageId: string) => {
-    const pkg = importedPackages.find(p => p.id === packageId);
-    if (!pkg) return;
-
-    try {
-      // Delete all links in the package
-      for (const linkId of pkg.linkIds) {
-        await LocalLinksStorage.deleteLink(linkId);
-      }
-
-      // Delete the imported package record
-      await ImportedPackageStorage.deleteImportedPackage(packageId);
-
-      // Reload
-      loadImportedPackages();
-    } catch (error) {
-      console.error('Failed to delete imported package:', error);
-    }
-  };
-
   return (
-    <div className="flex flex-col bg-white h-full overflow-y-auto">
+    <div>
       {/* Import Button / Textfield */}
       <button
         onClick={() => setShowImportForm(!showImportForm)}
@@ -130,8 +71,8 @@ const ImportTab: React.FC = () => {
               value={input}
               onChange={(e) => {
                 setInput(e.target.value);
-                setError(null);
-                setSuccess(false);
+                setErrorMsg(null);
+                setSuccessMsg(null);
               }}
               placeholder="paste your text here"
               className="w-full p-3 border border-gray-300 rounded-lg font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-24 resize-none"
@@ -148,22 +89,62 @@ const ImportTab: React.FC = () => {
           </button>
 
           {/* Error Message */}
-          {error && (
+          {errorMsg && (
             <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2">
               <AlertCircle size={18} className="text-red-600 shrink-0 mt-0.5" />
-              <p className="text-sm text-red-700">{error}</p>
+              <p className="text-sm text-red-700">{errorMsg}</p>
             </div>
           )}
 
           {/* Success Message */}
-          {success && (
+          {successMsg && (
             <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg flex items-start gap-2">
               <CheckCircle size={18} className="text-green-600 shrink-0 mt-0.5" />
-              <p className="text-sm text-green-700">Successfully imported {importedCount} link{importedCount !== 1 ? 's' : ''}!</p>
+              <p className="text-sm text-green-700">{successMsg}</p>
             </div>
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+export default function ImportTab() {
+  const [importedPackages, setImportedPackages] = useState<LinkPackage[]>([]);
+
+  useEffect(() => {
+    loadImportedPackages();
+  }, []);
+
+  const loadImportedPackages = async () => {
+    try {
+      const allPackages = await LocalPackageStorage.getAllPackages();
+      const thisUserId = await settingsStorage.getItem('localUserId');
+      const importedPackages = Object.values(allPackages).filter(pkg => pkg.user_id !== thisUserId);
+      setImportedPackages(importedPackages);
+    } catch (error) {
+      console.error('Failed to load imported packages:', error);
+    }
+  };
+
+  const handleDeleteImportedPackage = async (packageId: string) => {
+    const pkg = importedPackages.find(p => p.id === packageId);
+    if (!pkg) return;
+    try {
+      // Delete all links in the package
+      for (const linkId of pkg.linkIds) {
+        await LocalLinksStorage.deleteLink(linkId);
+      }
+      await LocalPackageStorage.deletePackage(packageId);
+      loadImportedPackages();
+    } catch (error) {
+      console.error('Failed to delete imported package:', error);
+    }
+  };
+
+  return (
+    <div className="flex flex-col bg-white h-full overflow-y-auto">
+      <ImportForm onImport={loadImportedPackages} />
 
       {/* Imported Packages List */}
       <div>
@@ -188,7 +169,7 @@ const ImportTab: React.FC = () => {
                     {pkg.linkIds.length} link{pkg.linkIds.length !== 1 ? 's' : ''}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
-                    Imported {new Date(pkg.importedAt).toLocaleDateString()}
+                    Last updated: {new Date(pkg.updated_at!).toLocaleDateString()}
                   </p>
                 </div>
                 <button
@@ -205,5 +186,3 @@ const ImportTab: React.FC = () => {
     </div>
   );
 };
-
-export default ImportTab;

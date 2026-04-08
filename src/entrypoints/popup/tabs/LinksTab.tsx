@@ -5,17 +5,26 @@ import { Edit, Trash2 } from 'lucide-react';
 import { LocalLinksStorage } from '@/utils/storage/local_links_storage';
 
 
-interface LinksTabProps {
-  links: LinkWithConditions[];
-  onDelete: (id: string) => void;
-  onRefresh: () => void;
-}
-
-const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
+export default function LinksTab() {
+  const [links, setLinks] = useState<LinkWithConditions[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [editingLink, setEditingLink] = useState<LinkWithConditions | null>(null);
   const [currentUrl, setCurrentUrl] = useState<string>('');
   const editPanelRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    loadLinks();
+  }, []);
+
+  const loadLinks = async () => {
+    const allLinks = await LocalLinksStorage.getAllLinks();
+    setLinks(allLinks);
+  };
+
+  const handleDelete = async (linkId: string) => {
+    await LocalLinksStorage.deleteLink(linkId);
+    loadLinks();
+  };
 
   useEffect(() => {
     browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -31,14 +40,14 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
       const editPanel = editPanelRef.current;
       if (editPanel && !editPanel.contains(event.target as Node)) {
         setEditingLink(null);
-        onRefresh();
+        loadLinks();
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [onRefresh]);
+  }, [loadLinks]);
 
   const checkUrlCondition = (condition: Condition, url: string): boolean => {
     switch (condition.type) {
@@ -71,9 +80,9 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
   };
 
   const handleSaveEdit = async (link: LinkWithConditions | UnstoredLinkWithConditions) => {
-    await LocalLinksStorage.saveLink(link);
+    await LocalLinksStorage.saveLinks([link]);
     setEditingLink(null);
-    onRefresh();
+    loadLinks();
   };
 
   return (
@@ -107,7 +116,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
                       <button onClick={() => handleEdit(link)} className="p-1.5 border-none rounded bg-blue-500 text-white cursor-pointer flex items-center justify-center transition-colors duration-200 hover:bg-blue-600">
                         <Edit size={14} />
                       </button>
-                      <button onClick={() => onDelete(link.id)} className="p-1.5 border-none rounded bg-red-500 text-white cursor-pointer flex items-center justify-center transition-colors duration-200 hover:bg-red-700">
+                      <button onClick={() => handleDelete(link.id)} className="p-1.5 border-none rounded bg-red-500 text-white cursor-pointer flex items-center justify-center transition-colors duration-200 hover:bg-red-700">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -132,7 +141,7 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
                       <button onClick={() => handleEdit(link)} className="p-1.5 border-none rounded bg-blue-500 text-white cursor-pointer flex items-center justify-center transition-colors duration-200 hover:bg-blue-600">
                         <Edit size={14} />
                       </button>
-                      <button onClick={() => onDelete(link.id)} className="p-1.5 border-none rounded bg-red-500 text-white cursor-pointer flex items-center justify-center transition-colors duration-200 hover:bg-red-700">
+                      <button onClick={() => handleDelete(link.id)} className="p-1.5 border-none rounded bg-red-500 text-white cursor-pointer flex items-center justify-center transition-colors duration-200 hover:bg-red-700">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -156,5 +165,3 @@ const LinksTab: React.FC<LinksTabProps> = ({ links, onDelete, onRefresh }) => {
     </div>
   );
 };
-
-export default LinksTab;

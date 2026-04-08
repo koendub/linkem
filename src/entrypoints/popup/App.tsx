@@ -1,33 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Tabs } from '@base-ui/react/tabs';
 import { Link, Download, Upload, Settings } from 'lucide-react';
-import { LinkWithConditions } from '@/types';
-import { LocalLinksStorage } from '../../utils/storage/local_links_storage';
 import LinksTab from './tabs/LinksTab';
 import ImportTab from './tabs/ImportTab';
 import ExportTab from './tabs/ExportTab';
 import SettingsTab from './tabs/SettingsTab';
 
 const App: React.FC = () => {
-  const [links, setLinks] = useState<LinkWithConditions[]>([]);
-  const [currentUrl, setCurrentUrl] = useState<string>('');
-
-  useEffect(() => {
-    loadLinks();
-  }, []);
-
-  const loadLinks = async () => {
-    const allLinks = await LocalLinksStorage.getAllLinks();
-    setLinks(allLinks);
-  };
-
-  
-
-  const handleDelete = async (id: string) => {
-    await LocalLinksStorage.deleteLink(id);
-    loadLinks();
-  };
-
   return (
     <div className="w-90 h-125 flex flex-col bg-white rounded-xl overflow-hidden shadow-xl">
       <Tabs.Root defaultValue="links" className="flex-1 flex flex-col">
@@ -46,7 +25,7 @@ const App: React.FC = () => {
           </Tabs.Tab>
         </Tabs.List>
         <Tabs.Panel value="links" className="flex-1 overflow-auto">
-          <LinksTab links={links} onDelete={handleDelete} onRefresh={loadLinks} />
+          <LinksTab />
         </Tabs.Panel>
         <Tabs.Panel value="import" className="flex-1 overflow-auto">
           <ImportTab />

@@ -27,7 +27,7 @@ export default defineContentScript({
     browser.runtime.onMessage.addListener((message) => {
       if (message.action === 'showCreateLinkModal') {
         showCreateLinkModal(message.selectedText, message.url, lastXPath, async (link) => {
-          await LocalLinksStorage.saveLink(link);
+          await LocalLinksStorage.saveLinks([link]);
           await injectLinks()
         });
       }

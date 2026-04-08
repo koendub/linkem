@@ -1,18 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { LinkPackage, LinkWithConditions } from '@/types';
+import { LinkPackage, LinkPackageWithLinks, LinkWithConditions } from '@/types';
 import { LocalLinksStorage } from '@/utils/storage/local_links_storage';
 import { LocalPackageStorage } from '@/utils/storage/local_package_storage';
 import { exportToBase64 } from '@/utils/share';
 import { Upload, Plus, Trash2, Copy, Check, Share } from 'lucide-react';
 
-const ExportTab: React.FC = () => {
-  const [packages, setPackages] = useState<LinkPackage[]>([]);
-  const [links, setLinks] = useState<LinkWithConditions[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showCreateForm, setShowCreateForm] = useState(false);
+function CreatePackageForm({ onCreate }: { onCreate: (name: string) => void }) {
   const [createName, setCreateName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
+}
+
+function EditPackageView({ pkg, onClose }: { pkg: LinkPackageWithLinks; onClose: () => void }) {
+
+
+  const onSave = async () => {
+    await LocalPackageStorage.savePackage(pkg);
+
+
+  }
+}
+
+
+const ExportTab: React.FC = () => {
+  const [packages, setPackages] = useState<LinkPackage[]>([]);
+  const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingPackageId, setEditingPackageId] = useState<string | null>(null);
+
   const [sharePackageId, setSharePackageId] = useState<string | null>(null);
   const [shareLinkId, setShareLinkId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
@@ -27,8 +40,7 @@ const ExportTab: React.FC = () => {
         LocalPackageStorage.getAllPackages(),
         LocalLinksStorage.getAllLinks(),
       ]);
-      setPackages(loadedPackages);
-      setLinks(loadedLinks);
+      setPackages(Object.values(loadedPackages));
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
@@ -133,7 +145,7 @@ const ExportTab: React.FC = () => {
                 onChange={(e) => setCreateName(e.target.value)}
                 placeholder="Package name"
                 className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-3"
-                onKeyPress={(e) => e.key === 'Enter' && handleCreatePackage()}
+                onKeyDown={(e) => e.key === 'Enter' && handleCreatePackage()}
               />
               <div className="flex gap-2">
                 <button

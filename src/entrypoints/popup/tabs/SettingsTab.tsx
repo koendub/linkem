@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Settings } from 'lucide-react';
 import { UserSettingsValues } from '@/types';
-import { settingsStorage } from '@/utils/storage/local_storage';
+import { settingsStorage } from '@/utils/storage/local_base_storage';
 
 const SettingsTab: React.FC = () => {
   const [settings, setSettings] = useState<UserSettingsValues | null>(null);
@@ -15,7 +15,7 @@ const SettingsTab: React.FC = () => {
 
   useEffect(() => {
     if (settings) {
-      settingsStorage.setValue(settings);
+      settingsStorage.updateItems(settings);
     }
   }, [settings]);
 
