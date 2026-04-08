@@ -8,12 +8,12 @@ import { LinkWithConditions, UnstoredLinkWithConditions } from '@/types';
 export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: (link: LinkWithConditions | UnstoredLinkWithConditions) => void) {
   const initialLinkData = createInitialLinkData(selectedText, url, xpath);
 
-  const modalContainer = createShadowRootContainer();
-  const root = ReactDOM.createRoot(modalContainer);
+  const [docRoot, modalReactRoot] = createShadowRootContainer();
+  const root = ReactDOM.createRoot(modalReactRoot);
 
   const handleClose = () => {
     root.unmount();
-    document.body.removeChild(modalContainer);
+    document.body.removeChild(docRoot);
   };
 
   root.render(
@@ -67,7 +67,7 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
   };
 }
 
-function createShadowRootContainer(): HTMLDivElement {
+function createShadowRootContainer(): [HTMLDivElement, HTMLDivElement] {
   // Create shadow root to isolate styles, also import the tailwind styles
   const shadowRootContainer = document.createElement('div');
   document.body.appendChild(shadowRootContainer);
@@ -81,5 +81,5 @@ function createShadowRootContainer(): HTMLDivElement {
   const modalContainer = document.createElement('div');
   modalContainer.id = 'linkem-modal-container';
   shadowRoot.appendChild(modalContainer);
-  return modalContainer;
+  return [shadowRootContainer, modalContainer];
 }

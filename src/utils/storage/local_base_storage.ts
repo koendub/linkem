@@ -9,10 +9,11 @@ export class LocalStorage<T> {
 
   async getValue(forceReload: boolean = false): Promise<T | null> {
     if (!this.value || forceReload) {
+      console.log(`Loading value for key ${this.storageKey} from local storage`);
       const stored = await browser.storage.local.get<{ [key: string]: T }>(this.storageKey);
       this.value = stored[this.storageKey] || null;
     }
-    return this.value as T | null;
+    return (this.value) as T | null;
   }
 
   async setValue(value: T): Promise<void> {
@@ -31,18 +32,17 @@ export class LocalStorageDict<D extends { [key: string]: any }> extends LocalSto
   }
 
   async getItem<V>(valueKey: string, defaultValue: V | undefined = undefined): Promise<V | undefined> {
-    const dict = await this.getValue();
+    const dict = await this.getValue() || {} as D;
     return (dict && dict[valueKey]) || this.defaults[valueKey] || defaultValue;
   }
 
   async updateItems(updates: Partial<D>): Promise<void> {
-    const dict = await this.getValue() as { [key: string]: any };
-    Object.assign(dict, updates);
-    await this.writeValue();
+    const dict = await this.getValue() || {} as D;
+    await this.setValue(Object.assign(dict, updates));
   }
 
   async removeItem(key: string): Promise<void> {
-    const dict = await this.getValue() as { [key: string]: any };
+    const dict = await this.getValue() || {} as D;
     delete dict[key];
     await this.writeValue();
   }

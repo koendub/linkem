@@ -143,7 +143,7 @@ export default function ImportTab() {
   };
 
   return (
-    <div className="flex flex-col bg-white h-full overflow-y-auto">
+    <div className="flex flex-col bg-white p-6 min-h-full overflow-y-auto">
       <ImportForm onImport={loadImportedPackages} />
 
       {/* Imported Packages List */}

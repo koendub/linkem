@@ -27,12 +27,8 @@ const conditionDetails = {
 
 export async function injectLinks() {
   try {
-    const links = await LocalLinksStorage.getAllLinks();
-    const hostMap = getLinksForHostMap(links);
-    const hostLinks = hostMap.get(window.location.host)
-    if (hostLinks) {
-      await injectMatchingLinks(hostLinks);
-    }
+    const allLinks = await LocalLinksStorage.getAllLinks();
+    await injectMatchingLinks(Object.values(allLinks));
   } catch (error) {
     console.error('Failed to inject links:', error);
   }
