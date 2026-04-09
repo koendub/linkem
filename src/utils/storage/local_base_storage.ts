@@ -21,7 +21,7 @@ export class LocalStorage<T> {
     await this.writeValue();
   }
 
-  async writeValue(): Promise<void> {
+  private async writeValue(): Promise<void> {
     await browser.storage.local.set({ [this.storageKey]: this.value });
   }
 }
@@ -49,7 +49,8 @@ export class LocalStorageDict<D extends { [key: string]: any }> extends LocalSto
   async removeItem(key: string): Promise<void> {
     const dict = await this.getValue() || {} as D;
     delete dict[key];
-    await this.writeValue();
+    console.log(`Removing key ${key} from local storage dict, now there are keys: ${Object.keys(dict).join(', ')}`);
+    await this.setValue(dict);
   }
 }
 

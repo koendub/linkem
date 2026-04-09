@@ -54,9 +54,9 @@ function ImportForm({ onImport }: { onImport: () => void }) {
       {/* Import Button / Textfield */}
       <button
         onClick={() => setShowImportForm(!showImportForm)}
-        className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium flex items-center justify-center gap-2 mb-6"
+        className="btn-primary w-[calc(100%-var(--spacing)*4)]"
       >
-        <Download size={18} />
+        <Download size={18} className='mr-2' />
         Import from Text or Id
       </button>
 
@@ -143,7 +143,7 @@ export default function ImportTab() {
   };
 
   return (
-    <div className="flex flex-col bg-white p-6 min-h-full overflow-y-auto">
+    <div className="flex flex-col bg-white p-6 min-h-full">
       <ImportForm onImport={loadImportedPackages} />
 
       {/* Imported Packages List */}

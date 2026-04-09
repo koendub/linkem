@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { LinkWithConditions, UnstoredLinkWithConditions, Condition } from '@/types';
 import { Link, Plus, Trash2, X, Save, ChevronDown } from 'lucide-react';
 import { Accordion } from '@base-ui/react';
-import './style.css';
+
 
 interface EditLinkViewProps {
   link: LinkWithConditions | UnstoredLinkWithConditions;

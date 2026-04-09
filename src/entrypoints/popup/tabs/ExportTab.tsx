@@ -163,7 +163,7 @@ const ExportTab: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col bg-white p-6 min-h-full overflow-y-auto">
+    <div className="flex flex-col bg-white p-6 min-h-full">
       {/* Link Packages Section */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold mb-4 text-gray-900">Your Link Packages</h3>
@@ -172,9 +172,9 @@ const ExportTab: React.FC = () => {
         {!editingPackage && (
           <button
             onClick={() => setEditingPackage({ name: '', linkIds: [] })}
-            className="btn-primary w-full"
+            className="btn-primary w-[calc(100%-var(--spacing)*4)]"
           >
-            <Plus size={18} />
+            <Plus size={18} className='mr-2' />
             Create New Package
           </button>
         )}
