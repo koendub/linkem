@@ -3,7 +3,7 @@ import { LinkPackage, LinkWithConditions, UnstoredLinkPackage } from '@/types';
 import { LocalLinksStorage } from '@/utils/storage/local_links_storage';
 import { LocalPackageStorage } from '@/utils/storage/local_package_storage';
 import { exportToBase64 } from '@/utils/share';
-import { Plus, Trash2, Copy, Check, Share } from 'lucide-react';
+import { Plus, Trash2, Copy, Check, Share, PencilLine } from 'lucide-react';
 import { useStorageValue } from '@/utils/hooks/useStorage';
 import { settingsStorage } from '@/utils/storage/local_base_storage';
 
@@ -38,7 +38,7 @@ function EditPackageView({ initialPkg, onClose }: EditPackageViewProps) {
       <div className="flex items-center justify-between mb-3">
         <h4 className="font-semibold text-gray-900">Editing: {pkg.name}</h4>
         <button
-          onClick={() => onClose(pkg)}
+          onClick={() => onClose({ ...pkg, name: pkg.name.trim() })}
           className="text-sm text-blue-600 hover:text-blue-700"
         >
           Done
@@ -51,7 +51,7 @@ function EditPackageView({ initialPkg, onClose }: EditPackageViewProps) {
         <input
           type="text"
           value={pkg.name}
-          onChange={(e) => setPkg({ ...pkg, name: e.target.value.trim() })}
+          onChange={(e) => setPkg({ ...pkg, name: e.target.value })}
           className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
         />
       </div>
@@ -172,7 +172,7 @@ const ExportTab: React.FC = () => {
         {!editingPackage && (
           <button
             onClick={() => setEditingPackage({ name: '', linkIds: [] })}
-            className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium flex items-center justify-center gap-2 mb-4"
+            className="btn-primary w-full"
           >
             <Plus size={18} />
             Create New Package
@@ -200,7 +200,7 @@ const ExportTab: React.FC = () => {
             {Object.values(packages).map((pkg) => (
               <div key={pkg.id}>
                 <div
-                  className="border border-gray-200 rounded-lg p-4 flex items-center justify-between bg-white hover:border-gray-300 transition"
+                  className="border border-gray-200 rounded-lg p-2 pl-4 flex items-center justify-between bg-white hover:border-gray-300 transition"
                 >
                   <div className="flex-1">
                     <h4 className="font-semibold text-gray-900">{pkg.name}</h4>
@@ -208,24 +208,14 @@ const ExportTab: React.FC = () => {
                       {pkg.linkIds.length} link{pkg.linkIds.length !== 1 ? 's' : ''}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 ml-4">
-                    <button
-                      onClick={() => setEditingPackage(pkg)}
-                      className="px-3 py-1 text-sm bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition"
-                    >
-                      Edit
+                  <div className="flex items-center">
+                    <button onClick={() => setEditingPackage(pkg)} className="btn-icon-blue">
+                      <PencilLine size={14} />
                     </button>
-                    <button
-                      onClick={() => setShowShareId(showShareId === pkg.id ? null : pkg.id)}
-                      className="px-3 py-1 text-sm bg-green-50 text-green-700 rounded hover:bg-green-100 transition flex items-center gap-1"
-                    >
+                    <button onClick={() => setShowShareId(showShareId === pkg.id ? null : pkg.id)} className="btn-icon-green">
                       <Share size={14} />
-                      Share
                     </button>
-                    <button
-                      onClick={() => handleDeletePackage(pkg.id)}
-                      className="px-3 py-1 text-sm bg-red-50 text-red-700 rounded hover:bg-red-100 transition"
-                    >
+                    <button onClick={() => handleDeletePackage(pkg.id)} className="btn-icon-red">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -249,7 +239,7 @@ const ExportTab: React.FC = () => {
           <div className="space-y-3">
             {Object.values(allLinks).map((link) => (
               <div key={link.id}>
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-gray-300 transition">
+                <div className="flex items-center justify-between p-2 pl-4 border border-gray-200 rounded-lg hover:border-gray-300 transition">
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-gray-900 truncate">{link.name}</h4>
                     <p className="text-sm text-gray-500 truncate">{link.href_path_format}</p>
@@ -257,12 +247,8 @@ const ExportTab: React.FC = () => {
                       <p className="text-sm text-gray-600 mt-1 line-clamp-2">{link.display_name}</p>
                     )}
                   </div>
-                  <button
-                    onClick={() => setShowShareId(showShareId === link.id ? null : link.id)}
-                    className="ml-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition flex items-center gap-2 whitespace-nowrap"
-                  >
-                    <Share size={16} />
-                    Share
+                  <button onClick={() => setShowShareId(showShareId === link.id ? null : link.id)} className="btn-icon-green">
+                    <Share size={14} />
                   </button>
                 </div>
                 {showShareId === link.id && <ShareableView item={link} />}

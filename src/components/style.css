@@ -21,8 +21,9 @@
   --color-bg-muted: rgb(243, 244, 246); /* gray-100 */
 }
 
-.body {
+body {
   isolation: isolate;
+  box-sizing: border-box;
 }
 
 @layer base {
@@ -51,27 +52,23 @@
 @layer utilities {
   /* Button variants */
   .btn-primary {
-    @apply px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg;
+    @apply m-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg;
   }
 
   .btn-secondary {
-    @apply px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg;
+    @apply m-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg;
   }
 
-  .btn-danger {
-    @apply px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg;
+  .btn-icon-green {
+    @apply m-1 px-3 py-3 text-sm bg-green-200 text-green-700 rounded hover:bg-green-300 transition;
   }
 
-  .btn-success {
-    @apply px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg;
+  .btn-icon-blue {
+    @apply m-1 px-3 py-3 text-sm bg-blue-200 text-blue-700 rounded hover:bg-blue-300 transition;
   }
-
-  .btn-sm {
-    @apply px-3 py-2 text-sm;
-  }
-
-  .btn-icon {
-    @apply p-2 flex items-center justify-center;
+  
+  .btn-icon-red {
+    @apply m-1 px-3 py-3 text-sm bg-red-200 text-red-700 rounded hover:bg-red-300 transition;
   }
 
   /*  Utility classes */

@@ -113,10 +113,10 @@ export default function LinksTab() {
                       <div className="text-xs text-gray-500">{link.href_path_format}</div>
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => handleEdit(link)} className="p-1.5 border-none rounded bg-blue-500 text-white cursor-pointer flex items-center justify-center transition-colors duration-200 hover:bg-blue-600">
+                      <button onClick={() => handleEdit(link)} className="btn-icon-blue">
                         <Edit size={14} />
                       </button>
-                      <button onClick={() => handleDelete(link.id)} className="p-1.5 border-none rounded bg-red-500 text-white cursor-pointer flex items-center justify-center transition-colors duration-200 hover:bg-red-700">
+                      <button onClick={() => handleDelete(link.id)} className="btn-icon-red">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -138,10 +138,10 @@ export default function LinksTab() {
                       <div className="text-xs text-gray-500">{link.href_path_format}</div>
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => handleEdit(link)} className="p-1.5 border-none rounded bg-blue-500 text-white cursor-pointer flex items-center justify-center transition-colors duration-200 hover:bg-blue-600">
+                      <button onClick={() => handleEdit(link)} className="btn-icon-blue">
                         <Edit size={14} />
                       </button>
-                      <button onClick={() => handleDelete(link.id)} className="p-1.5 border-none rounded bg-red-500 text-white cursor-pointer flex items-center justify-center transition-colors duration-200 hover:bg-red-700">
+                      <button onClick={() => handleDelete(link.id)} className="btn-icon-red">
                         <Trash2 size={14} />
                       </button>
                     </div>
