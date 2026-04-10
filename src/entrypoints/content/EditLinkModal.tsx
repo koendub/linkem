@@ -77,6 +77,12 @@ function createShadowRootContainer(): [HTMLDivElement, HTMLDivElement] {
   style.textContent = styleText;
   shadowRoot.appendChild(style);
 
+  // REM might not work well without this, according to this post. So might as well add it, can't hurt.
+  // https://dev.to/dhirajarya01/how-i-finally-made-tailwindcss-work-inside-the-shadow-dom-a-real-case-study-5gkl
+  const style2 = document.createElement("style");
+  style2.textContent = ":host, * { font-size: 16px; }";
+  shadowRoot.appendChild(style2);
+
   // Create modal container
   const modalContainer = document.createElement('div');
   modalContainer.id = 'linkem-modal-container';
