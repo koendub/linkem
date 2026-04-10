@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { LinkPackage, LinkWithConditions, UnstoredLinkPackage } from '@/types';
-import { LocalLinksStorage } from '@/utils/storage/local_links_storage';
-import { LocalPackageStorage } from '@/utils/storage/local_package_storage';
-import { exportToBase64 } from '@/utils/share';
+import { LinkPackage, LinkWithConditions, UnstoredLinkPackage } from '@/core/types';
+import { LocalLinksStorage } from '@/core/storage/local_links_storage';
+import { LocalPackageStorage } from '@/core/storage/local_package_storage';
+import { exportToBase64 } from '@/core/share';
 import { Plus, Trash2, Copy, Check, Share, PencilLine } from 'lucide-react';
-import { useStorageValue } from '@/utils/hooks/useStorage';
-import { settingsStorage } from '@/utils/storage/local_base_storage';
+import { useStorageValue } from '@/components/hooks/useStorage';
+import { settingsStorage } from '@/core/storage/local_base_storage';
 
 interface EditPackageViewProps {
   initialPkg: LinkPackage | UnstoredLinkPackage;

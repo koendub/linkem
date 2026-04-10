@@ -1,4 +1,4 @@
-import { LinkPackage, LinkPackageWithLinks, UnstoredLinkPackage } from '@/types';
+import { LinkPackage, LinkPackageWithLinks, UnstoredLinkPackage } from '@/core/types';
 import { LocalStorageDict, settingsStorage } from './local_base_storage';
 import { LocalLinksStorage } from './local_links_storage';
 

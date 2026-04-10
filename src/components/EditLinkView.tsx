@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LinkWithConditions, UnstoredLinkWithConditions, Condition } from '@/types';
+import { LinkWithConditions, UnstoredLinkWithConditions, Condition } from '@/core/types';
 import { Link, Plus, Trash2, X, Save, ChevronDown } from 'lucide-react';
 import { Accordion } from '@base-ui/react';
 

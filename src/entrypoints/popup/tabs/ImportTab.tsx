@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Download, Trash2, AlertCircle, CheckCircle } from 'lucide-react';
-import { LocalLinksStorage } from '@/utils/storage/local_links_storage';
-import { importFromBase64 } from '@/utils/share';
-import { LinkPackage } from '@/types';
-import { LocalPackageStorage } from '@/utils/storage/local_package_storage';
-import { settingsStorage } from '@/utils/storage/local_base_storage';
+import { LocalLinksStorage } from '@/core/storage/local_links_storage';
+import { importFromBase64 } from '@/core/share';
+import { LinkPackage } from '@/core/types';
+import { LocalPackageStorage } from '@/core/storage/local_package_storage';
+import { settingsStorage } from '@/core/storage/local_base_storage';
 
 
 function ImportForm({ onImport }: { onImport: () => void }) {

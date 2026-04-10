@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Settings } from 'lucide-react';
-import { UserSettingsValues } from '@/types';
-import { settingsStorage } from '@/utils/storage/local_base_storage';
-import { useStorageValue } from '@/utils/hooks/useStorage';
+import { UserSettingsValues } from '@/core/types';
+import { settingsStorage } from '@/core/storage/local_base_storage';
+import { useStorageValue } from '@/components/hooks/useStorage';
 
 const SettingsTab: React.FC = () => {
   const { value: settings, setValue: setSettings } = useStorageValue(settingsStorage, {} as UserSettingsValues);

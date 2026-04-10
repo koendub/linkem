@@ -1,4 +1,4 @@
-import { Link } from "@/types";
+import { Link } from "@/core/types";
 
 class CustomHrefFormatException extends Error {
   constructor(errorInSection: string, msg: string) {

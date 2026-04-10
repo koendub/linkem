@@ -1,8 +1,8 @@
-import React, { useState, useMemo, useRef, useEffect } from 'react';
-import { LinkWithConditions, Condition, UnstoredLinkWithConditions } from '@/types';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import { LinkWithConditions, Condition, UnstoredLinkWithConditions } from '@/core/types';
 import { EditLinkView } from '../../../components/EditLinkView';
 import { Edit, Trash2 } from 'lucide-react';
-import { LocalLinksStorage } from '@/utils/storage/local_links_storage';
+import { LocalLinksStorage } from '@/core/storage/local_links_storage';
 
 
 export default function LinksTab() {

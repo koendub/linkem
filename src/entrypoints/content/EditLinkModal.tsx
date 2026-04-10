@@ -1,8 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { EditLinkView } from '@/components/EditLinkView';
-import styleText from '../../components/style.css?inline';
-import { LinkWithConditions, UnstoredLinkWithConditions } from '@/types';
+import styleText from '@/components/style.css?inline';
+import { LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
+import { getElementByXPath } from '@/core/xpath';
 
 
 export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: (link: LinkWithConditions | UnstoredLinkWithConditions) => void) {

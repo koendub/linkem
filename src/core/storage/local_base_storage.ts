@@ -1,4 +1,4 @@
-import { LinkPackage, LinkWithConditions, LocalUserSettingsValues, UserSettingsValues } from "@/types/extra_types";
+import { LocalUserSettingsValues } from "@/core/types/extra_types";
 
 // Storage classes
 

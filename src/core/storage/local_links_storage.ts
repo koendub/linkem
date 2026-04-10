@@ -1,4 +1,4 @@
-import { LinkWithConditions, UnstoredLinkWithConditions } from '@/types';
+import { LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
 import { LocalStorageDict, settingsStorage } from './local_base_storage';
 
 

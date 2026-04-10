@@ -1,7 +1,8 @@
-import { formatLinkHref } from '@/utils/href';
-import { LinkWithConditions, Condition } from '@/types';
+import { formatLinkHref } from '@/core/href';
+import { LinkWithConditions, Condition } from '@/core/types';
 import { LocalLinksStorage } from './storage/local_links_storage';
 import { settingsStorage } from './storage/local_base_storage';
+import { getElementByXPath } from './xpath';
 
 
 /////////////////////////////////////////////////////////// Checking link applicability

@@ -1,4 +1,4 @@
-import { LinkPackage, LinkWithConditions, LinkPackageWithLinks, } from "@/types";
+import { LinkPackage, LinkWithConditions, LinkPackageWithLinks, } from "@/core/types";
 import { LocalLinksStorage } from "./storage/local_links_storage";
 import { LocalPackageStorage } from "./storage/local_package_storage";
 
