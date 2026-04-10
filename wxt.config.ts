@@ -6,7 +6,7 @@ export default defineConfig({
   modules: ['@wxt-dev/module-react'],
   srcDir: "src",
   manifest: {
-    permissions: ['storage', 'contextMenus', 'activeTab', 'tabs']
+    permissions: ['storage', 'contextMenus']
   },
   webExt: {
     startUrls: [
