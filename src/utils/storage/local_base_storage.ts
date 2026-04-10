@@ -54,51 +54,6 @@ export class LocalStorageDict<D extends { [key: string]: any }> extends LocalSto
   }
 }
 
-/*
-export class LocalStoragePerHost<V> {
-  private valuesPerHosts: { [host: string]: LocalStorage<V> } = {};
-
-  constructor(private storageKeyPrefix: string) {}
-
-  private getHostStorage(host: string): LocalStorage<V> {
-    if (!this.valuesPerHosts[host]) {
-      this.valuesPerHosts[host] = new LocalStorage<V>(`${this.storageKeyPrefix}__${host}`);
-    }
-    return this.valuesPerHosts[host];
-  }
-
-  async getForHost(host: string): Promise<V | null> {
-    return this.getHostStorage(host).getValue();
-  }
-
-  async setForHost(host: string, value: V): Promise<void> {
-    await this.getHostStorage(host).setValue(value);
-  }
-
-  async editForHost(host: string, editFn: (current: V | null) => V): Promise<void> {
-    const storage = this.getHostStorage(host);
-    const current = await storage.getValue();
-    const edited = editFn(current);
-    await storage.setValue(edited);
-  }
-
-  async getAll(): Promise<{ [host: string]: V }> {
-    // This is a bit inefficient as it reads all keys, but browser.storage.local
-    // doesn't support listing keys with a prefix. I think we will only use this class
-    // for links, so almost all keys will be relevant, so it should be fine.
-    const fullStorage = await browser.storage.local.get<{ [key: string]: any }>(null);
-    const result: { [host: string]: V } = {};
-    for (const key of Object.keys(fullStorage)) {
-      if (key.startsWith(this.storageKeyPrefix + '__')) {
-        const host = key.substring((this.storageKeyPrefix + '__').length);
-        result[host] = fullStorage[key];
-      }
-    }
-    return result;
-  }
-}
-*/
-
 // Specific storages
 
 export const settingsStorage = new LocalStorageDict<LocalUserSettingsValues>('linkem_settings', { default_link_position: 'next_to_text' });
