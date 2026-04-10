@@ -73,15 +73,25 @@ function createShadowRootContainer(): [HTMLDivElement, HTMLDivElement] {
   document.body.appendChild(shadowRootContainer);
   const shadowRoot = shadowRootContainer.attachShadow({ mode: 'open' });
 
+  // https://github.com/tailwindlabs/tailwindcss/discussions/15556#discussioncomment-15063817
+  const usingTailwindFallback = (styles: string) => {
+    const tailwindCompatCheckString = '(((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b))))';
+    if (!styles.includes(tailwindCompatCheckString)) {
+      console.warn('Tailwind CSS compatibility check string not found in styles. Tailwind may not work correctly in the shadow DOM. This worked with v4.2.2...');
+      return styles;
+    }
+    return styles.replace(tailwindCompatCheckString, '(display: block)');
+  };
+
   const style = document.createElement("style");
-  style.textContent = styleText;
+  style.textContent = usingTailwindFallback(styleText);
   shadowRoot.appendChild(style);
 
   // REM might not work well without this, according to this post. So might as well add it, can't hurt.
   // https://dev.to/dhirajarya01/how-i-finally-made-tailwindcss-work-inside-the-shadow-dom-a-real-case-study-5gkl
-  const style2 = document.createElement("style");
-  style2.textContent = ":host, * { font-size: 16px; }";
-  shadowRoot.appendChild(style2);
+  // const style2 = document.createElement("style");
+  // style2.textContent = ":host, * { font-size: 16px; }";
+  // shadowRoot.appendChild(style2);
 
   // Create modal container
   const modalContainer = document.createElement('div');
