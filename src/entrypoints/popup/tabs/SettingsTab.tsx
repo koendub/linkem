@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import { Settings } from 'lucide-react';
-import { UserSettingsValues } from '@/core/types';
+import { LocalUserSettingsValues, UserSettingsValues } from '@/core/types';
 import { settingsStorage } from '@/core/storage/local_base_storage';
 import { useStorageValue } from '@/components/hooks/useStorage';
 
 const SettingsTab: React.FC = () => {
-  const { value: settings, setValue: setSettings } = useStorageValue(settingsStorage, {} as UserSettingsValues);
+  const { value: settings, setValue: setSettings } = useStorageValue(settingsStorage, {} as LocalUserSettingsValues);
 
   useEffect(() => {
     if (settings) {
@@ -23,6 +23,8 @@ const SettingsTab: React.FC = () => {
         <Settings size={20} className="text-gray-500 mr-2" />
         <h3 className="m-0 text-lg text-gray-900 font-semibold">Settings</h3>
       </div>
+
+      {/* Default Link Display Position */}
       <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm">
         <label className="block mb-3 text-sm font-semibold text-gray-900">
           Default Link Display Position
@@ -54,6 +56,27 @@ const SettingsTab: React.FC = () => {
               <div className="text-xs text-gray-500">Adds link beside selected text</div>
             </div>
           </label>
+        </div>
+      </div>
+
+      {/* Allow Networking */}
+      <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm mt-4">
+        <label className="block mb-3 text-sm font-semibold text-gray-900">
+          Allow Networking
+          <p className='text-xs text-gray-500'>
+            Enable networking features allows you to publish and import links and link packages from other users by ID.
+            Due to the potential security implications of importing many remote links, this feature is disabled by default.
+            If you enable this, I recommend checking any links you import! (which, btw, is a good idea either way...)
+          </p>
+        </label>
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            checked={settings.allowNetworking}
+            onChange={(e) => setSettings({ ...settings, allowNetworking: e.target.checked })}
+            className="mr-2"
+          />
+          <span className="text-sm text-gray-800">Enable networking features</span>
         </div>
       </div>
     </div>

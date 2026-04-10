@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { Database, Link, Condition, UserSettings, LinkWithConditions } from '@/core/types'
+import { settingsStorage } from './local_base_storage'
 
 // Initialize Supabase client
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
@@ -9,12 +10,22 @@ if (!supabaseUrl || !supabaseKey) {
   console.warn('Supabase environment variables not configured. Cloud features will be unavailable.')
 }
 
-const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-})
+async function createSupabaseClient() {
+  if (!supabaseUrl || !supabaseKey) {
+    throw new Error('Supabase environment variables not configured')
+  }
+  const allowNetworking = await settingsStorage.getItem('allowNetworking', false);
+  if (!allowNetworking) {
+    throw new Error('Networking features are disabled in settings. Cannot initialize client.')
+  }
+  const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+    },
+  })
+  return supabase;
+}
 
 /**
  * Supabase-based storage manager for links and settings
@@ -25,7 +36,7 @@ export class SupabaseStorage {
    * Get the current authenticated user
    */
   static async getCurrentUser() {
-    const { data: { user }, error } = await supabase.auth.getUser()
+    const supabase = await createSupabaseClient();const { data: { user }, error } = await supabase.auth.getUser()
     if (error) {
       console.error('Failed to get current user:', error)
       return null
@@ -52,6 +63,7 @@ export class SupabaseStorage {
     }
 
     // Get all links for the user
+    const supabase = await createSupabaseClient();
     const { data: links, error: linksError } = await supabase
       .from('links')
       .select('*')
@@ -103,6 +115,7 @@ export class SupabaseStorage {
       throw new Error('User not authenticated')
     }
 
+    const supabase = await createSupabaseClient();
     const { data: link, error: linkError } = await supabase
       .from('links')
       .select('*')
@@ -146,6 +159,7 @@ export class SupabaseStorage {
 
     let savedLink: Link
 
+    const supabase = await createSupabaseClient();
     if (link.id) {
       // Update existing link
       const { data, error } = await supabase
@@ -237,6 +251,7 @@ export class SupabaseStorage {
     }
 
     // Conditions will be deleted automatically due to CASCADE foreign key
+    const supabase = await createSupabaseClient();
     const { error } = await supabase
       .from('links')
       .delete()
@@ -257,6 +272,7 @@ export class SupabaseStorage {
       throw new Error('User not authenticated')
     }
 
+    const supabase = await createSupabaseClient();
     const { data, error } = await supabase
       .from('user_settings')
       .select('*')
@@ -283,6 +299,7 @@ export class SupabaseStorage {
       throw new Error('User not authenticated')
     }
 
+    const supabase = await createSupabaseClient();
     const { data, error } = await supabase
       .from('user_settings')
       .upsert({
@@ -305,6 +322,7 @@ export class SupabaseStorage {
    * Create default settings for a user
    */
   private static async createDefaultSettings(userId: string): Promise<UserSettings> {
+    const supabase = await createSupabaseClient();
     const { data, error } = await supabase
       .from('user_settings')
       .insert({
@@ -325,6 +343,7 @@ export class SupabaseStorage {
    * Sign out the current user
    */
   static async signOut(): Promise<void> {
+    const supabase = await createSupabaseClient();
     const { error } = await supabase.auth.signOut()
     if (error) {
       throw new Error(`Failed to sign out: ${error.message}`)
@@ -332,17 +351,10 @@ export class SupabaseStorage {
   }
 
   /**
-   * Get the Supabase client instance
-   * Useful for custom operations or monitoring auth state
-   */
-  static getClient() {
-    return supabase
-  }
-
-  /**
    * Listen to auth state changes
    */
-  static onAuthStateChange(callback: (event: string, session: any) => void) {
+  static async onAuthStateChange(callback: (event: string, session: any) => void) {
+    const supabase = await createSupabaseClient();
     return supabase.auth.onAuthStateChange(callback)
   }
 }

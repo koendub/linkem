@@ -30,4 +30,4 @@ export type UnstoredLinkPackage = Omit<LinkPackage, 'id' | 'user_id' | 'created_
 
 // Other custom types
 export type UserSettingsValues = Omit<UserSettings, 'id' | 'user_id' | 'created_at' | 'updated_at'>;
-export type LocalUserSettingsValues = UserSettingsValues & { localUserId: string };
+export type LocalUserSettingsValues = UserSettingsValues & { localUserId: string, allowNetworking: boolean };
