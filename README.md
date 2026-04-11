@@ -55,12 +55,12 @@ Available format values are:
 
 Locally:
  - Links are always stored in local storage.
- - Links can be exported to text and imported. In this case it is stored as if it was made by the current user.
- - Links can also be bundled together into a link package. This can also be stored
+ - Links can be shared using (base64 json) text.
+ - Links can also be bundled together into a link package. These can also be shared via text.
 
 Online:
  - Links can also 
 
 # Technical details
 
-Made with WXT + React + TypeScript
+Made with WXT + React + TypeScript + TailwindCSS

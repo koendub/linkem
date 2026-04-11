@@ -59,16 +59,24 @@ body {
     @apply m-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg;
   }
 
-  .btn-icon-green {
-    @apply m-1 px-3 py-3 text-sm bg-green-200 text-green-700 rounded hover:bg-green-300 transition;
+  .btn-icon {
+    @apply m-1 px-3 py-3 text-sm rounded;
   }
 
-  .btn-icon-blue {
-    @apply m-1 px-3 py-3 text-sm bg-blue-200 text-blue-700 rounded hover:bg-blue-300 transition;
+  .btn-icon-small {
+    @apply m-1 px-2 py-2 text-sm rounded;
+  }
+
+  .btn-green {
+    @apply bg-green-200 text-green-700 hover:bg-green-300 transition;
+  }
+
+  .btn-blue {
+    @apply bg-blue-200 text-blue-700 hover:bg-blue-300 transition;
   }
   
-  .btn-icon-red {
-    @apply m-1 px-3 py-3 text-sm bg-red-200 text-red-700 rounded hover:bg-red-300 transition;
+  .btn-red {
+    @apply bg-red-200 text-red-700 hover:bg-red-300 transition;
   }
 
   /*  Utility classes */

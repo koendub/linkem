@@ -113,10 +113,10 @@ export default function LinksTab() {
                       <div className="text-xs text-gray-500">{link.href_path_format}</div>
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => handleEdit(link)} className="btn-icon-blue">
+                      <button onClick={() => handleEdit(link)} className="btn-icon btn-blue">
                         <Edit size={14} />
                       </button>
-                      <button onClick={() => handleDelete(link.id)} className="btn-icon-red">
+                      <button onClick={() => handleDelete(link.id)} className="btn-icon btn-red">
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -138,10 +138,10 @@ export default function LinksTab() {
                       <div className="text-xs text-gray-500">{link.href_path_format}</div>
                     </div>
                     <div className="flex gap-1">
-                      <button onClick={() => handleEdit(link)} className="btn-icon-blue">
+                      <button onClick={() => handleEdit(link)} className="btn-icon btn-blue">
                         <Edit size={14} />
                       </button>
-                      <button onClick={() => handleDelete(link.id)} className="btn-icon-red">
+                      <button onClick={() => handleDelete(link.id)} className="btn-icon btn-red">
                         <Trash2 size={14} />
                       </button>
                     </div>

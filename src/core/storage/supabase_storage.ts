@@ -36,7 +36,8 @@ export class SupabaseStorage {
    * Get the current authenticated user
    */
   static async getCurrentUser() {
-    const supabase = await createSupabaseClient();const { data: { user }, error } = await supabase.auth.getUser()
+    const supabase = await createSupabaseClient();
+    const { data: { user }, error } = await supabase.auth.getUser()
     if (error) {
       console.error('Failed to get current user:', error)
       return null
@@ -261,82 +262,6 @@ export class SupabaseStorage {
     if (error) {
       throw new Error(`Failed to delete link: ${error.message}`)
     }
-  }
-
-  /**
-   * Get user settings
-   */
-  static async getSettings(): Promise<UserSettings> {
-    const user = await this.getCurrentUser()
-    if (!user) {
-      throw new Error('User not authenticated')
-    }
-
-    const supabase = await createSupabaseClient();
-    const { data, error } = await supabase
-      .from('user_settings')
-      .select('*')
-      .eq('user_id', user.id)
-      .single()
-
-    if (error) {
-      if (error.code === 'PGRST116') {
-        // Settings don't exist yet, create default ones
-        return await this.createDefaultSettings(user.id)
-      }
-      throw new Error(`Failed to fetch settings: ${error.message}`)
-    }
-
-    return data as UserSettings
-  }
-
-  /**
-   * Save user settings
-   */
-  static async saveSettings(settings: UserSettings): Promise<UserSettings> {
-    const user = await this.getCurrentUser()
-    if (!user) {
-      throw new Error('User not authenticated')
-    }
-
-    const supabase = await createSupabaseClient();
-    const { data, error } = await supabase
-      .from('user_settings')
-      .upsert({
-        user_id: user.id,
-        default_link_position: settings.default_link_position,
-        updated_at: new Date().toISOString()
-      })
-      .eq('user_id', user.id)
-      .select()
-      .single()
-
-    if (error) {
-      throw new Error(`Failed to save settings: ${error.message}`)
-    }
-
-    return data as UserSettings
-  }
-
-  /**
-   * Create default settings for a user
-   */
-  private static async createDefaultSettings(userId: string): Promise<UserSettings> {
-    const supabase = await createSupabaseClient();
-    const { data, error } = await supabase
-      .from('user_settings')
-      .insert({
-        user_id: userId,
-        default_link_position: 'next_to_text'
-      })
-      .select()
-      .single()
-
-    if (error) {
-      throw new Error(`Failed to create default settings: ${error.message}`)
-    }
-
-    return data as UserSettings
   }
 
   /**

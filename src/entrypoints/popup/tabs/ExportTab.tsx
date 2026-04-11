@@ -3,7 +3,7 @@ import { LinkPackage, LinkWithConditions, UnstoredLinkPackage } from '@/core/typ
 import { LocalLinksStorage } from '@/core/storage/local_links_storage';
 import { LocalPackageStorage } from '@/core/storage/local_package_storage';
 import { exportToBase64 } from '@/core/share';
-import { Plus, Trash2, Copy, Check, Share, PencilLine } from 'lucide-react';
+import { Plus, Trash2, Copy, Check, Share, PencilLine, UploadCloud } from 'lucide-react';
 import { useStorageValue } from '@/components/hooks/useStorage';
 import { settingsStorage } from '@/core/storage/local_base_storage';
 
@@ -91,42 +91,42 @@ interface ShareablePackageProps {
 }
 
 function ShareableView({ item }: ShareablePackageProps) {
-  const [copied, setCopied] = useState(false);
-  const [base64, setBase64] = useState<string | undefined>(undefined);
-
-  useEffect(() => {
-    const generateBase64 = async () => {
-      const encoded = await exportToBase64(item);
-      setBase64(encoded);
-    };
-    generateBase64();
-  }, [item]);
+  const [copiedBase64, setCopiedBase64] = useState(false);
+  const [uploadSuccess, setUploadSuccess] = useState<boolean | null>(null);
 
   const handleCopyShareText = useCallback(async () => {
-    const useBase64 = base64 || await exportToBase64(item);
+    const useBase64 = await exportToBase64(item);
     navigator.clipboard.writeText(useBase64);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }, [base64]);
+    setCopiedBase64(true);
+    setTimeout(() => setCopiedBase64(false), 2000);
+  }, [item]);
+
+  const handleUpload = useCallback(async () => {
+    setUploadSuccess(null);
+    try {
+      setUploadSuccess(true);
+    } catch (error) {
+      setUploadSuccess(false);
+    }
+  }, [item]);
 
   return (
     <div className="p-4 bg-gray-50 border border-gray-200 rounded-b-lg">
       <h4 className="font-semibold text-gray-900 mb-2">Share "{item.name}"</h4>
       <div className="flex gap-2">
-        <input
-          type="text"
-          readOnly
-          placeholder='Generating shareable text...'
-          value={base64}
-          className="flex-1 bg-white border border-gray-300 rounded px-3 py-2 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          disabled={!base64}
-        />
         <button
           onClick={() => handleCopyShareText()}
           className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-1 whitespace-nowrap"
         >
-          {copied ? <Check size={16} /> : <Copy size={16} />}
-          {copied ? 'Copied!' : 'Copy'}
+          {copiedBase64 ? <Check size={16} /> : <Copy size={16} />}
+          {copiedBase64 ? 'Copied!' : 'Copy'}
+        </button>
+        <button
+          onClick={() => handleUpload()}
+          className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-1 whitespace-nowrap"
+        >
+          {uploadSuccess === true ? <Check size={16} /> : <UploadCloud size={16} />}
+          {uploadSuccess === true ? 'Upload Successful!' : uploadSuccess === false ? 'Upload Failed' : 'Upload'}
         </button>
       </div>
     </div>
@@ -209,13 +209,13 @@ const ExportTab: React.FC = () => {
                     </p>
                   </div>
                   <div className="flex items-center">
-                    <button onClick={() => setEditingPackage(pkg)} className="btn-icon-blue">
+                    <button onClick={() => setEditingPackage(pkg)} className="btn-icon btn-blue">
                       <PencilLine size={14} />
                     </button>
-                    <button onClick={() => setShowShareId(showShareId === pkg.id ? null : pkg.id)} className="btn-icon-green">
+                    <button onClick={() => setShowShareId(showShareId === pkg.id ? null : pkg.id)} className="btn-icon btn-green">
                       <Share size={14} />
                     </button>
-                    <button onClick={() => handleDeletePackage(pkg.id)} className="btn-icon-red">
+                    <button onClick={() => handleDeletePackage(pkg.id)} className="btn-icon btn-red">
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -247,7 +247,7 @@ const ExportTab: React.FC = () => {
                       <p className="text-sm text-gray-600 mt-1 line-clamp-2">{link.display_name}</p>
                     )}
                   </div>
-                  <button onClick={() => setShowShareId(showShareId === link.id ? null : link.id)} className="btn-icon-green">
+                  <button onClick={() => setShowShareId(showShareId === link.id ? null : link.id)} className="btn-icon btn-green">
                     <Share size={14} />
                   </button>
                 </div>
