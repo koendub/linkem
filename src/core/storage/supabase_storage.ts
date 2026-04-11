@@ -1,5 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
-import { Database, Link, Condition, UserSettings, LinkWithConditions } from '@/core/types'
+import { Database, Link, Condition, LinkWithConditions } from '@/core/types'
 import { settingsStorage } from './local_base_storage'
 
 // Initialize Supabase client
@@ -261,6 +261,40 @@ export class SupabaseStorage {
 
     if (error) {
       throw new Error(`Failed to delete link: ${error.message}`)
+    }
+  }
+
+  /**
+   * Sign in with email (magic link)
+   * Sends a magic link to the provided email address
+   */
+  static async signInWithEmail(email: string): Promise<void> {
+    const supabase = await createSupabaseClient();
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        // For extensions, we typically redirect back to the extension
+        // The redirect URL should be the extension's page that handles the token
+        shouldCreateUser: true,
+      }
+    })
+    if (error) {
+      throw new Error(`Failed to send magic link: ${error.message}`)
+    }
+  }
+
+  /**
+   * Verify OTP token from email link
+   */
+  static async verifyOtp(email: string, token: string): Promise<void> {
+    const supabase = await createSupabaseClient();
+    const { error } = await supabase.auth.verifyOtp({
+      email,
+      token,
+      type: 'email'
+    })
+    if (error) {
+      throw new Error(`Failed to verify OTP: ${error.message}`)
     }
   }
 

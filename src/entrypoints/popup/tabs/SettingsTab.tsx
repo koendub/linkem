@@ -33,13 +33,18 @@ function SupabaseSignInOut() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState('');
+  const [signingIn, setSigningIn] = useState(false);
+  const [linkSent, setLinkSent] = useState(false);
 
   const fetchUser = async () => {
     setLoading(true);
+    setError(null);
     try {
       const currentUser = await SupabaseStorage.getCurrentUser();
       setUser(currentUser);
     } catch (err) {
+      console.error('Error fetching user:', err);
       setError('Failed to fetch user information.');
     } finally {
       setLoading(false);
@@ -50,29 +55,72 @@ function SupabaseSignInOut() {
     fetchUser();
   }, []);
 
+  const handleSignIn = async () => {
+    if (!email || !email.includes('@')) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+
+    setSigningIn(true);
+    setError(null);
+    try {
+      await SupabaseStorage.signInWithEmail(email);
+      setLinkSent(true);
+      setEmail('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send magic link.');
+    } finally {
+      setSigningIn(false);
+    }
+  };
+
   return (
     <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm mt-4">
       <TitleWithInfo title="Sign in to Supabase" info="Sign in to Supabase to allow you to publish links for other users." />
-      {user ? (
-        <div className="flex items-center">
-          <span className="text-sm text-gray-800">Signed in as {user.email}</span>
-          <button className="btn-secondary ml-4" onClick={async () => {
-            await SupabaseStorage.signOut();
-            fetchUser();
+      {loading ? (
+        <div className="text-sm text-gray-500">Loading...</div>
+      ) : user ? (
+        <div className="flex flex-col">
+          <span className="text-sm text-gray-800 mb-3">Signed in as <strong>{user.email}</strong></span>
+          <button className="btn-secondary" onClick={async () => {
+            try {
+              await SupabaseStorage.signOut();
+              setUser(null);
+              setError(null);
+              setLinkSent(false);
+            } catch (err) {
+              setError(err instanceof Error ? err.message : 'Failed to sign out.');
+            }
           }}>
             Sign out
           </button>
         </div>
+      ) : linkSent ? (
+        <div className="flex flex-col">
+          <div className="text-sm text-gray-700 mb-3">
+            <strong>Magic link sent!</strong> Check your email for a link to verify your sign-in.
+          </div>
+          <button className="btn-secondary" onClick={() => setLinkSent(false)}>
+            Back to sign in
+          </button>
+        </div>
       ) : (
-        <div className="flex items-center">
-          <button className="btn-primary" onClick={async () => {
-            await SupabaseStorage.getCurrentUser();
-            fetchUser();
-          }}>
-            Sign in
+        <div className="flex flex-col gap-3">
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleSignIn()}
+            className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            disabled={signingIn}
+          />
+          <button className="btn-primary" onClick={handleSignIn} disabled={signingIn}>
+            {signingIn ? 'Sending...' : 'Send Magic Link'}
           </button>
         </div>
       )}
+      {error && <div className="text-sm text-red-500 mt-3">{error}</div>}
     </div>
   )
 }
@@ -85,7 +133,7 @@ const SettingsTab: React.FC = () => {
   }
 
   return (
-    <div className="p-5 h-full box-border mb-3">
+    <div className="p-5 min-h-full box-border">
       <div className="flex items-center mb-6">
         <Settings size={20} className="text-gray-500 mr-2" />
         <h3 className="m-0 text-lg text-gray-900 font-semibold">Settings</h3>
