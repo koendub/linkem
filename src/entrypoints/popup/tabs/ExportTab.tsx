@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { LinkPackage, LinkWithConditions, UnstoredLinkPackage } from '@/core/types';
+import { LinkPackage, LinkWithConditions, LocalUserSettingsValues, UnstoredLinkPackage } from '@/core/types';
 import { LocalLinksStorage } from '@/core/storage/local_links_storage';
 import { LocalPackageStorage } from '@/core/storage/local_package_storage';
 import { exportToBase64 } from '@/core/share';
 import { Plus, Trash2, Copy, Check, Share, PencilLine, UploadCloud } from 'lucide-react';
 import { useStorageValue } from '@/components/hooks/useStorage';
 import { settingsStorage } from '@/core/storage/local_base_storage';
+import { SupabaseStorage } from '@/core/storage/supabase_storage';
 
 interface EditPackageViewProps {
   initialPkg: LinkPackage | UnstoredLinkPackage;
@@ -93,6 +94,7 @@ interface ShareablePackageProps {
 function ShareableView({ item }: ShareablePackageProps) {
   const [copiedBase64, setCopiedBase64] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState<boolean | null>(null);
+  const { value: settings } = useStorageValue(settingsStorage, {} as LocalUserSettingsValues);
 
   const handleCopyShareText = useCallback(async () => {
     const useBase64 = await exportToBase64(item);
@@ -104,6 +106,13 @@ function ShareableView({ item }: ShareablePackageProps) {
   const handleUpload = useCallback(async () => {
     setUploadSuccess(null);
     try {
+      if ('linkIds' in item) {
+        throw new Error('Uploading packages is not supported yet');
+      } else if ('conditions' in item) {
+        await SupabaseStorage.saveLink(item);
+      } else {
+        throw new Error('Unknown item type. This should not happen.');
+      }
       setUploadSuccess(true);
     } catch (error) {
       setUploadSuccess(false);
@@ -116,18 +125,20 @@ function ShareableView({ item }: ShareablePackageProps) {
       <div className="flex gap-2">
         <button
           onClick={() => handleCopyShareText()}
-          className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-1 whitespace-nowrap"
+          className="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-1 whitespace-nowrap"
         >
           {copiedBase64 ? <Check size={16} /> : <Copy size={16} />}
           {copiedBase64 ? 'Copied!' : 'Copy'}
         </button>
-        <button
-          onClick={() => handleUpload()}
-          className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-1 whitespace-nowrap"
-        >
-          {uploadSuccess === true ? <Check size={16} /> : <UploadCloud size={16} />}
-          {uploadSuccess === true ? 'Upload Successful!' : uploadSuccess === false ? 'Upload Failed' : 'Upload'}
-        </button>
+        {settings.allowNetworking && (
+          <button
+            onClick={() => handleUpload()}
+            className="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-1 whitespace-nowrap"
+          >
+            {uploadSuccess === true ? <Check size={16} /> : <UploadCloud size={16} />}
+            {uploadSuccess === true ? 'Upload Successful!' : uploadSuccess === false ? 'Upload Failed' : 'Upload'}
+          </button>
+        )}
       </div>
     </div>
   )

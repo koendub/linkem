@@ -3,7 +3,7 @@ import { InfoIcon, Settings } from 'lucide-react';
 import { LocalUserSettingsValues } from '@/core/types';
 import { settingsStorage } from '@/core/storage/local_base_storage';
 import { useStorageValue } from '@/components/hooks/useStorage';
-import { SupabaseStorage } from '@/core/storage/supabase_storage';
+import { hasSupabaseConfig, SupabaseStorage } from '@/core/storage/supabase_storage';
 import { User } from '@supabase/supabase-js';
 
 
@@ -34,8 +34,10 @@ function SupabaseSignInOut() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState('');
+  const [otp, setOtp] = useState('');
   const [signingIn, setSigningIn] = useState(false);
-  const [linkSent, setLinkSent] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [verifying, setVerifying] = useState(false);
 
   const fetchUser = async () => {
     setLoading(true);
@@ -55,7 +57,7 @@ function SupabaseSignInOut() {
     fetchUser();
   }, []);
 
-  const handleSignIn = async () => {
+  const handleSendOtp = async () => {
     if (!email || !email.includes('@')) {
       setError('Please enter a valid email address.');
       return;
@@ -64,13 +66,33 @@ function SupabaseSignInOut() {
     setSigningIn(true);
     setError(null);
     try {
-      await SupabaseStorage.signInWithEmail(email);
-      setLinkSent(true);
-      setEmail('');
+      await SupabaseStorage.sendOtp(email);
+      setOtpSent(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send magic link.');
+      setError(err instanceof Error ? err.message : 'Failed to send OTP.');
     } finally {
       setSigningIn(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!otp || otp.length < 6) {
+      setError('Please enter a valid OTP (6 digits).');
+      return;
+    }
+
+    setVerifying(true);
+    setError(null);
+    try {
+      await SupabaseStorage.verifyOtp(email, otp);
+      await fetchUser();
+      setOtpSent(false);
+      setEmail('');
+      setOtp('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to verify OTP.');
+    } finally {
+      setVerifying(false);
     }
   };
 
@@ -87,7 +109,7 @@ function SupabaseSignInOut() {
               await SupabaseStorage.signOut();
               setUser(null);
               setError(null);
-              setLinkSent(false);
+              setOtpSent(false);
             } catch (err) {
               setError(err instanceof Error ? err.message : 'Failed to sign out.');
             }
@@ -95,14 +117,34 @@ function SupabaseSignInOut() {
             Sign out
           </button>
         </div>
-      ) : linkSent ? (
-        <div className="flex flex-col">
-          <div className="text-sm text-gray-700 mb-3">
-            <strong>Magic link sent!</strong> Check your email for a link to verify your sign-in.
+      ) : otpSent ? (
+        <div className="flex flex-col gap-3">
+          <div className="text-sm text-gray-700">
+            Enter the OTP code sent to <strong>{email}</strong>
           </div>
-          <button className="btn-secondary" onClick={() => setLinkSent(false)}>
-            Back to sign in
-          </button>
+          <input
+            type="text"
+            placeholder="Enter 6-digit OTP"
+            value={otp}
+            onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 12))}
+            onKeyDown={(e) => e.key === 'Enter' && handleVerifyOtp()}
+            maxLength={12}
+            className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-center tracking-widest text-lg font-mono"
+            disabled={verifying}
+            autoFocus
+          />
+          <div className="flex gap-2">
+            <button className="btn-primary flex-1" onClick={handleVerifyOtp} disabled={verifying}>
+              {verifying ? 'Verifying...' : 'Verify OTP'}
+            </button>
+            <button className="btn-secondary flex-1" onClick={() => {
+              setOtpSent(false);
+              setOtp('');
+              setError(null);
+            }} disabled={verifying}>
+              Back
+            </button>
+          </div>
         </div>
       ) : (
         <div className="flex flex-col gap-3">
@@ -111,12 +153,12 @@ function SupabaseSignInOut() {
             placeholder="Enter your email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSignIn()}
+            onKeyDown={(e) => e.key === 'Enter' && handleSendOtp()}
             className="px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             disabled={signingIn}
           />
-          <button className="btn-primary" onClick={handleSignIn} disabled={signingIn}>
-            {signingIn ? 'Sending...' : 'Send Magic Link'}
+          <button className="btn-primary" onClick={handleSendOtp} disabled={signingIn}>
+            {signingIn ? 'Sending...' : 'Send OTP'}
           </button>
         </div>
       )}
@@ -172,26 +214,42 @@ const SettingsTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Allow Networking */}
-      <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm mt-4">
-        <TitleWithInfo title="Allow Networking" info={
-          "Enable networking features allows you to publish and import links and link packages from other users by ID. " 
-          + "This feature is disabled by default due to the potential security implications of importing link from other users. "
-          + "If you enable this, I recommend checking any links you import! (which, btw, is a good idea either way...)"
-        } />
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            checked={settings.allowNetworking}
-            onChange={(e) => setSettings({ ...settings, allowNetworking: e.target.checked })}
-            className="mr-2"
-          />
-          <span className="text-sm text-gray-800">Enable networking features</span>
-        </div>
-      </div>
+      {hasSupabaseConfig() ? (
+        <>
+          {/* Allow Networking (if this build supports it by having Supabase configured) */}
+          <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm mt-4">
+            <TitleWithInfo title="Allow Networking" info={
+              "Enable networking features allows you to publish and import links and link packages from other users by ID. " 
+              + "This feature is disabled by default due to the potential security implications of importing link from other users. "
+              + "If you enable this, I recommend checking any links you import! (which, btw, is a good idea either way...)"
+            } />
+            <div className="flex items-center">
+              <input
+                type="checkbox"
+                checked={settings.allowNetworking}
+                onChange={(e) => setSettings({ ...settings, allowNetworking: e.target.checked })}
+                className="mr-2"
+              />
+              <span className="text-sm text-gray-800">Enable networking features</span>
+            </div>
+          </div>
 
-      {/* Sign in to Supabase (optional and only if networking is enabled) */}
-      {settings.allowNetworking && <SupabaseSignInOut />}
+          {/* Sign in to Supabase (optional and only if networking is enabled) */}
+          {settings.allowNetworking && <SupabaseSignInOut />}
+        </>
+      ) : (
+        <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm">
+          <TitleWithInfo title="Networking Not Available (...yet?)" info={
+            "Networking features allow you to publish, import and stay up to date with links and link packages from other users. "
+            + "This version of Linkem does not support networking yet. If this is something you want to see, let me know in the feedback form!"
+          } />
+        </div>
+      )}
+
+      {/* Feedback */}
+      <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm mt-4">
+        <TitleWithInfo title="Feedback" info="Have suggestions or found a bug? Help improve Linkem by providing feedback!" />
+      </div>
 
     </div>
   );

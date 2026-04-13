@@ -1,11 +1,3 @@
--- Create profiles table for user information
--- This extends the auth.users table with additional user data
-CREATE TABLE profiles (
-  id UUID PRIMARY KEY REFERENCES auth.users (id) ON DELETE CASCADE,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
-  updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
-);
-
 -- Create links table
 CREATE TABLE links (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -47,20 +39,9 @@ CREATE INDEX idx_conditions_link_id ON conditions (link_id);
 CREATE INDEX idx_user_settings_user_id ON user_settings (user_id);
 
 -- Enable Row Level Security
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE links ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conditions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_settings ENABLE ROW LEVEL SECURITY;
-
--- RLS Policies for profiles table
-CREATE POLICY "Users can view their own profile" ON profiles
-  FOR SELECT USING (auth.uid() = id);
-
-CREATE POLICY "Users can update their own profile" ON profiles
-  FOR UPDATE USING (auth.uid() = id);
-
-CREATE POLICY "Users can insert their own profile" ON profiles
-  FOR INSERT WITH CHECK (auth.uid() = id);
 
 -- RLS Policies for links table
 CREATE POLICY "Users can view their own private links" ON links

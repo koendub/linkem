@@ -16,6 +16,6 @@ Structure:
 
 To perform any database operations (including viewing / type generation):
  - Use `npx supabase login` to login to supabase
- - Use `npx supabase db reset` to reset the database to the current migration
+ - Use `npx supabase db reset --linked` to reset the database to the current migration
  - Use `npx supabase migration new <name>` to create a new migration file
- - Use `npx supabase migration up` to apply your new migration
+ - Use `npx supabase db push` to apply your new migration

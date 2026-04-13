@@ -6,12 +6,12 @@ import { settingsStorage } from './local_base_storage'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
-if (!supabaseUrl || !supabaseKey) {
-  console.warn('Supabase environment variables not configured. Cloud features will be unavailable.')
+export function hasSupabaseConfig() {
+  return !!supabaseUrl && !!supabaseKey
 }
 
 async function createSupabaseClient() {
-  if (!supabaseUrl || !supabaseKey) {
+  if (!hasSupabaseConfig()) {
     throw new Error('Supabase environment variables not configured')
   }
   const allowNetworking = await settingsStorage.getItem('allowNetworking', false);
@@ -265,21 +265,19 @@ export class SupabaseStorage {
   }
 
   /**
-   * Sign in with email (magic link)
-   * Sends a magic link to the provided email address
+   * Send OTP to email
+   * Sends a one-time password to the provided email address
    */
-  static async signInWithEmail(email: string): Promise<void> {
+  static async sendOtp(email: string): Promise<void> {
     const supabase = await createSupabaseClient();
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        // For extensions, we typically redirect back to the extension
-        // The redirect URL should be the extension's page that handles the token
         shouldCreateUser: true,
       }
     })
     if (error) {
-      throw new Error(`Failed to send magic link: ${error.message}`)
+      throw new Error(`Failed to send OTP: ${error.message}`)
     }
   }
 
