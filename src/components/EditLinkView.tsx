@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { LinkWithConditions, UnstoredLinkWithConditions, Condition } from '@/core/types';
 import { Link, Plus, Trash2, X, Save, ChevronDown } from 'lucide-react';
 import { Accordion } from '@base-ui/react';
+import { hasSupabaseConfig } from '@/core/storage/supabase_storage';
 
 
 interface EditLinkViewProps {
@@ -59,30 +60,6 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
             </div>
           </div>
           <Accordion.Root multiple className="space-y-3">
-
-            {/* Sharing Accordion */}
-            <Accordion.Item value="sharing" className="border border-gray-300 rounded-lg bg-white">
-              <Accordion.Header>
-                <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
-                  Sharing
-                  <ChevronDown className="w-5 h-5 transition-transform duration-200" />
-                </Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel className="smooth-accordion-panel">
-                <div className="px-4 py-3 space-y-3">
-                  <div>
-                    <label>Visibility</label>
-                    <select
-                      value={linkObj.visibility}
-                      onChange={(e) => setLinkObj({ ...linkObj, visibility: e.target.value as any })}
-                    >
-                      <option value="private">Private</option>
-                      <option value="public">Public</option>
-                    </select>
-                  </div>
-                </div>
-              </Accordion.Panel>
-            </Accordion.Item>
 
             {/* Link Location Accordion */}
             <Accordion.Item value="location" className="border border-gray-300 rounded-lg bg-white">
@@ -189,6 +166,32 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                 </div>
               </Accordion.Panel>
             </Accordion.Item>
+
+            {/* Sharing Accordion */}
+            {hasSupabaseConfig() && (
+              <Accordion.Item value="sharing" className="border border-gray-300 rounded-lg bg-white">
+                <Accordion.Header>
+                  <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
+                    Sharing
+                    <ChevronDown className="w-5 h-5 transition-transform duration-200" />
+                  </Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Panel className="smooth-accordion-panel">
+                  <div className="px-4 py-3 space-y-3">
+                    <div>
+                      <label>Visibility</label>
+                      <select
+                        value={linkObj.visibility}
+                        onChange={(e) => setLinkObj({ ...linkObj, visibility: e.target.value as any })}
+                      >
+                        <option value="private">Private</option>
+                        <option value="public">Public</option>
+                      </select>
+                    </div>
+                  </div>
+                </Accordion.Panel>
+              </Accordion.Item>
+            )}
 
           </Accordion.Root>
         </div>

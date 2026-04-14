@@ -9,18 +9,19 @@ import { getElementByXPath } from '@/core/xpath';
 export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: (link: LinkWithConditions | UnstoredLinkWithConditions) => void) {
   const initialLinkData = createInitialLinkData(selectedText, url, xpath);
 
-  const [docRoot, modalReactRoot] = createShadowRootContainer();
+  const [documentShadowContainer, modalReactRoot] = createShadowRootContainer();
+  document.body.appendChild(documentShadowContainer);
   const root = ReactDOM.createRoot(modalReactRoot);
 
   const handleClose = () => {
     root.unmount();
-    document.body.removeChild(docRoot);
+    document.body.removeChild(documentShadowContainer);
   };
 
   root.render(
     <React.StrictMode>
       <div className='fixed top-0 left-0 w-full h-full bg-black/50 z-10000 flex items-center justify-center'>
-        <div className='w-2/3 h-2/3 rounded-lg overflow-hidden shadow-lg'>
+        <div className='w-96 h-132 max-w-full max-h-full rounded-lg overflow-hidden shadow-lg'>
           <EditLinkView
             link={initialLinkData}
             onClose={handleClose}
@@ -71,7 +72,6 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
 function createShadowRootContainer(): [HTMLDivElement, HTMLDivElement] {
   // Create shadow root to isolate styles, also import the tailwind styles
   const shadowRootContainer = document.createElement('div');
-  document.body.appendChild(shadowRootContainer);
   const shadowRoot = shadowRootContainer.attachShadow({ mode: 'open' });
 
   // https://github.com/tailwindlabs/tailwindcss/discussions/15556#discussioncomment-15063817
@@ -98,5 +98,8 @@ function createShadowRootContainer(): [HTMLDivElement, HTMLDivElement] {
   const modalContainer = document.createElement('div');
   modalContainer.id = 'linkem-modal-container';
   shadowRoot.appendChild(modalContainer);
+
+  // Return the root that should be attached to the document,
+  // and the container inside the shadow root where the React app should be rendered
   return [shadowRootContainer, modalContainer];
 }
