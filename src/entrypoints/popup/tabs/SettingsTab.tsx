@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { InfoIcon, Settings } from 'lucide-react';
+import { InfoIcon, MessageCircleMore, Settings } from 'lucide-react';
 import { LocalUserSettingsValues } from '@/core/types';
 import { settingsStorage } from '@/core/storage/local_base_storage';
 import { useStorageValue } from '@/components/hooks/useStorage';
 import { hasSupabaseConfig, SupabaseStorage } from '@/core/storage/supabase_storage';
 import { User } from '@supabase/supabase-js';
+import KofiSymbol from '@/components/kofi_symbol.svg';
 
 
 function TitleWithInfo({ title, info }: { title: string, info: string }) {
@@ -175,14 +176,14 @@ const SettingsTab: React.FC = () => {
   }
 
   return (
-    <div className="p-5 min-h-full box-border">
-      <div className="flex items-center mb-6">
+    <div className="px-5 py-3 min-h-full box-border">
+      <div className="flex items-center mb-4">
         <Settings size={20} className="text-gray-500 mr-2" />
         <h3 className="m-0 text-lg text-gray-900 font-semibold">Settings</h3>
       </div>
 
       {/* Default Link Display Position */}
-      <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm">
+      <div className="bg-white border border-gray-300 rounded-lg px-4 py-2 shadow-sm">
         <TitleWithInfo title="Default Link Position" info="If a link did not specify a position, this default position will be used." />
         <div className="flex flex-col">
           <label className={`flex items-center p-2 border border-gray-300 rounded-md cursor-pointer transition-colors duration-200 ${settings.default_link_position === 'on_text' ? 'bg-blue-50' : 'bg-white'}`}>
@@ -217,7 +218,7 @@ const SettingsTab: React.FC = () => {
       {hasSupabaseConfig() ? (
         <>
           {/* Allow Networking (if this build supports it by having Supabase configured) */}
-          <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm mt-4">
+          <div className="bg-white border border-gray-300 rounded-lg px-4 py-2 shadow-sm mt-4">
             <TitleWithInfo title="Allow Networking" info={
               "Enable networking features allows you to publish and import links and link packages from other users by ID. " 
               + "This feature is disabled by default due to the potential security implications of importing link from other users. "
@@ -238,7 +239,7 @@ const SettingsTab: React.FC = () => {
           {settings.allowNetworking && <SupabaseSignInOut />}
         </>
       ) : (
-        <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm">
+        <div className="bg-white border border-gray-300 rounded-lg px-4 pt-2 shadow-sm mt-4">
           <TitleWithInfo title="Networking Not Available (...yet?)" info={
             "Networking features allow you to publish, import and stay up to date with links and link packages from other users. "
             + "This version of Linkem does not support networking yet. If this is something you want to see, let me know in the feedback form!"
@@ -246,9 +247,17 @@ const SettingsTab: React.FC = () => {
         </div>
       )}
 
-      {/* Feedback */}
-      <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm mt-4">
-        <TitleWithInfo title="Feedback" info="Have suggestions or found a bug? Help improve Linkem by providing feedback!" />
+      {/* Feedback & Support */}
+      <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm mt-4 flex flex-col">
+        <TitleWithInfo title="Feedback & Support" info="Have suggestions or found a bug? Help improve Linkem by providing feedback! If you just like the tool, consider buying me a coffee!" />
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSej1spEb0EgjAdCejY2TDjnqyf9EQKlmGEVXo5vu9ijDW0qnQ/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer" className="bg-indigo-200 hover:underline py-2 px-4 rounded-md font-bold mt-1">
+          <MessageCircleMore size={24} className="inline-block mr-4 my-0.5" />
+          Give feedback
+        </a>
+        <a href="https://ko-fi.com/bufferflow" target="_blank" rel="noopener noreferrer" className="bg-red-200 hover:underline py-2 px-4 rounded-md font-bold mt-3">
+          <img src={KofiSymbol} alt="Kofi" className="inline-block w-7 h-7 mr-3" />
+          Buy me a coffee!
+        </a>
       </div>
 
     </div>

@@ -120,15 +120,14 @@ function ShareableView({ item }: ShareablePackageProps) {
   }, [item]);
 
   return (
-    <div className="p-4 bg-gray-50 border border-gray-200 rounded-b-lg">
-      <h4 className="font-semibold text-gray-900 mb-2">Share "{item.name}"</h4>
+    <div className="p-2 bg-gray-50 border border-gray-200 rounded-b-lg mx-1">
       <div className="flex gap-2">
         <button
           onClick={() => handleCopyShareText()}
           className="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-1 whitespace-nowrap"
         >
           {copiedBase64 ? <Check size={16} /> : <Copy size={16} />}
-          {copiedBase64 ? 'Copied!' : 'Copy'}
+          {copiedBase64 ? 'Copied!' : 'Copy as Text'}
         </button>
         {settings.allowNetworking && (
           <button
