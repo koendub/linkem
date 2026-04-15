@@ -108,9 +108,9 @@ export default function LinksTab() {
               {filteredLinks.currentPageLinks.map(link => (
                 <li key={link.id} className="mb-2 border border-gray-300 rounded-lg p-3 bg-white shadow-sm transition-shadow duration-200 cursor-pointer hover:shadow-md">
                   <div className="flex justify-between items-center">
-                    <div className="flex-1">
-                      <div className="font-semibold text-sm text-gray-900 mb-1">{link.name}</div>
-                      <div className="text-xs text-gray-500">{link.href_path_format}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm text-gray-900 mb-1 truncate">{link.name}</div>
+                      <div className="text-xs text-gray-500 truncate">{link.href_path_format}</div>
                     </div>
                     <div className="flex gap-1">
                       <button onClick={() => handleEdit(link)} className="btn-icon btn-blue">
@@ -133,11 +133,11 @@ export default function LinksTab() {
               {filteredLinks.otherLinks.map(link => (
                 <li key={link.id} className="mb-2 border border-gray-300 rounded-lg p-3 bg-white shadow-sm transition-shadow duration-200 cursor-pointer hover:shadow-md">
                   <div className="flex justify-between items-center">
-                    <div className="flex-1">
-                      <div className="font-semibold text-sm text-gray-900 mb-1">{link.name}</div>
-                      <div className="text-xs text-gray-500">{link.href_path_format}</div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm text-gray-900 mb-1 truncate">{link.name}</div>
+                      <div className="text-xs text-gray-500 truncate">{link.href_path_format}</div>
                     </div>
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 ml-1">
                       <button onClick={() => handleEdit(link)} className="btn-icon btn-blue">
                         <Edit size={14} />
                       </button>

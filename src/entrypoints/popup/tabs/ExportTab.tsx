@@ -253,11 +253,8 @@ const ExportTab: React.FC = () => {
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-gray-900 truncate">{link.name}</h4>
                     <p className="text-sm text-gray-500 truncate">{link.href_path_format}</p>
-                    {link.display_name && (
-                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">{link.display_name}</p>
-                    )}
                   </div>
-                  <button onClick={() => setShowShareId(showShareId === link.id ? null : link.id)} className="btn-icon btn-green">
+                  <button onClick={() => setShowShareId(showShareId === link.id ? null : link.id)} className="btn-icon btn-green ml-1">
                     <Share size={14} />
                   </button>
                 </div>
