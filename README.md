@@ -16,27 +16,22 @@ To do this, follow these steps:
 	 - In case of `next to text`, choose a name or icon to show
 	 - Create the link, using a format string like `http://to_website/query/{text-value}`
 	 - Select the conditions that need to be met to add this link, like: 'url start', 'xpath match', 'value match' etc.
-	 - Select visibility for this link, choosing between `private` and `public`
 	 - After clicking `save`, your new link will be stored on your device
 
 Right after clicking save, and any other time you visit this website, the link will be
 injected into the website (assuming conditions are met, like the selected element is still there)
 
-## Usage #2: Managing your links
-
-
-
 ## Usage 2: Importing link libraries
 
 Im sure everybody would love a link from their delivery notice email to their product order page.
-Or maybe one from the website you use 
+Or maybe those 2 websites your whole team uses could just be a bit better linked together.
 
 Since maybe people would want these links, they can be shared.
-Users can create 'link libraries'. A library consists of links, or sub libraries.
-(implementation note to self: check for circular reference)
-Users can search and upvote/downvote these libraries, and install them.
+Users can create 'link packages'. A packages consists of links and some meta information
 When they are installed, all active links in that library are added to the users links.
-Also, every day the installed libraries get queried for changes to their links
+
+FUTURE: Users can search and upvote/downvote these libraries, and install them.
+Every day the installed libraries get queried for changes to their links, though these are not automatically installed! (security)
 
 
 # How To
@@ -44,12 +39,11 @@ Also, every day the installed libraries get queried for changes to their links
 ## Link Format
 
 To create link, you use a format string, like `http://to_website/query/{text-value}`
-This would create a link to the url where {text-value} is filled with a value on render.
+This would create a link to the url where `{text-value}` is filled with the value of the selected text on render.
+These formats can also take an argument, like `{url-param:id}` to fill with the id param of the url.
 
-Available format values are:
- - `text-value`: the value of the selected text, or the word that was right-clicked if no text was selected
- - `url_segment:x`: The current website url you are on. 
- - `url_parameter:x`: The value of parameter `x` in the url of the current website
+To check out the current other supported formats, check the `hrefReplacers` in `href.ts`.
+
 
 ## Sharing links
 

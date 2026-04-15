@@ -60,8 +60,6 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
     }
   }
 
-  
-
   const position = link.position === 'user_default'
     ? (await settingsStorage.getItem<string>('default_link_position'))
     : link.position;
@@ -73,8 +71,13 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
   // If no pattern is provided, use the full text
   if (!pattern) {
     if (position === 'on_text') {
-      element.textContent = '';
-      element.appendChild(createNewLinkElement(link.id, href, text));
+      // Wrap all element contents in a link, preserving DOM structure
+      const linkEl = createNewLinkElement(link.id, href, text);
+      linkEl.textContent = '';
+      while (element.firstChild) {
+        linkEl.appendChild(element.firstChild);
+      }
+      element.appendChild(linkEl);
     } else if (position === 'next_to_text') {
       element.appendChild(createNewLinkElement(link.id, href, link.display_name || link.name, true));
     }
@@ -94,28 +97,78 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
   const matchedText = match[0];
   const matchIndex = match.index || 0;
 
-  // Clear the element and rebuild it
-  element.textContent = '';
-
-  // Add text before the match
-  if (matchIndex > 0) {
-    element.appendChild(document.createTextNode(text.substring(0, matchIndex)));
+  // Use DOM Range to find and manipulate the matched text while preserving DOM structure
+  const range = findTextRangeInElement(element, matchIndex, matchedText.length);
+  
+  if (!range) {
+    // Fallback: append at the end if range not found
+    element.appendChild(createNewLinkElement(link.id, href, link.display_name || link.name, true));
+    return;
   }
 
   if (position === 'on_text') {
-    // Wrap the matched text in a link
-    element.appendChild(createNewLinkElement(link.id, href, matchedText));
+    // Extract contents of range, wrap in link, and insert back
+    const contents = range.extractContents();
+    const linkEl = createNewLinkElement(link.id, href, '');
+    linkEl.textContent = '';
+    linkEl.appendChild(contents);
+    range.insertNode(linkEl);
   } else if (position === 'next_to_text') {
-    // Add the matched text as regular text, then add the link after it
-    element.appendChild(document.createTextNode(matchedText));
-    element.appendChild(createNewLinkElement(link.id, href, link.display_name || link.name, true));
+    // Collapse range to its end and insert link after
+    const linkEl = createNewLinkElement(link.id, href, link.display_name || link.name, true);
+    range.collapse(false);
+    range.insertNode(linkEl);
   }
+}
 
-  // Add the remaining unrelated text after the match
-  const endIndex = matchIndex + matchedText.length;
-  if (endIndex < text.length) {
-    element.appendChild(document.createTextNode(text.substring(endIndex)));
+function findTextRangeInElement(element: Element, startOffset: number, length: number): Range | null {
+  const range = document.createRange();
+  let charCount = 0;
+  let startNode: Node | null = null;
+  let startNodeOffset = 0;
+  let endNode: Node | null = null;
+  let endNodeOffset = 0;
+  
+  function walkNodes(node: Node): boolean {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const nodeText = node.textContent || '';
+      const nodeEnd = charCount + nodeText.length;
+      
+      // Check if match start is in this node
+      if (charCount <= startOffset && startOffset < nodeEnd && !startNode) {
+        startNode = node;
+        startNodeOffset = startOffset - charCount;
+      }
+      
+      // Check if match end is in this node
+      if (charCount <= startOffset + length && startOffset + length <= nodeEnd && startNode) {
+        endNode = node;
+        endNodeOffset = (startOffset + length) - charCount;
+        return true; // Found both start and end
+      }
+      
+      charCount = nodeEnd;
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      for (const child of node.childNodes) {
+        if (walkNodes(child)) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
   }
+  
+  walkNodes(element);
+  
+  if (!startNode || !endNode) {
+    return null;
+  }
+  
+  range.setStart(startNode, startNodeOffset);
+  range.setEnd(endNode, endNodeOffset);
+  
+  return range;
 }
 
 function createNewLinkElement(linkId: string, href: string, text: string, marginLeft?: boolean): HTMLAnchorElement {
