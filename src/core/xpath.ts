@@ -31,3 +31,19 @@ export function getXPath(element: Element): string {
 export function getElementByXPath(xpath: string): Element | null {
   return document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue as Element
 }
+
+export function moveXPathUp(xpath: string, element?: Element): [string, Element | null] {
+  const newXPathViaSplit = xpath.split('/').slice(0, -1).join('/');
+  const newElement = getElementByXPath(newXPathViaSplit);
+  if (element) {
+    // We just also quickly check for consistency
+    const newXPathViaElement = getXPath(element.parentElement!);
+    if (newXPathViaElement !== newXPathViaSplit) {
+      console.warn('Moving up in XPath resulted in inconsistent XPaths!');
+    }
+    if (newElement !== element.parentElement) {
+      console.warn('Moving up in XPath resulted in inconsistent elements!')
+    }
+  }
+  return [newXPathViaSplit, newElement];
+}

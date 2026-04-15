@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { EditLinkView } from '@/components/EditLinkView';
 import styleText from '@/components/style.css?inline';
 import { LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
-import { getElementByXPath } from '@/core/xpath';
+import { getElementByXPath, moveXPathUp } from '@/core/xpath';
 
 
 export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: (link: LinkWithConditions | UnstoredLinkWithConditions) => void) {
@@ -35,18 +35,24 @@ export function showCreateLinkModal(selectedText: string, url: string, xpath: st
 
 function createInitialLinkData(selectedText: string, url: string, xpath: string): UnstoredLinkWithConditions {
   // Try to guess the most applicable regex for the selected text
-  let selectedTextRe = selectedText; 
+  let selectedTextRe = selectedText;
+
+  // If the xpath element does not have all the selected text, move up in xpath until it does
+  let totalTextXpath = xpath;
+  let totalTextElement = getElementByXPath(totalTextXpath);
+  while (totalTextElement && !totalTextElement.textContent.includes(selectedText)) {
+    [totalTextXpath, totalTextElement] = moveXPathUp(totalTextXpath, totalTextElement);
+  }
 
   // If the selected text is all the text within this element, just replace everything with .+
   // Because the user probably just meant this element in the page, and doesn't care about the exact text
   if (selectedText.trim().length > 0) {
-    const element = getElementByXPath(xpath);
-    if (element && element.textContent?.trim() === selectedText.trim()) {
+    if (totalTextElement && totalTextElement.textContent?.trim() === selectedText.trim()) {
       selectedTextRe = '.+';
     }
   }
 
-  // Replace all sequences of digits with \d+
+  // Replace all sequences of digits with \d+, since I assume the user does not care about the specific number
   selectedTextRe = selectedTextRe.replace(/\d+/g, '\\d+');
 
   return {
@@ -57,12 +63,12 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
 
     conditions: [
       { id: '', link_id: '', type: 'url_start', value: url?.split('?')[0] || '', created_at: '' },
-      { id: '', link_id: '', type: 'xpath_exists', value: xpath || '', created_at: '' }
+      { id: '', link_id: '', type: 'xpath_exists', value: totalTextXpath || '', created_at: '' }
     ],
 
     // Link content
     href_path_format: '...',
-    on_xpath: xpath || '',
+    on_xpath: totalTextXpath || '',
     on_selected_text_regex: selectedTextRe,
     position: 'user_default',
     display_name: '',
