@@ -55,6 +55,16 @@ Locally:
 Online:
  - Links can also 
 
+# Easily combining your app
+
+Lets say you made a product (i.e. a grocery list app) that integrates with another website (i.e. a price checker site)
+
+Now, adding a link from your app to the price checker website is easy since you control your app.
+
+If you want a link the other way around, that is where linkem comes in.
+On your website, you can add a button that uses the browser `linkemImportLink` message to instantly create a link from
+the price checker website to your application. This way you decide which links to make, and users have an easy setup!
+
 # Technical details
 
 Made with WXT + React + TypeScript + TailwindCSS

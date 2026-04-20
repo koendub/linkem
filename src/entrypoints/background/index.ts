@@ -12,7 +12,7 @@ export default defineBackground(() => {
     if (info.menuItemId === 'create-link' && info.selectionText && tab?.id) {
       // Send message to content script to show create link modal
       browser.tabs.sendMessage(tab.id, {
-        action: 'showCreateLinkModal',
+        action: 'linkemCreateNewLink',
         selectedText: info.selectionText,
         url: tab.url
       });

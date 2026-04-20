@@ -52,6 +52,10 @@ export async function injectMatchingLinks(links: LinkWithConditions[]): Promise<
 }
 
 async function applyLinkToElement(link: LinkWithConditions, element: Element): Promise<void> {
+  const position = link.position === 'user_default'
+    ? (await settingsStorage.getItem<string>('default_link_position'))
+    : link.position;
+
   // Check if the link is already injected in this element, if so, dont inject it again
   const linksInElement = element.getElementsByClassName('linkem-injected-link');
   for (const existingLink of linksInElement) {
@@ -60,10 +64,6 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
     }
   }
 
-  const position = link.position === 'user_default'
-    ? (await settingsStorage.getItem<string>('default_link_position'))
-    : link.position;
-  
   const text = element.textContent || '';
   const href = formatLinkHref(link, text);
   const pattern = link.on_selected_text_regex;

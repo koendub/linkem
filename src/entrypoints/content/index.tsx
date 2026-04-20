@@ -2,6 +2,7 @@ import { getXPath } from '@/core/xpath';
 import { LocalLinksStorage } from '@/core/storage/local_links_storage';
 import { showCreateLinkModal } from './EditLinkModal';
 import { injectLinks } from '@/core/inject';
+import { importFromBase64 } from '@/core/share';
 
 let lastXPath = '';
 
@@ -23,14 +24,18 @@ export default defineContentScript({
     const observer = new MutationObserver(injectLinks);
     observer.observe(document.body, { childList: true, subtree: true });
 
-    // Listen for messages from background
     browser.runtime.onMessage.addListener((message) => {
-      if (message.action === 'showCreateLinkModal') {
+      // Listen for messages from background to create a new link
+      if (message.action === 'linkemCreateNewLink') {
         showCreateLinkModal(message.selectedText, message.url, lastXPath, async (link) => {
           console.log('Saving new link from content script:', link);
           await LocalLinksStorage.saveLinks([link]);
           await injectLinks()
         });
+      }
+      // And listen to messages to import a new link as well
+      if (message.action === 'linkemImportLink') {
+        if (message.base64) importFromBase64(message.base64);
       }
     });
   },
