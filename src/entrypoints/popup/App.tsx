@@ -1,12 +1,15 @@
 import React from 'react';
 import { Tabs } from '@base-ui/react/tabs';
-import { Link, Download, Upload, Settings } from 'lucide-react';
+import { Link, Download, Upload, Settings, Bug } from 'lucide-react';
 import LinksTab from './tabs/LinksTab';
 import ImportTab from './tabs/ImportTab';
 import ExportTab from './tabs/ExportTab';
 import SettingsTab from './tabs/SettingsTab';
+import DebugTab from './tabs/DebugTab';
 
 const App: React.FC = () => {
+  const isDebugEnabled = import.meta.env.VITE_LINKEM_DEBUG === 'true';
+
   return (
     <div className="w-90 h-125 flex flex-col bg-white rounded-xl overflow-hidden shadow-xl">
       <Tabs.Root defaultValue="links" className="flex-1 flex flex-col h-full overflow-auto">
@@ -23,6 +26,11 @@ const App: React.FC = () => {
           <Tabs.Tab value="settings" className="border-none cursor-pointer p-2 rounded-md text-gray-500 transition-all duration-200 flex items-center justify-center data-active:bg-blue-500 data-active:text-white">
             <Settings size={20} />
           </Tabs.Tab>
+          {isDebugEnabled && (
+            <Tabs.Tab value="debug" className="border-none cursor-pointer p-2 rounded-md text-gray-500 transition-all duration-200 flex items-center justify-center data-active:bg-blue-500 data-active:text-white">
+              <Bug size={20} />
+            </Tabs.Tab>
+          )}
         </Tabs.List>
         <Tabs.Panel value="links" className="flex-1 overflow-auto">
           <LinksTab />
@@ -36,6 +44,11 @@ const App: React.FC = () => {
         <Tabs.Panel value="settings" className="flex-1 overflow-auto">
           <SettingsTab />
         </Tabs.Panel>
+        {isDebugEnabled && (
+          <Tabs.Panel value="debug" className="flex-1 overflow-auto">
+            <DebugTab />
+          </Tabs.Panel>
+        )}
       </Tabs.Root>
     </div>
   );
