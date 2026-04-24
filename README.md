@@ -2,6 +2,12 @@
 
 Add links to web pages wherever you want!
 
+# Demos
+
+ - IMDB to streaming service search
+ - Books on Amazon to Goodreads links
+ - Amazon to Google reviews link
+
 # Usage
 
 ## Usage #1: Adding your own links
