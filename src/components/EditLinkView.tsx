@@ -121,7 +121,7 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
               </Accordion.Header>
               <Accordion.Panel className="smooth-accordion-panel">
                 <div className="px-4 py-3">
-                  <p className='text-sm text-gray-800 mb-1'>Add conditions. A custom link will only be shown if all its conditions are met.</p>
+                  <p className='text-sm text-gray-800 mb-1'>A custom link will only be shown if all its conditions are met.</p>
                   <div className="space-y-2">
                     {linkObj.conditions.map((cond, index) => (
                       <div key={index} className="flex flex-wrap gap-2 items-center p-2 bg-gray-50 border border-gray-200 rounded-lg">
@@ -151,8 +151,17 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                           value={cond.value}
                           onChange={(e) => updateCondition(index, { ...cond, value: e.target.value })}
                           placeholder="Condition value"
-                          className='flex-1'
+                          className='w-full'
                         />
+                        {urlStartConditionIdx === index && cond.value.lastIndexOf('/') !== -1 && (
+                          // For ease of use, we add a button to remove the last path element of the path for the url start condition
+                          <button
+                            onClick={(_) => updateCondition(index, { ...cond, value: cond.value.substring(0, cond.value.lastIndexOf('/')) })}
+                            className='mt-1 px-4 py-1 mx-auto bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center transition-colors active:bg-blue-800'
+                          >
+                            Remove last part
+                          </button>
+                        )}
                       </div>
                     ))}
                   </div>
