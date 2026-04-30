@@ -3,7 +3,7 @@ CREATE TABLE links (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES auth.users (id) ON DELETE CASCADE,
   name TEXT NOT NULL,
-  href_path_format TEXT NOT NULL,
+  href_format TEXT NOT NULL,
   on_xpath TEXT NOT NULL,
   on_selected_text_regex TEXT,
   position TEXT NOT NULL CHECK (position IN ('on_text', 'next_to_text', 'user_default')),

@@ -57,17 +57,17 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
 
   return {
     // Basic info
-    name: `Link to ${selectedText?.slice(0, 20) || ''}`,
+    name: `{href_host}`,
     visibility: 'private',
     icon: null,
 
     conditions: [
-      { id: '', link_id: '', type: 'url_start', value: url?.split('?')[0] || '', created_at: '' },
+      { id: '', link_id: '', type: 'url_start', value: url.split('?')[0] || '', created_at: '' },
       { id: '', link_id: '', type: 'xpath_exists', value: totalTextXpath || '', created_at: '' }
     ],
 
     // Link content
-    href_path_format: '...',
+    href_format: 'https://www.google.com/search?q={text-value}',
     on_xpath: totalTextXpath || '',
     on_selected_text_regex: selectedTextRe,
     position: 'user_default',

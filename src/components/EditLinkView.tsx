@@ -50,8 +50,8 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
             <div>
               <label>Href Path Format</label>
               <input
-                value={linkObj.href_path_format}
-                onChange={(e) => setLinkObj({ ...linkObj, href_path_format: e.target.value })}
+                value={linkObj.href_format}
+                onChange={(e) => setLinkObj({ ...linkObj, href_format: e.target.value })}
                 placeholder="https://example.com/search/{text-value}"
               />
               <small className="text-gray-500 text-xs mt-2 block">

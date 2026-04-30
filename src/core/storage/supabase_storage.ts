@@ -167,7 +167,7 @@ export class SupabaseStorage {
         .from('links')
         .update({
           name: link.name,
-          href_path_format: link.href_path_format,
+          href_format: link.href_format,
           on_xpath: link.on_xpath,
           on_selected_text_regex: link.on_selected_text_regex,
           position: link.position,
@@ -193,7 +193,7 @@ export class SupabaseStorage {
         .insert({
           user_id: user.id,
           name: link.name,
-          href_path_format: link.href_path_format,
+          href_format: link.href_format,
           on_xpath: link.on_xpath,
           on_selected_text_regex: link.on_selected_text_regex,
           position: link.position,

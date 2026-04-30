@@ -6,7 +6,7 @@ export default defineConfig({
   modules: ['@wxt-dev/module-react'],
   srcDir: "src",
   manifest: {
-    permissions: ['storage', 'contextMenus']
+    permissions: ['storage', 'contextMenus'],
   },
   webExt: {
     startUrls: [
@@ -15,9 +15,13 @@ export default defineConfig({
       // 'https://oldschool.runescape.wiki/w/Toktz-xil-ak',
 
       // IMDB
-      'https://www.imdb.com/title/tt0068646/?ref_=chttp_t_2',
-      'https://www.imdb.com/title/tt0468569/?ref_=chttp_t_3',
-      'https://www.imdb.com/title/tt0167260/?ref_=chttp_t_6'
+      // 'https://www.imdb.com/title/tt0068646/?ref_=chttp_t_2',
+      // 'https://www.imdb.com/title/tt0468569/?ref_=chttp_t_3',
+      // 'https://www.imdb.com/title/tt0167260/?ref_=chttp_t_6',
+
+      // GoodReads
+      'https://www.goodreads.com/book/show/61215351-the-fellowship-of-the-ring',
+      'https://www.goodreads.com/book/show/60531406-tress-of-the-emerald-sea',
     ]
   },
   vite: () => ({

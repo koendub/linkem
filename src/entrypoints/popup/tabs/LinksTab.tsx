@@ -110,7 +110,7 @@ export default function LinksTab() {
                   <div className="flex justify-between items-center">
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-sm text-gray-900 mb-1 truncate">{link.name}</div>
-                      <div className="text-xs text-gray-500 truncate">{link.href_path_format}</div>
+                      <div className="text-xs text-gray-500 truncate">{link.href_format}</div>
                     </div>
                     <div className="flex gap-1">
                       <button onClick={() => handleEdit(link)} className="btn-icon btn-blue">
@@ -135,7 +135,7 @@ export default function LinksTab() {
                   <div className="flex justify-between items-center">
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-sm text-gray-900 mb-1 truncate">{link.name}</div>
-                      <div className="text-xs text-gray-500 truncate">{link.href_path_format}</div>
+                      <div className="text-xs text-gray-500 truncate">{link.href_format}</div>
                     </div>
                     <div className="flex gap-1 ml-1">
                       <button onClick={() => handleEdit(link)} className="btn-icon btn-blue">

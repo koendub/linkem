@@ -70,5 +70,5 @@ export function formatLinkHref(link: Link, selectedText: string) {
     } catch(e: any) {
       throw new CustomHrefFormatException(replacer.name, e.message);
     }
-  }, link.href_path_format);
+  }, link.href_format);
 }

@@ -77,7 +77,7 @@ function EditPackageView({ initialPkg, onClose }: EditPackageViewProps) {
                 }`}
               >
                 <div className="font-medium text-gray-900">{link.name}</div>
-                <div className="text-xs text-gray-600">{link.href_path_format}</div>
+                <div className="text-xs text-gray-600">{link.href_format}</div>
               </button>
             );
           })}
@@ -252,7 +252,7 @@ const ExportTab: React.FC = () => {
                 <div className="flex items-center justify-between p-2 pl-4 border border-gray-200 rounded-lg hover:border-gray-300 transition">
                   <div className="flex-1 min-w-0">
                     <h4 className="font-semibold text-gray-900 truncate">{link.name}</h4>
-                    <p className="text-sm text-gray-500 truncate">{link.href_path_format}</p>
+                    <p className="text-sm text-gray-500 truncate">{link.href_format}</p>
                   </div>
                   <button onClick={() => setShowShareId(showShareId === link.id ? null : link.id)} className="btn-icon btn-green ml-1">
                     <Share size={14} />

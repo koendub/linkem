@@ -72,14 +72,16 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
   if (!pattern) {
     if (position === 'on_text') {
       // Wrap all element contents in a link, preserving DOM structure
-      const linkEl = createNewLinkElement(link.id, href, text, false, element);
+      const linkEl = createNewLinkElement(link.id, href, text, element);
       linkEl.textContent = '';
       while (element.firstChild) {
         linkEl.appendChild(element.firstChild);
       }
       element.appendChild(linkEl);
     } else if (position === 'next_to_text') {
-      element.appendChild(createNewLinkElement(link.id, href, link.display_name || link.name, true, element));
+      const linkEl = createNewLinkElement(link.id, href, link.display_name || link.name, element);
+      linkEl.style.marginLeft = '5px';
+      element.appendChild(linkEl);
     }
     return;
   }
@@ -90,7 +92,9 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
 
   if (!match) {
     // No match found, append the link at the end
-    element.appendChild(createNewLinkElement(link.id, href, link.display_name || link.name, true, element));
+    const linkEl = createNewLinkElement(link.id, href, link.display_name || link.name, element);
+    linkEl.style.marginLeft = '5px';
+    element.appendChild(linkEl);
     return;
   }
 
@@ -102,20 +106,23 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
   
   if (!range) {
     // Fallback: append at the end if range not found
-    element.appendChild(createNewLinkElement(link.id, href, link.display_name || link.name, true, element));
+    const linkEl = createNewLinkElement(link.id, href, link.display_name || link.name, element);
+    linkEl.style.marginLeft = '5px';
+    element.appendChild(linkEl);
     return;
   }
 
   if (position === 'on_text') {
     // Extract contents of range, wrap in link, and insert back
     const contents = range.extractContents();
-    const linkEl = createNewLinkElement(link.id, href, '', false, element);
+    const linkEl = createNewLinkElement(link.id, href, '', element);
     linkEl.textContent = '';
     linkEl.appendChild(contents);
     range.insertNode(linkEl);
   } else if (position === 'next_to_text') {
     // Collapse range to its end and insert link after
-    const linkEl = createNewLinkElement(link.id, href, link.display_name || link.name, true, element);
+    const linkEl = createNewLinkElement(link.id, href, link.display_name || link.name, element);
+    linkEl.style.marginLeft = '5px';
     range.collapse(false);
     range.insertNode(linkEl);
   }
@@ -171,26 +178,35 @@ function findTextRangeInElement(element: Element, startOffset: number, length: n
   return range;
 }
 
-function createNewLinkElement(linkId: string, href: string, text: string, marginLeft?: boolean, parentElement?: Element): HTMLAnchorElement {
+function createNewLinkElement(linkId: string, href: string, text: string, parentElement?: Element): HTMLAnchorElement {
+  // Determine the rought size
+  let fontSize = 14;
+  if (parentElement) {
+    const parentStyle = window.getComputedStyle(parentElement);
+    const parentFontSize = parseFloat(parentStyle.fontSize);
+    fontSize = Math.min(Math.max(parentFontSize, 12), 20);
+  }
+
   const a = document.createElement('a');
   a.href = href;
   a.target = '_blank';
   a.style.color = '#000000';
   a.style.backgroundColor = '#a78bfa';
-  a.style.padding = '1px 6px';
+  a.style.padding = `${Math.floor((fontSize-10)/3)}px ${Math.floor(fontSize/2)}px`;
   a.style.textDecoration = 'none';
   a.style.borderRadius = '5px';
-  a.style.display = 'inline-flex';
   a.style.alignItems = 'center';
   a.style.gap = '4px';
+  a.style.fontSize = fontSize + 'px';
+  a.style.lineHeight = fontSize + 'px';
   a.classList.add('linkem-injected-link');
   a.classList.add('link-' + linkId);
 
   // Add icon
   const icon = document.createElement('img');
   icon.src = linkemIconUrl;
-  icon.style.width = '14px';
-  icon.style.height = '14px';
+  icon.style.width = `${fontSize}px`;
+  icon.style.height = `${fontSize}px`;
   icon.style.flexShrink = '0';
   a.appendChild(icon);
 
@@ -198,17 +214,5 @@ function createNewLinkElement(linkId: string, href: string, text: string, margin
   const textSpan = document.createElement('span');
   textSpan.textContent = text;
   a.appendChild(textSpan);
-
-  // Cap font size at a reasonable maximum to prevent it from being too large in titles
-  if (parentElement) {
-    const parentStyle = window.getComputedStyle(parentElement);
-    const parentFontSize = parseFloat(parentStyle.fontSize);
-    const fontSize = Math.min(Math.max(parentFontSize, 12), 20);
-    a.style.fontSize = fontSize + 'px';
-  }
-
-  if (marginLeft) {
-    a.style.marginLeft = '5px';
-  }
   return a;
 }

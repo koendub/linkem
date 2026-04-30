@@ -7,6 +7,7 @@ Add links to web pages wherever you want!
  - IMDB to streaming service search
  - Books on Amazon to Goodreads links
  - Amazon to Google reviews link
+ - Goodreads to bol.com
 
 # Usage
 
