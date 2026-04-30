@@ -250,7 +250,7 @@ const SettingsTab: React.FC = () => {
       {/* Feedback & Support */}
       <div className="bg-white border border-gray-300 rounded-lg p-4 shadow-sm mt-4 flex flex-col">
         <TitleWithInfo title="Feedback & Support" info="Have suggestions or found a bug? Help improve Linkem by providing feedback! If you just like the tool, consider buying me a coffee!" />
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLSej1spEb0EgjAdCejY2TDjnqyf9EQKlmGEVXo5vu9ijDW0qnQ/viewform?usp=publish-editor" target="_blank" rel="noopener noreferrer" className="bg-indigo-200 hover:underline py-2 px-4 rounded-md font-bold mt-1">
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLSej1spEb0EgjAdCejY2TDjnqyf9EQKlmGEVXo5vu9ijDW0qnQ/viewform?usp=dialog" target="_blank" rel="noopener noreferrer" className="bg-indigo-200 hover:underline py-2 px-4 rounded-md font-bold mt-1">
           <MessageCircleMore size={24} className="inline-block mr-4 my-0.5" />
           Give feedback
         </a>

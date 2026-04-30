@@ -7,6 +7,14 @@ export default defineConfig({
   srcDir: "src",
   manifest: {
     permissions: ['storage', 'contextMenus'],
+    browser_specific_settings: {
+      gecko: {
+        id: '@linkem',
+        data_collection_permissions: {
+          required: ['none'],
+        },
+      },
+    },
   },
   webExt: {
     startUrls: [
@@ -15,13 +23,17 @@ export default defineConfig({
       // 'https://oldschool.runescape.wiki/w/Toktz-xil-ak',
 
       // IMDB
-      // 'https://www.imdb.com/title/tt0068646/?ref_=chttp_t_2',
+      'https://www.imdb.com/title/tt0068646/?ref_=chttp_t_2',
       // 'https://www.imdb.com/title/tt0468569/?ref_=chttp_t_3',
       // 'https://www.imdb.com/title/tt0167260/?ref_=chttp_t_6',
 
       // GoodReads
-      'https://www.goodreads.com/book/show/61215351-the-fellowship-of-the-ring',
+      // 'https://www.goodreads.com/book/show/61215351-the-fellowship-of-the-ring',
       'https://www.goodreads.com/book/show/60531406-tress-of-the-emerald-sea',
+
+      // Random sites
+      'https://www.target.com/',
+      'https://www.amazon.com/'
     ]
   },
   vite: () => ({

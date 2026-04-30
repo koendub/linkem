@@ -2,7 +2,25 @@
 
 Add links to web pages wherever you want!
 
-# Demos
+# Description
+
+Link'em allows you to add your own links to any website.
+
+Those 2 tools you use at work that dont integrate with eachother? Link'em!
+
+Comparing multiple websites, so you keep searching on both? Just Link'em!
+
+If you want to replace the word Rick on every website you visit with a Rickroll... Weird request, but you can!
+
+# Building
+
+Made with NPM + WXT + React + TypeScript + TailwindCSS
+ 1. Install dependencies by running `npm i`.
+ 2. Build the code using `npm run build`, or create a zip for chrome or firefox using `npm run zip` or `npm run zip:firefox`.
+ 3. You can also run the plugin in development mode using `npm run dev`, this enables hot reloading.
+(these instructions were tested on Windows, but should work on any system that supports `npm` as it does not use any native dependencies)
+
+# Demo Ideas
 
  - IMDB to streaming service search
  - Books on Amazon to Goodreads links
@@ -19,10 +37,7 @@ To do this, follow these steps:
  - In your browser (with this plugin) select any text and right click it
  - From the list of options, select `Link'em: Create New Link`
  - In the new little window that appears, customize your new link
-	 - Choose between `on text`, or `next to text`
-	 - In case of `next to text`, choose a name or icon to show
 	 - Create the link, using a format string like `http://to_website/query/{text-value}`
-	 - Select the conditions that need to be met to add this link, like: 'url start', 'xpath match', 'value match' etc.
 	 - After clicking `save`, your new link will be stored on your device
 
 Right after clicking save, and any other time you visit this website, the link will be
@@ -37,9 +52,9 @@ Since maybe people would want these links, they can be shared.
 Users can create 'link packages'. A packages consists of links and some meta information
 When they are installed, all active links in that library are added to the users links.
 
-FUTURE: Users can search and upvote/downvote these libraries, and install them.
-Every day the installed libraries get queried for changes to their links, though these are not automatically installed! (security)
-
+FUTURE IDEA: Users can search and upvote/downvote these libraries, and install them.
+Every day the installed libraries get queried for changes to their links,
+though these should not be automatically installed! (for security reasons)
 
 # How To
 
@@ -74,4 +89,4 @@ the price checker website to your application. This way you decide which links t
 
 # Technical details
 
-Made with WXT + React + TypeScript + TailwindCSS
+

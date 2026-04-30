@@ -23,6 +23,9 @@ const conditionDetails = {
   'value_match': {
     check: (c: Condition) => document.body.textContent?.includes(c.value) || false,
     explanation: (c: Condition) => `The page does not contain the text "${c.value}".`
+  },
+  'text_contains': {
+    
   }
 }
 
