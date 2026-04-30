@@ -192,7 +192,7 @@ function createNewLinkElement(linkId: string, href: string, text: string, parent
   a.target = '_blank';
   a.style.color = '#000000';
   a.style.backgroundColor = '#a78bfa';
-  a.style.padding = `${Math.floor((fontSize-10)/3)}px ${Math.floor(fontSize/2)}px`;
+  a.style.padding = `${Math.floor((fontSize-10)/2)}px ${Math.floor(fontSize/2)}px`;
   a.style.textDecoration = 'none';
   a.style.borderRadius = '5px';
   a.style.alignItems = 'center';
@@ -202,12 +202,14 @@ function createNewLinkElement(linkId: string, href: string, text: string, parent
   a.style.lineHeight = fontSize + 'px';
   a.classList.add('linkem-injected-link');
   a.classList.add('link-' + linkId);
+  if (fontSize > 16) a.style.margin = '2px';
 
   // Add icon
   const icon = document.createElement('img');
   icon.src = linkemIconUrl;
   icon.style.width = `${fontSize}px`;
   icon.style.height = `${fontSize}px`;
+  icon.style.marginRight = `5px`;
   icon.style.display = 'inline-block';
   icon.style.flexShrink = '0';
   a.appendChild(icon);

@@ -26,11 +26,20 @@ function applyStringEditFunctions(onValue: string, funcStrings: string[]) {
   const stringEditFunctions: { [name: string]: { nargs: number, func: (val: string, rest: string[]) => string } } = {
     'replace': { nargs: 2, func: (val: string, [a, b]: string[]) => val.replace(a, b) },
     'replaceAll': { nargs: 2, func: (val: string, [a, b]: string[]) => val.replaceAll(a, b) },
+    'split': { nargs: 2, func: (val: string, [on, take]: string[]) => val.split(on)[parseInt(take)] },
     'toUpperCase': { nargs: 0, func: (val: string) => val.toUpperCase() },
     'toLowerCase': { nargs: 0, func: (val: string) => val.toLowerCase() },
-    'capitalize': { nargs: 0, func: (val: string) => val.split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ') },
-    'split': { nargs: 2, func: (val: string, [on, take]: string[]) => val.split(on)[parseInt(take)] },
+    'capitalize': { nargs: 0, func: (val: string) => (
+      val.split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')
+    )},
+    'stripLeft': { nargs: 1, func: (val: string, [chars]) => (
+      val.startsWith(chars) ? val.substring(chars.length) : val
+    )},
+    'stripRight': { nargs: 1, func: (val: string, [chars]) => (
+      val.endsWith(chars) ? val.substring(0, val.length - chars.length) : val
+    )},
   }
+
   return funcStrings.reduce((currValue, funcStr) => {
     const funcName = funcStr.split('(')[0].slice(1);
     const argsStr = funcStr.split("(")[1].slice(0, -1);

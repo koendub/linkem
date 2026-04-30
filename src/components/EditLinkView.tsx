@@ -31,7 +31,7 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
 
   const urlStartConditionIdx = linkObj.conditions.findIndex(c => c.type === 'url_start');
   return (
-    <div className="bg-white text-gray-900 p-4 w-full h-full overflow-y-auto border-l border-gray-200 flex flex-col">
+    <div className="text-md bg-white text-gray-900 p-4 w-full h-full overflow-y-auto border-l border-gray-200 flex flex-col">
       <div className="flex-1 pr-2">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
           <Link className="w-6 h-6 mr-3 text-blue-500" />

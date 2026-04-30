@@ -95,7 +95,7 @@ export default function LinksTab() {
             placeholder="Search links..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg box-border text-sm bg-white shadow-sm outline-none"
+            className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg box-border bg-white shadow-sm outline-none"
           />
           <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-base">
             🔍
@@ -103,14 +103,14 @@ export default function LinksTab() {
         </div>
         {filteredLinks.currentPageLinks.length > 0 && (
           <>
-            <h3 className="my-4 text-xs text-gray-500 uppercase tracking-wider font-semibold">Current Page Links</h3>
+            <h3 className="my-4 text-md text-gray-500 uppercase tracking-wider font-semibold">Current Page Links</h3>
             <ul className="list-none p-0 m-0">
               {filteredLinks.currentPageLinks.map(link => (
                 <li key={link.id} className="mb-2 border border-gray-300 rounded-lg p-3 bg-white shadow-sm transition-shadow duration-200 cursor-pointer hover:shadow-md">
                   <div className="flex justify-between items-center">
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-sm text-gray-900 mb-1 truncate">{link.name}</div>
-                      <div className="text-xs text-gray-500 truncate">{link.href_format}</div>
+                      <div className="font-semibold text-gray-900 mb-1 truncate">{link.name}</div>
+                      <div className="text-sm text-gray-500 truncate">{link.href_format}</div>
                     </div>
                     <div className="flex gap-1">
                       <button onClick={() => handleEdit(link)} className="btn-icon btn-blue">
@@ -128,14 +128,14 @@ export default function LinksTab() {
         )}
         {filteredLinks.otherLinks.length > 0 && (
           <>
-            <h3 className="my-4 text-xs text-gray-500 uppercase tracking-wider font-semibold">All Links</h3>
+            <h3 className="my-4 text-md text-gray-500 uppercase tracking-wider font-semibold">All Links</h3>
             <ul className="list-none p-0 m-0">
               {filteredLinks.otherLinks.map(link => (
                 <li key={link.id} className="mb-2 border border-gray-300 rounded-lg p-3 bg-white shadow-sm transition-shadow duration-200 cursor-pointer hover:shadow-md">
                   <div className="flex justify-between items-center">
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-sm text-gray-900 mb-1 truncate">{link.name}</div>
-                      <div className="text-xs text-gray-500 truncate">{link.href_format}</div>
+                      <div className="font-semibold text-gray-900 mb-1 truncate">{link.name}</div>
+                      <div className="text-sm text-gray-500 truncate">{link.href_format}</div>
                     </div>
                     <div className="flex gap-1 ml-1">
                       <button onClick={() => handleEdit(link)} className="btn-icon btn-blue">
@@ -152,7 +152,7 @@ export default function LinksTab() {
           </>
         )}
         {filteredLinks.currentPageLinks.length === 0 && filteredLinks.otherLinks.length === 0 && (
-          <div className="text-center py-10 px-5 text-gray-500 text-sm">
+          <div className="text-center py-10 px-5 text-gray-500">
             No links found.
           </div>
         )}

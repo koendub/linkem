@@ -8,7 +8,7 @@ import SettingsTab from './tabs/SettingsTab';
 
 const App: React.FC = () => {
   return (
-    <div className="w-90 h-125 flex flex-col bg-white rounded-xl overflow-hidden shadow-xl">
+    <div className="w-96 h-128 flex flex-col bg-white rounded-xl overflow-hidden shadow-xl">
       <Tabs.Root defaultValue="links" className="flex-1 flex flex-col h-full overflow-auto">
         <Tabs.List className="flex justify-around py-3 bg-gray-50 border-t border-gray-200 mt-auto">
           <Tabs.Tab value="links" className="border-none cursor-pointer p-2 rounded-md text-gray-500 transition-all duration-200 flex items-center justify-center data-active:bg-blue-500 data-active:text-white">
