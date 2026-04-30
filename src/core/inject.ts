@@ -1,4 +1,4 @@
-import { formatLinkHref } from '@/core/href';
+import { formatLinkDisplayName, formatLinkHref } from '@/core/replacer';
 import { LinkWithConditions, Condition } from '@/core/types';
 import { LocalLinksStorage } from './storage/local_links_storage';
 import { settingsStorage } from './storage/local_base_storage';
@@ -79,7 +79,7 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
       }
       element.appendChild(linkEl);
     } else if (position === 'next_to_text') {
-      const linkEl = createNewLinkElement(link.id, href, link.display_name || link.name, element);
+      const linkEl = createNewLinkElement(link.id, href, formatLinkDisplayName(link), element);
       linkEl.style.marginLeft = '5px';
       element.appendChild(linkEl);
     }
@@ -92,7 +92,7 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
 
   if (!match) {
     // No match found, append the link at the end
-    const linkEl = createNewLinkElement(link.id, href, link.display_name || link.name, element);
+    const linkEl = createNewLinkElement(link.id, href, formatLinkDisplayName(link), element);
     linkEl.style.marginLeft = '5px';
     element.appendChild(linkEl);
     return;
@@ -106,7 +106,7 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
   
   if (!range) {
     // Fallback: append at the end if range not found
-    const linkEl = createNewLinkElement(link.id, href, link.display_name || link.name, element);
+    const linkEl = createNewLinkElement(link.id, href, formatLinkDisplayName(link), element);
     linkEl.style.marginLeft = '5px';
     element.appendChild(linkEl);
     return;
@@ -121,7 +121,7 @@ async function applyLinkToElement(link: LinkWithConditions, element: Element): P
     range.insertNode(linkEl);
   } else if (position === 'next_to_text') {
     // Collapse range to its end and insert link after
-    const linkEl = createNewLinkElement(link.id, href, link.display_name || link.name, element);
+    const linkEl = createNewLinkElement(link.id, href, formatLinkDisplayName(link), element);
     linkEl.style.marginLeft = '5px';
     range.collapse(false);
     range.insertNode(linkEl);
@@ -196,6 +196,7 @@ function createNewLinkElement(linkId: string, href: string, text: string, parent
   a.style.textDecoration = 'none';
   a.style.borderRadius = '5px';
   a.style.alignItems = 'center';
+  a.style.display = 'inline-block';
   a.style.gap = '4px';
   a.style.fontSize = fontSize + 'px';
   a.style.lineHeight = fontSize + 'px';
@@ -207,6 +208,7 @@ function createNewLinkElement(linkId: string, href: string, text: string, parent
   icon.src = linkemIconUrl;
   icon.style.width = `${fontSize}px`;
   icon.style.height = `${fontSize}px`;
+  icon.style.display = 'inline-block';
   icon.style.flexShrink = '0';
   a.appendChild(icon);
 

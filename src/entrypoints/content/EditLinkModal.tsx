@@ -57,12 +57,12 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
 
   return {
     // Basic info
-    name: `{href_host}`,
+    name: `Link on ${selectedText}`,
     visibility: 'private',
     icon: null,
 
     conditions: [
-      { id: '', link_id: '', type: 'url_start', value: url.split('?')[0] || '', created_at: '' },
+      { id: '', link_id: '', type: 'url_start', value: url?.split('?')[0] || '', created_at: '' },
       { id: '', link_id: '', type: 'xpath_exists', value: totalTextXpath || '', created_at: '' }
     ],
 
@@ -70,8 +70,8 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
     href_format: 'https://www.google.com/search?q={text-value}',
     on_xpath: totalTextXpath || '',
     on_selected_text_regex: selectedTextRe,
-    position: 'user_default',
-    display_name: '',
+    position: 'next_to_text',
+    display_name: '{href-host}.capitalize()',
   };
 }
 
