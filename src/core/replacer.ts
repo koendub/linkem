@@ -71,8 +71,6 @@ function replaceTemplate<ExtraValues>(text: string, valueReplacers: TemplateValu
       const valueReplacer = valueReplacers[valueName];
       if (!valueReplacer) throw new Error(`Unknown value replacer ${valueName}`);
       const value = valueReplacer(valueArgs ? valueArgs.slice(1, -1) : null, extras);
-      console.log(match, value, extraFuncsStr, extraFuncs)
-
       // Apply any extra functions to it, and then replace it in the final string
       const finalValue = applyStringEditFunctions(value, extraFuncs);
       text = text.replace(fullMatch, finalValue);

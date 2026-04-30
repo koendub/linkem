@@ -24,6 +24,10 @@
   font-size: var(--hem);
 }
 
+:host {
+  --hem: 14px; /* hem = Host rem */
+}
+
 @theme {
   --spacing: calc(0.25 * var(--hem));
 

@@ -195,7 +195,6 @@ const ExportTab: React.FC = () => {
             initialPkg={editingPackage} onClose={async (updatedPkg) => {
             setEditingPackage(null);
             await LocalPackageStorage.savePackage(updatedPkg);
-            console.log('Saved package:', updatedPkg);
             await refreshPackages();
           }} />
         )}

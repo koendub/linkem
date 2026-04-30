@@ -28,7 +28,6 @@ export default defineContentScript({
       // Listen for messages from background to create a new link
       if (message.action === 'linkemCreateNewLink') {
         showCreateLinkModal(message.selectedText, message.url, lastXPath, async (link) => {
-          console.log('Saving new link from content script:', link);
           await LocalLinksStorage.saveLinks([link]);
           await injectLinks()
         });

@@ -9,7 +9,6 @@ export class LocalStorage<T> {
 
   async getValue(forceReload: boolean = false): Promise<T | null> {
     if (!this.value || forceReload) {
-      console.log(`Loading value for key ${this.storageKey} from local storage`);
       const stored = await browser.storage.local.get<{ [key: string]: T }>(this.storageKey);
       this.value = stored[this.storageKey] || null;
     }
@@ -49,7 +48,6 @@ export class LocalStorageDict<D extends { [key: string]: any }> extends LocalSto
   async removeItem(key: string): Promise<void> {
     const dict = await this.getValue() || {} as D;
     delete dict[key];
-    console.log(`Removing key ${key} from local storage dict, now there are keys: ${Object.keys(dict).join(', ')}`);
     await this.setValue(dict);
   }
 }
