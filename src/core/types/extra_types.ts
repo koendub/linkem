@@ -5,7 +5,7 @@ import { Database, Tables } from "./supabase";
 // Type helpers, like in database
 export type Profile = Tables<'profiles'>;
 export type Link = Tables<'links'>;
-export type Condition = Tables<'conditions'> & { type: 'url_start' | 'url_contains' | 'xpath_exists' | 'value_match' };
+export type Condition = Tables<'conditions'> & { type: 'url_start' | 'url_contains' | 'xpath_exists' | 'value_match' | 'text_contains' };
 export type UserSettings = Tables<'user_settings'>;
 export type LinkPackageBase = Tables<'link_packages'>;
 export type LinkPackageLink = Tables<'link_package_links'>;

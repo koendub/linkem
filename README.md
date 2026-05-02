@@ -87,6 +87,6 @@ If you want a link the other way around, that is where linkem comes in.
 On your website, you can add a button that uses the browser `linkemImportLink` message to instantly create a link from
 the price checker website to your application. This way you decide which links to make, and users have an easy setup!
 
-# Technical details
+# Lisence
 
-
+[Apache License 2.0](https://spdx.org/licenses/Apache-2.0.html)

@@ -7,7 +7,7 @@ import linkemIconUrl from '~/assets/32.png';
 
 /////////////////////////////////////////////////////////// Checking link applicability
 
-const conditionDetails = {
+const preMatchConditions = {
   'url_start': {
     check: (c: Condition) => window.location.href.startsWith(c.value),
     explanation: (c: Condition) => `URL does not start with "${c.value}".`
@@ -24,10 +24,24 @@ const conditionDetails = {
     check: (c: Condition) => document.body.textContent?.includes(c.value) || false,
     explanation: (c: Condition) => `The page does not contain the text "${c.value}".`
   },
+}
+
+const postMatchConditions = {
   'text_contains': {
-    
+    check: (c: Condition, match: Element) => match.textContent.includes(c.value),
+    explanation: (c: Condition, _: Element) => `The matched element did not contain text "${c.value}"`,
   }
 }
+
+export function getFailingPreMatchConditions(link: LinkWithConditions): Condition[] {
+  return link.conditions.filter(c => c.type !in preMatchConditions || preMatchConditions[c.type as keyof typeof preMatchConditions]!.check(c));
+}
+
+export function getFailingPostMatchConditions(link: LinkWithConditions, matchedElement: Element): Condition[] {
+  return link.conditions.filter(c => c.type !in postMatchConditions || postMatchConditions[c.type as keyof typeof postMatchConditions]!.check(c, matchedElement));
+}
+
+/////////////////////////////////////////////////////////// Inserting links into the page
 
 export async function injectLinks() {
   try {
@@ -38,18 +52,13 @@ export async function injectLinks() {
   }
 }
 
-export function getFailingConditions(conditions: Condition[]): string[] {
-  const failing = conditions.filter(c => !conditionDetails[c.type]!.check(c));
-  return failing.map(c => conditionDetails[c.type]!.explanation(c));
-}
-
-/////////////////////////////////////////////////////////// Inserting links into the page
-
 export async function injectMatchingLinks(links: LinkWithConditions[]): Promise<void> {
   for (const link of links) {
-    if (link.conditions.every(c => conditionDetails[c.type]!.check(c))) {
+    if (getFailingPreMatchConditions(link).length === 0) {
       const inElement = getElementByXPath(link.on_xpath);
-      if (inElement) await applyLinkToElement(link, inElement);
+      if (inElement && getFailingPostMatchConditions(link, inElement).length === 0) {
+        await applyLinkToElement(link, inElement);
+      }
     }
   }
 }
