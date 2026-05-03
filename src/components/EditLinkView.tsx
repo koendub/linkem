@@ -3,6 +3,8 @@ import { LinkWithConditions, UnstoredLinkWithConditions, Condition } from '@/cor
 import { Link, Plus, Trash2, X, Save, ChevronDown } from 'lucide-react';
 import { Accordion } from '@base-ui/react';
 import { hasSupabaseConfig } from '@/core/storage/supabase_storage';
+import { HighlightTextField } from './HighlightTextField';
+import { regexFindAllTemplates } from '@/core/replacer';
 
 
 interface EditLinkViewProps {
@@ -49,10 +51,10 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
             </div>
             <div>
               <label>Href Path Format</label>
-              <input
+              <HighlightTextField
                 value={linkObj.href_format}
-                onChange={(e) => setLinkObj({ ...linkObj, href_format: e.target.value })}
-                placeholder="https://example.com/search/{text-value}"
+                onChange={(nv) => setLinkObj({ ...linkObj, href_format: nv })}
+                highlights={regexFindAllTemplates}
               />
               <small className="text-gray-500 text-xs mt-2 block">
                 Use <span className="bg-blue-100 px-2 py-1 rounded font-mono text-blue-700">{`{text-value}`}</span> to insert the selected text.

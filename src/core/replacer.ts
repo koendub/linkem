@@ -13,7 +13,7 @@ class CustomTemplateException extends Error {
  * The args part is optional and depends on the replacer.
  */
 const regexSingleFunction = /\.[a-zA-Z]+\([^\)]*?\)/g;
-const regexFindAllTemplates = /\{([a-z\-]+)(\([^\)]*?\))?((?:\.[a-zA-Z]+\([^\)]*?\))*)\}/g;
+export const regexFindAllTemplates = /\{([a-z\-]+)(\([^\)]*?\))?((?:\.[a-zA-Z]+\([^\)]*?\))*)\}/g;
 
 type TemplateValueReplacers<ExtraValues> = { [name: string]: (inlineArgs: string | null, extras: ExtraValues) => string };
 
