@@ -83,11 +83,14 @@ function createShadowRootContainer(): [HTMLDivElement, HTMLDivElement] {
   // https://github.com/tailwindlabs/tailwindcss/discussions/15556#discussioncomment-15063817
   const usingTailwindFallback = (styles: string) => {
     const tailwindCompatCheckString = '(((-webkit-hyphens: none)) and (not (margin-trim: inline))) or ((-moz-orient: inline) and (not (color: rgb(from red r g b))))';
-    if (!styles.includes(tailwindCompatCheckString)) {
+    if (styles.includes(tailwindCompatCheckString)) {
+      return styles.replace(tailwindCompatCheckString, '(display: block)');
+    } else if (styles.includes(tailwindCompatCheckString.replaceAll(': ', ':'))) {
+      return styles.replace(tailwindCompatCheckString.replaceAll(': ', ':'), '(display: block)');
+    } else {
       console.warn('Tailwind CSS compatibility check string not found in styles. Tailwind may not work correctly in the shadow DOM. This worked with v4.2.2...');
       return styles;
     }
-    return styles.replace(tailwindCompatCheckString, '(display: block)');
   };
 
   const style = document.createElement("style");
