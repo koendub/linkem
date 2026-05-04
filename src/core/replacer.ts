@@ -15,7 +15,12 @@ class CustomTemplateException extends Error {
 const regexSingleFunction = /\.[a-zA-Z]+\([^\)]*?\)/g;
 export const regexFindAllTemplates = /\{([a-z\-]+)(\([^\)]*?\))?((?:\.[a-zA-Z]+\([^\)]*?\))*)\}/g;
 
-type TemplateValueReplacers<ExtraValues> = { [name: string]: (inlineArgs: string | null, extras: ExtraValues) => string };
+type TemplateValueReplacers<ExtraValues> = {
+  [name: string]: {
+    description: string,
+    replace: (inlineArgs: string | null, extras: ExtraValues) => string,
+  }
+};
 
 /**
  * Apply some string editing functions from strings.
@@ -38,6 +43,13 @@ function applyStringEditFunctions(onValue: string, funcStrings: string[]) {
     'stripRight': { nargs: 1, func: (val: string, [chars]) => (
       val.endsWith(chars) ? val.substring(0, val.length - chars.length) : val
     )},
+    'prettify': { nargs: 0, func: (val: string) => {
+      let processedVal = val.startsWith("www.") ? val.substring(4) : val;
+      processedVal = processedVal.endsWith(".com") ? processedVal.substring(0, processedVal.length - 4) : processedVal;
+      return processedVal
+        .replace(/[_\-]+/g, ' ')
+        .split(' ').map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(' ')
+    }},
   }
 
   return funcStrings.reduce((currValue, funcStr) => {
@@ -70,7 +82,7 @@ function replaceTemplate<ExtraValues>(text: string, valueReplacers: TemplateValu
       // Replace the first bit with the new value string
       const valueReplacer = valueReplacers[valueName];
       if (!valueReplacer) throw new Error(`Unknown value replacer ${valueName}`);
-      const value = valueReplacer(valueArgs ? valueArgs.slice(1, -1) : null, extras);
+      const value = valueReplacer.replace(valueArgs ? valueArgs.slice(1, -1) : null, extras);
       // Apply any extra functions to it, and then replace it in the final string
       const finalValue = applyStringEditFunctions(value, extraFuncs);
       text = text.replace(fullMatch, finalValue);
@@ -84,26 +96,38 @@ function replaceTemplate<ExtraValues>(text: string, valueReplacers: TemplateValu
 /**
  * The available replacers that can be used in the hrefPathTemplate of a link.
  */
-const hrefValueReplacers: TemplateValueReplacers<string> = {
-  "text-value": (_inlineArgs: string | null, selectedText: string) => selectedText,
-  "url-part-after": (args: string | null, _selectedText: string) => {
-    if (!args) throw new EvalError(`Argument must be provided`);
-    const parts = window.location.pathname.split('/');
-    const idx = parts.indexOf(args);
-    if (idx === -1) throw new EvalError(`part text '${args}' not found in url`);
-    return parts[idx + 1];
+export const hrefValueReplacers: TemplateValueReplacers<string> = {
+  "text-value": {
+    description: "The text at the link location",
+    replace: (_inlineArgs: string | null, selectedText: string) => selectedText,
   },
-  "url-part-index": (args: string | null, _selectedText: string) => {
-    if (!args || !args.match(/^[0-9]+$/)) throw new EvalError(`Argument must be a single integer`);
-    const parts = window.location.pathname.split('/');
-    const requestedIdx = +args;
-    if (parts.length <= requestedIdx) throw new EvalError(`Index ${requestedIdx} requested, but url has ${parts.length} parts`);
-    return parts[requestedIdx];
+  "url-part-index": {
+    description: "Value of the URL part at the specified index",
+    replace: (args: string | null, _selectedText: string) => {
+      if (!args || !args.match(/^[0-9]+$/)) throw new EvalError(`Argument must be a single integer`);
+      const parts = window.location.pathname.split('/');
+      const requestedIdx = +args;
+      if (parts.length <= requestedIdx) throw new EvalError(`Index ${requestedIdx} requested, but url has ${parts.length} parts`);
+      return parts[requestedIdx];
+    },
   },
-  "url-param": (args: string | null, _selectedText: string) => {
-    if (!args) throw new EvalError(`Argument must be provided`);
-    const params = new URLSearchParams(document.location.search);
-    return params.get(args) || "";
+  "url-part-after": {
+    description: "Value of the URL part after a given text",
+    replace: (args: string | null, _selectedText: string) => {
+      if (!args) throw new EvalError(`Argument must be provided`);
+      const parts = window.location.pathname.split('/');
+      const idx = parts.indexOf(args);
+      if (idx === -1) throw new EvalError(`part text '${args}' not found in url`);
+      return parts[idx + 1];
+    },
+  },
+  "url-param": {
+    description: "The value of the specified URL parameter",
+    replace: (args: string | null, _selectedText: string) => {
+      if (!args) throw new EvalError(`Argument must be provided`);
+      const params = new URLSearchParams(document.location.search);
+      return params.get(args) || "";
+    }
   }
 }
 
@@ -115,7 +139,10 @@ export function formatLinkHref(link: Link, selectedText: string) {
  * The available replacers for the name of a link.
  */
 const linkDisplayNameValueReplacers: TemplateValueReplacers<Link> = {
-  "href-host": (_inlineArgs: string | null, link: Link) => new URL(link.href_format).host,
+  "href-host": {
+    description: "The host part of the link URL",
+    replace: (_inlineArgs: string | null, link: Link) => new URL(link.href_format).host,
+  },
 }
 
 export function formatLinkDisplayName(link: Link) {

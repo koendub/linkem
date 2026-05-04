@@ -71,7 +71,7 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
     on_xpath: totalTextXpath || '',
     on_selected_text_regex: selectedTextRe,
     position: 'next_to_text',
-    display_name: '{href-host.stripLeft(www.).stripRight(.com).capitalize()}',
+    display_name: '{href-host.prettify()}',
   };
 }
 

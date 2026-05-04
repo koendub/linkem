@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { LinkWithConditions, UnstoredLinkWithConditions, Condition } from '@/core/types';
-import { Link, Plus, Trash2, X, Save, ChevronDown } from 'lucide-react';
+import { Link, Plus, Trash2, X, Save, ChevronDown, InfoIcon } from 'lucide-react';
 import { Accordion } from '@base-ui/react';
 import { hasSupabaseConfig } from '@/core/storage/supabase_storage';
 import { HighlightTextField } from './HighlightTextField';
-import { regexFindAllTemplates } from '@/core/replacer';
+import { hrefValueReplacers, regexFindAllTemplates } from '@/core/replacer';
 
 
 interface EditLinkViewProps {
@@ -56,9 +56,25 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                 onChange={(nv) => setLinkObj({ ...linkObj, href_format: nv })}
                 highlights={regexFindAllTemplates}
               />
-              <small className="text-gray-500 text-xs mt-2 block">
-                Use <span className="bg-blue-100 px-2 py-1 rounded font-mono text-blue-700">{`{text-value}`}</span> to insert the selected text.
-              </small>
+              <Accordion.Root>
+                <Accordion.Item value="template-explain">
+                  <Accordion.Header>
+                    <Accordion.Trigger className="w-full px-1 py-1 text-left text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors block">
+                      Use templates like <span className="rounded font-mono bg-blue-200">{`{text-value}`}</span> to insert the selected text.
+                      <InfoIcon className='ml-2 inline-block' size={14} />
+                    </Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel className="smooth-accordion-panel text-sm">
+                      <ul>
+                        {Object.entries(hrefValueReplacers).map(([key, replacer]) => (
+                          <li key={key}>
+                            <span className="rounded font-mono bg-blue-200">{`{${key}}`}</span> - {replacer.description}
+                          </li>
+                        ))}
+                      </ul>
+                  </Accordion.Panel>
+                </Accordion.Item>
+              </Accordion.Root>
             </div>
           </div>
           <Accordion.Root multiple className="space-y-3">
@@ -141,6 +157,7 @@ export function EditLinkView({ link, onClose, onSave }: EditLinkViewProps) {
                           <option value="xpath_exists">XPath Exists</option>
                           <option value="value_match">Value Match</option>
                           <option value="url_contains">URL Contains</option>
+                          <option value="text_contains">Text Contains</option>
                           {
                             // Only allow one url_start condition, so only show the option if there isn't
                             // already one or if this condition is the existing url_start condition

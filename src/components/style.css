@@ -156,6 +156,6 @@ body {
 
   /*  Utility classes */
   .smooth-accordion-panel {
-    @apply h-(--accordion-panel-height) overflow-hidden text-base text-gray-600 transition-[height] ease-out data-ending-style:h-0 data-starting-style:h-0;
+    @apply h-(--accordion-panel-height) overflow-hidden text-gray-600 transition-[height] ease-out data-ending-style:h-0 data-starting-style:h-0;
   }
 }

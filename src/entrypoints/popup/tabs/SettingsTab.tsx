@@ -6,27 +6,26 @@ import { useStorageValue } from '@/components/hooks/useStorage';
 import { hasSupabaseConfig, SupabaseStorage } from '@/core/storage/supabase_storage';
 import { User } from '@supabase/supabase-js';
 import KofiSymbol from '@/components/kofi_symbol.svg';
+import { Accordion } from '@base-ui/react/accordion';
 
 
 function TitleWithInfo({ title, info }: { title: string, info: string }) {
-  const [showInfo, setShowInfo] = useState(false);
-
   return (
-    <div className='mb-2'>
-      <div className="flex items-center justify-between">
-        <div className="block text-sm font-semibold text-gray-900">
-          {title}
-        </div>
-        <button className="btn-icon-small btn-blue p-6" onClick={() => setShowInfo(!showInfo)}>
-          <InfoIcon size={16} />
-        </button>
-      </div>
-      {showInfo && (
-        <div className="text-xs text-gray-500">
-          {info}
-        </div>
-      )}
-    </div>
+    <Accordion.Root className="space-y-3">
+      <Accordion.Item value="template-explain">
+        <Accordion.Header>
+          <Accordion.Trigger className="w-full px-2 py-1 text-left font-semibold text-gray-900 rounded-lg flex items-center justify-between transition-colors">
+            {title}
+            <span className='hover:bg-blue-100 p-2 rounded-lg'><InfoIcon size={18} /></span>
+          </Accordion.Trigger>
+        </Accordion.Header>
+        <Accordion.Panel className="smooth-accordion-panel">
+          <div className="text-xs text-gray-500 px-3 pb-2">
+            {info}
+          </div>
+        </Accordion.Panel>
+      </Accordion.Item>
+    </Accordion.Root>
   )
 }
 
@@ -239,7 +238,7 @@ const SettingsTab: React.FC = () => {
           {settings.allowNetworking && <SupabaseSignInOut />}
         </>
       ) : (
-        <div className="bg-white border border-gray-300 rounded-lg px-4 pt-2 shadow-sm mt-4">
+        <div className="bg-white border border-gray-300 rounded-lg px-4 py-2 shadow-sm mt-4">
           <TitleWithInfo title="Networking Not Available (...yet?)" info={
             "Networking features allow you to publish, import and stay up to date with links and link packages from other users. "
             + "This version of Linkem does not support networking yet. If this is something you want to see, let me know in the feedback form!"
