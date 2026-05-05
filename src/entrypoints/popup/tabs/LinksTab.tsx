@@ -3,6 +3,7 @@ import { LinkWithConditions, Condition, UnstoredLinkWithConditions } from '@/cor
 import { EditLinkView } from '../../../components/EditLinkView';
 import { Edit, Trash2 } from 'lucide-react';
 import { LocalLinksStorage } from '@/core/storage/local_links_storage';
+import { getFailingConditions } from '@/core/inject';
 
 
 export default function LinksTab() {
@@ -106,7 +107,7 @@ export default function LinksTab() {
             <h3 className="my-4 text-md text-gray-500 uppercase tracking-wider font-semibold">Current Page Links</h3>
             <ul className="list-none p-0 m-0">
               {filteredLinks.currentPageLinks.map(link => (
-                <li key={link.id} className="mb-2 border border-gray-300 rounded-lg p-3 bg-white shadow-sm transition-shadow duration-200 cursor-pointer hover:shadow-md">
+                <li key={link.id} className="relative mb-2 border border-gray-300 rounded-lg p-3 bg-white shadow-sm transition-shadow duration-200 cursor-pointer hover:shadow-md">
                   <div className="flex justify-between items-center">
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-gray-900 mb-1 truncate">{link.name}</div>
@@ -121,6 +122,12 @@ export default function LinksTab() {
                       </button>
                     </div>
                   </div>
+                  {/* Debug triangle */}
+                  {/* <div className="absolute right-0 bottom-0 w-0 h-0 border-4 border-t-transparent border-l-transparent border-b-blue-500 border-r-blue-500 group">
+                    <div className='hidden group-hover:block absolute right-0 bottom-0 bg-blue-100 rounded-lg max-w-60 p-1'>
+                      {getFailingConditions(link)}
+                    </div>
+                  </div> */}
                 </li>
               ))}
             </ul>
