@@ -1,90 +1,10 @@
 import { formatLinkDisplayName, formatLinkHref } from '@/core/replacer';
-import { LinkWithConditions, Condition } from '@/core/types';
-import { getElementByXPath } from './utils/xpath';
+import { LinkWithConditions } from '@/core/types';
 import linkemIconUrl from '~/assets/32.png';
-import { settingsStorage, linksStorage } from './storage/local_storage';
+import { settingsStorage } from './storage/local_storage';
 
-/////////////////////////////////////////////////////////// Checking link applicability
 
-const preMatchConditions = {
-  'url_start': {
-    check: (c: Condition) => window.location.href.startsWith(c.value),
-    explanation: (c: Condition) => `URL does not start with "${c.value}".`
-  },
-  'url_contains': {
-    check: (c: Condition) => window.location.href.includes(c.value),
-    explanation: (c: Condition) => `URL does not contain "${c.value}".`
-  },
-  'xpath_exists': {
-    check: (c: Condition) => !!getElementByXPath(c.value),
-    explanation: (c: Condition) => `No element matches the XPath "${c.value}".`
-  },
-  'value_match': {
-    check: (c: Condition) => document.body.textContent?.includes(c.value) || false,
-    explanation: (c: Condition) => `The page does not contain the text "${c.value}".`
-  },
-}
-
-const postMatchConditions = {
-  'text_contains': {
-    check: (c: Condition, match: Element) => match.textContent.includes(c.value),
-    explanation: (c: Condition, _: Element) => `The matched element did not contain text "${c.value}"`,
-  }
-}
-
-export function getFailingPreMatchConditions(link: LinkWithConditions): Condition[] {
-  return link.conditions.filter(c => (
-    c.type in preMatchConditions
-    && !preMatchConditions[c.type as keyof typeof preMatchConditions]!.check(c)
-  ));
-}
-
-export function getFailingPostMatchConditions(link: LinkWithConditions, matchedElement: Element): Condition[] {
-  return link.conditions.filter(c => (
-    c.type in postMatchConditions
-    && !postMatchConditions[c.type as keyof typeof postMatchConditions]!.check(c, matchedElement)
-  ));
-}
-
-export function getFailingConditions(link: LinkWithConditions): string[] {
-  const failingPre = getFailingPreMatchConditions(link);
-  if (failingPre.length > 0) {
-    return failingPre.map(c => preMatchConditions[c.type as keyof typeof preMatchConditions]!.explanation(c));
-  }
-  const inElement = getElementByXPath(link.on_xpath);
-  if (!inElement) {
-    return [`No element found for XPath "${link.on_xpath}".`];
-  }
-  const failingPost = getFailingPostMatchConditions(link, inElement);
-  if (failingPost.length > 0) {
-    return failingPost.map(c => postMatchConditions[c.type as keyof typeof postMatchConditions]!.explanation(c, inElement));
-  }
-  return [];
-}
-
-/////////////////////////////////////////////////////////// Inserting links into the page
-
-export async function injectLinks() {
-  try {
-    const allLinks = await linksStorage.getValue();
-    await injectMatchingLinks(Object.values(allLinks));
-  } catch (error) {
-    console.error('Failed to inject links:', error);
-  }
-}
-
-export async function injectMatchingLinks(links: LinkWithConditions[]): Promise<void> {
-  for (const link of links) {
-    if (getFailingPreMatchConditions(link).length === 0) {
-      const inElement = getElementByXPath(link.on_xpath);
-      if (inElement && getFailingPostMatchConditions(link, inElement).length === 0) {
-        await applyLinkToElement(link, inElement);
-      }
-    }
-  }
-}
-
-async function applyLinkToElement(link: LinkWithConditions, element: Element): Promise<void> {
+export async function applyLinkToElement(link: LinkWithConditions, element: Element): Promise<void> {
   const position = link.position === 'user_default'
     ? (await settingsStorage.getItem<string>('default_link_position'))
     : link.position;

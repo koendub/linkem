@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js'
 import { Database, Link, Condition, LinkWithConditions } from '@/core/types'
-import { settingsStorage } from './local_base_storage'
+import { settingsStorage } from './local_storage'
 
 // Initialize Supabase client
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''

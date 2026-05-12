@@ -1,14 +1,31 @@
-import { getXPath } from '@/core/utils/xpath';
+import { getElementByXPath, getXPath } from '@/core/utils/xpath';
 import { showCreateLinkModal } from './EditLinkModal';
-import { injectLinks } from '@/core/inject';
+import { applyLinkToElement } from '@/core/inject';
 import { importFromBase64 } from '@/core/share';
 import { linksStorage } from '@/core/storage/local_storage';
+import { getFailingPostMatchConditions, getFailingPreMatchConditions } from '@/core/conditions';
 
 let lastXPath = '';
 
 document.addEventListener('contextmenu', (event) => {
   lastXPath = getXPath(event.target as Element);
 });
+
+async function injectLinks() {
+  try {
+    const allLinks = Object.values(await linksStorage.getValue());
+    for (const link of allLinks) {
+      if (getFailingPreMatchConditions(link).length === 0) {
+        const inElement = getElementByXPath(link.on_xpath);
+        if (inElement && getFailingPostMatchConditions(link, inElement).length === 0) {
+          await applyLinkToElement(link, inElement);
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Failed to inject links:', error);
+  }
+}
 
 export default defineContentScript({
   matches: ['*://*/*'],
