@@ -1,10 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Download, Trash2, AlertCircle, CheckCircle } from 'lucide-react';
-import { LocalLinksStorage } from '@/core/storage/local_links_storage';
 import { importFromBase64 } from '@/core/share';
 import { LinkPackage } from '@/core/types';
-import { LocalPackageStorage } from '@/core/storage/local_package_storage';
-import { settingsStorage } from '@/core/storage/local_base_storage';
+import { linksStorage, packagesStorage, settingsStorage } from '@/core/storage/local_storage';
 
 
 function ImportForm({ onImport }: { onImport: () => void }) {
@@ -118,7 +116,7 @@ export default function ImportTab() {
 
   const loadImportedPackages = async () => {
     try {
-      const allPackages = await LocalPackageStorage.getAllPackages();
+      const allPackages = await packagesStorage.getValue();
       const thisUserId = await settingsStorage.getItem('localUserId');
       const importedPackages = Object.values(allPackages).filter(pkg => pkg.user_id !== thisUserId);
       setImportedPackages(importedPackages);
@@ -133,9 +131,9 @@ export default function ImportTab() {
     try {
       // Delete all links in the package
       for (const linkId of pkg.linkIds) {
-        await LocalLinksStorage.deleteLink(linkId);
+        await linksStorage.removeItem(linkId);
       }
-      await LocalPackageStorage.deletePackage(packageId);
+      await packagesStorage.removeItem(packageId);
       loadImportedPackages();
     } catch (error) {
       console.error('Failed to delete imported package:', error);

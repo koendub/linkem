@@ -1,8 +1,8 @@
-import { getXPath } from '@/core/xpath';
-import { LocalLinksStorage } from '@/core/storage/local_links_storage';
+import { getXPath } from '@/core/utils/xpath';
 import { showCreateLinkModal } from './EditLinkModal';
 import { injectLinks } from '@/core/inject';
 import { importFromBase64 } from '@/core/share';
+import { linksStorage } from '@/core/storage/local_storage';
 
 let lastXPath = '';
 
@@ -28,7 +28,7 @@ export default defineContentScript({
       // Listen for messages from background to create a new link
       if (message.action === 'linkem-create-new-link') {
         showCreateLinkModal(message.selectedText, message.url, lastXPath, async (link) => {
-          await LocalLinksStorage.saveLinks([link]);
+          await linksStorage.updateLinks([link]);
           await injectLinks()
         });
       }

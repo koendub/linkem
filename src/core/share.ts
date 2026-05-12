@@ -1,6 +1,5 @@
 import { LinkPackage, LinkWithConditions, LinkPackageWithLinks, } from "@/core/types";
-import { LocalLinksStorage } from "./storage/local_links_storage";
-import { LocalPackageStorage } from "./storage/local_package_storage";
+import { linksStorage, packagesStorage } from "./storage/local_storage";
 
 
 /////////////////////////////////////////////////////////// Importing / Exporting with Base64
@@ -22,10 +21,10 @@ export async function importFromBase64(encoded: string) {
   // Then actually import the package or link
   if ('links' in data && Array.isArray((data as any).links)) {
     const pkg = data as LinkPackageWithLinks;
-    await LocalLinksStorage.saveLinks(pkg.links);
-    await LocalPackageStorage.savePackage(pkg);
+    await linksStorage.updateLinks(pkg.links);
+    await packagesStorage.savePackage(pkg);
   } else if ('conditions' in data && Array.isArray((data as any).conditions)) {
-    await LocalLinksStorage.saveLinks([data as LinkWithConditions]);
+    await linksStorage.updateLinks([data as LinkWithConditions]);
   } else {
     throw new Error('Invalid format: must be a link package or single link');
   }
@@ -34,7 +33,7 @@ export async function importFromBase64(encoded: string) {
 export async function exportToBase64(data: LinkPackage | LinkWithConditions): Promise<string> {
   const exportData: CanBase64Import = 'conditions' in data
     ? data as LinkWithConditions
-    : { ...data as LinkPackage, links: await LocalLinksStorage.getLinksWithIds(data.linkIds) };
+    : { ...data as LinkPackage, links: Object.values(await linksStorage.getItems(data.linkIds)) };
   const jsonString = JSON.stringify(exportData);
   return btoa(jsonString);
 }

@@ -2,8 +2,7 @@ import { useState, useMemo, useRef, useEffect } from 'react';
 import { LinkWithConditions, Condition, UnstoredLinkWithConditions } from '@/core/types';
 import { EditLinkView } from '../../../components/EditLinkView';
 import { Edit, Trash2 } from 'lucide-react';
-import { LocalLinksStorage } from '@/core/storage/local_links_storage';
-import { getFailingConditions } from '@/core/inject';
+import { linksStorage } from '@/core/storage/local_storage';
 
 
 export default function LinksTab() {
@@ -18,12 +17,12 @@ export default function LinksTab() {
   }, []);
 
   const loadLinks = async () => {
-    const allLinks = await LocalLinksStorage.getAllLinks();
+    const allLinks = await linksStorage.getValue();
     setLinks(Object.values(allLinks));
   };
 
   const handleDelete = async (linkId: string) => {
-    await LocalLinksStorage.deleteLink(linkId);
+    await linksStorage.removeItem(linkId);
     loadLinks();
   };
 
@@ -81,7 +80,7 @@ export default function LinksTab() {
   };
 
   const handleSaveEdit = async (link: LinkWithConditions | UnstoredLinkWithConditions) => {
-    await LocalLinksStorage.saveLinks([link]);
+    await linksStorage.updateLinks([link]);
     setEditingLink(null);
     loadLinks();
   };

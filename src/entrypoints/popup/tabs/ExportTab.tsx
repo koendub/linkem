@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { LinkPackage, LinkWithConditions, LocalUserSettingsValues, UnstoredLinkPackage } from '@/core/types';
-import { LocalLinksStorage } from '@/core/storage/local_links_storage';
-import { LocalPackageStorage } from '@/core/storage/local_package_storage';
 import { exportToBase64 } from '@/core/share';
 import { Plus, Trash2, Copy, Check, Share, PencilLine, UploadCloud } from 'lucide-react';
 import { useStorageValue } from '@/components/hooks/useStorage';
-import { settingsStorage } from '@/core/storage/local_base_storage';
 import { SupabaseStorage } from '@/core/storage/supabase_storage';
+import { linksStorage, packagesStorage, settingsStorage } from '@/core/storage/local_storage';
 
 interface EditPackageViewProps {
   initialPkg: LinkPackage | UnstoredLinkPackage;
@@ -15,7 +13,7 @@ interface EditPackageViewProps {
 
 function EditPackageView({ initialPkg, onClose }: EditPackageViewProps) {
   const [pkg, setPkg] = useState<LinkPackage | UnstoredLinkPackage>(initialPkg);
-  const { value: allLinks } = useStorageValue(LocalLinksStorage.storage, {});
+  const { value: allLinks } = useStorageValue(linksStorage, {});
 
   // Sync local state when initialPkg changes (e.g., when editing a different package)
   useEffect(() => {
@@ -146,9 +144,9 @@ function ShareableView({ item }: ShareablePackageProps) {
 const ExportTab: React.FC = () => {
   const [editingPackage, setEditingPackage] = useState<LinkPackage | UnstoredLinkPackage | null>(null);
   const [showShareId, setShowShareId] = useState<string | null>(null);
-  const { value: allLinks } = useStorageValue(LocalLinksStorage.storage, {});
+  const { value: allLinks } = useStorageValue(linksStorage, {});
 
-  const { value: packages, refresh: refreshPackages, isLoading } = useStorageValue(LocalPackageStorage.storage, {}, async (pkgs) => {
+  const { value: packages, refresh: refreshPackages, isLoading } = useStorageValue(packagesStorage, {}, async (pkgs) => {
     const myUserId = await settingsStorage.getItem('localUserId');
     const filteredPkgs = {} as { [id: string]: LinkPackage };
     Object.values(pkgs).forEach((pkg) => {
@@ -160,7 +158,7 @@ const ExportTab: React.FC = () => {
   });
 
   const handleDeletePackage = async (packageId: string) => {
-    await LocalPackageStorage.deletePackage(packageId);
+    await packagesStorage.removeItem(packageId);
     await refreshPackages();
   };
 
@@ -194,7 +192,7 @@ const ExportTab: React.FC = () => {
           <EditPackageView
             initialPkg={editingPackage} onClose={async (updatedPkg) => {
             setEditingPackage(null);
-            await LocalPackageStorage.savePackage(updatedPkg);
+            await packagesStorage.savePackage(updatedPkg);
             await refreshPackages();
           }} />
         )}

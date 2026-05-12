@@ -1,9 +1,8 @@
 import { formatLinkDisplayName, formatLinkHref } from '@/core/replacer';
 import { LinkWithConditions, Condition } from '@/core/types';
-import { LocalLinksStorage } from './storage/local_links_storage';
-import { settingsStorage } from './storage/local_base_storage';
-import { getElementByXPath } from './xpath';
+import { getElementByXPath } from './utils/xpath';
 import linkemIconUrl from '~/assets/32.png';
+import { settingsStorage, linksStorage } from './storage/local_storage';
 
 /////////////////////////////////////////////////////////// Checking link applicability
 
@@ -67,7 +66,7 @@ export function getFailingConditions(link: LinkWithConditions): string[] {
 
 export async function injectLinks() {
   try {
-    const allLinks = await LocalLinksStorage.getAllLinks();
+    const allLinks = await linksStorage.getValue();
     await injectMatchingLinks(Object.values(allLinks));
   } catch (error) {
     console.error('Failed to inject links:', error);

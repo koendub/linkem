@@ -1,6 +1,3 @@
-import { LocalUserSettingsValues } from "@/core/types/extra_types";
-
-// Storage classes
 
 export class LocalStorage<T> {
   private value: T | null = null;
@@ -36,8 +33,16 @@ export class LocalStorageDict<D extends { [key: string]: any }> extends LocalSto
   }
 
   async getItem<V>(valueKey: string, defaultValue: V | undefined = undefined): Promise<V | undefined> {
+    return (await this.getItems([valueKey], defaultValue === undefined ? {} : { [valueKey]: defaultValue } as Record<string, V>))[valueKey];
+  }
+
+  async getItems<V>(valueKeys: string[], defaultValues: Record<string, V> = {}): Promise<Record<string, V>> {
     const dict = await this.getValue() || {} as D;
-    return (dict && dict[valueKey]) || this.defaults[valueKey] || defaultValue;
+    const result: Record<string, V> = {};
+    for (const key of valueKeys) {
+      result[key] = (dict && dict[key]) || this.defaults[key] || defaultValues[key];
+    }
+    return result;
   }
 
   async updateItems(updates: Partial<D>): Promise<void> {
@@ -52,13 +57,8 @@ export class LocalStorageDict<D extends { [key: string]: any }> extends LocalSto
   }
 }
 
-// Specific storages
-
-export const settingsStorage = new LocalStorageDict<LocalUserSettingsValues>('linkem_settings', { default_link_position: 'next_to_text' });
-
-settingsStorage.getItem('localUserId').then(id => {
-  if (!id) {
-    const newId = 'local-' + crypto.randomUUID();
-    settingsStorage.updateItems({ localUserId: newId });
+export class LocalIdStorageDict<V extends { id: string }> extends LocalStorageDict<{ [id: string]: V }> {
+  async updateValues(values: V[]): Promise<void> {
+    await super.updateItems(Object.fromEntries(values.map(v => [v.id, v])));
   }
-});
+}

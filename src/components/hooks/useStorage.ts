@@ -1,4 +1,4 @@
-import { LocalStorage } from "@/core/storage/local_base_storage";
+import { LocalStorage } from "@/core/utils/storage_dict";
 
 
 export function useStorageValue<V>(
