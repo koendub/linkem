@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { InfoIcon, MessageCircleMore, Settings } from 'lucide-react';
 import { LocalUserSettingsValues } from '@/core/types';
-import { settingsStorage } from '@/core/storage/local_base_storage';
+import { settingsStorage } from '@/core/storage/local_storage';
 import { useStorageValue } from '@/components/hooks/useStorage';
 import { hasSupabaseConfig, SupabaseStorage } from '@/core/storage/supabase_storage';
 import { User } from '@supabase/supabase-js';

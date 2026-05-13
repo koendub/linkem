@@ -9,7 +9,7 @@ export class LocalStorage<T> {
       const stored = await browser.storage.local.get<{ [key: string]: T }>(this.storageKey);
       this.value = stored[this.storageKey] || null;
     }
-    return (this.value) as T | null;
+    return this.value;
   }
 
   async setValue(value: T): Promise<void> {
@@ -59,6 +59,6 @@ export class LocalStorageDict<D extends { [key: string]: any }> extends LocalSto
 
 export class LocalIdStorageDict<V extends { id: string }> extends LocalStorageDict<{ [id: string]: V }> {
   async updateValues(values: V[]): Promise<void> {
-    await super.updateItems(Object.fromEntries(values.map(v => [v.id, v])));
+    await this.updateItems(Object.fromEntries(values.map(v => [v.id, v])));
   }
 }

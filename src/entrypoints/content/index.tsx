@@ -4,6 +4,7 @@ import { applyLinkToElement } from '@/core/inject';
 import { importFromBase64 } from '@/core/share';
 import { linksStorage } from '@/core/storage/local_storage';
 import { getFailingPostMatchConditions, getFailingPreMatchConditions } from '@/core/conditions';
+import { injectCaller } from '@/core/utils/inject_caller';
 
 let lastXPath = '';
 
@@ -12,6 +13,7 @@ document.addEventListener('contextmenu', (event) => {
 });
 
 async function injectLinks() {
+  let injected = false;
   try {
     const allLinks = Object.values(await linksStorage.getValue());
     for (const link of allLinks) {
@@ -19,27 +21,20 @@ async function injectLinks() {
         const inElement = getElementByXPath(link.on_xpath);
         if (inElement && getFailingPostMatchConditions(link, inElement).length === 0) {
           await applyLinkToElement(link, inElement);
+          injected = true;
         }
       }
     }
   } catch (error) {
     console.error('Failed to inject links:', error);
   }
+  return injected;
 }
 
 export default defineContentScript({
   matches: ['*://*/*'],
   main() {
-    // Inject links when DOM is ready
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', injectLinks);
-    } else {
-      injectLinks();
-    }
-
-    // Also inject on dynamic content changes
-    const observer = new MutationObserver(injectLinks);
-    observer.observe(document.body, { childList: true, subtree: true });
+    injectCaller(injectLinks);
 
     browser.runtime.onMessage.addListener((message) => {
       // Listen for messages from background to create a new link
