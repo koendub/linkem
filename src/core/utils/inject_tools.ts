@@ -7,12 +7,12 @@ export function injectNewElement(
   onRegex: RegExp | string | null,
   onOrNextToText: 'on_text' | 'next_to_text',
   createNewElement: (parentElement: Element, text: string) => Element
-) {
+): boolean {
     // Check if this injection is already present, if so, dont inject it again
     const injectionsInElement = parent.getElementsByClassName(appName + '-injection');
     for (const existingInjection of injectionsInElement) {
       if (existingInjection.classList.contains(appName + '-injection-' + elementId)) {
-        return;
+        return false;
       }
     }
   
@@ -20,7 +20,7 @@ export function injectNewElement(
     const range = findTextRangeInElement(parent, onRegex);
   
     // No match found means the pattern was not in the element text. In this case we dont insert anything
-    if (!range) return;
+    if (!range) return false;
 
     // Add class to new element for future duplicate checks
     const newElem = createNewElement(parent, range.toString());
@@ -32,12 +32,15 @@ export function injectNewElement(
       newElem.textContent = '';
       newElem.appendChild(contents);
       range.insertNode(newElem);
+      return true;
     } else if (onOrNextToText === 'next_to_text') {
       // Collapse range to its end and insert new element after
       range.collapse(false);
       range.insertNode(newElem);
+      return true;
     } else {
       console.error('Invalid onOrNextToText value: ' + onOrNextToText);
+      return false;
     }
 }
 

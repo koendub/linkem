@@ -13,22 +13,22 @@ document.addEventListener('contextmenu', (event) => {
 });
 
 async function injectLinks() {
-  let injected = false;
+  let anyInjected = false;
   try {
     const allLinks = Object.values(await linksStorage.getValue());
     for (const link of allLinks) {
       if (getFailingPreMatchConditions(link).length === 0) {
         const inElement = getElementByXPath(link.on_xpath);
         if (inElement && getFailingPostMatchConditions(link, inElement).length === 0) {
-          await applyLinkToElement(link, inElement);
-          injected = true;
+          const thisInjected = await applyLinkToElement(link, inElement);
+          anyInjected = anyInjected || thisInjected;
         }
       }
     }
   } catch (error) {
     console.error('Failed to inject links:', error);
   }
-  return injected;
+  return anyInjected;
 }
 
 export default defineContentScript({

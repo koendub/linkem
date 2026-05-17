@@ -5,17 +5,17 @@ import { settingsStorage } from './storage/local_storage';
 import { injectNewElement } from './utils/inject_tools';
 
 
-export async function applyLinkToElement(link: LinkWithConditions, element: Element): Promise<void> {
+export async function applyLinkToElement(link: LinkWithConditions, element: Element): Promise<boolean> {
   const position = link.position === 'user_default'
     ? (await settingsStorage.getItem<UserSettings['default_link_position']>('default_link_position'))
     : link.position;
 
   if (!position) {
     console.error('No position found for link', link, 'this should not be possible');
-    return;
+    return false;
   }
 
-  injectNewElement(
+  return injectNewElement(
     'linkem',
     link.id,
     element,
