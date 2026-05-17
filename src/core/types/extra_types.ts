@@ -4,9 +4,9 @@ import { Database, Tables } from "./supabase";
 
 // Type helpers, like in database
 export type Profile = Tables<'profiles'>;
-export type Link = Tables<'links'>;
+export type Link = Tables<'links'> & { position: 'on_text' | 'next_to_text' | 'user_default' };
 export type Condition = Tables<'conditions'> & { type: 'url_start' | 'url_contains' | 'xpath_exists' | 'value_match' | 'text_contains' };
-export type UserSettings = Tables<'user_settings'>;
+export type UserSettings = Tables<'user_settings'> & { default_link_position: 'on_text' | 'next_to_text' };
 export type LinkPackageBase = Tables<'link_packages'>;
 export type LinkPackageLink = Tables<'link_package_links'>;
 

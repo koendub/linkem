@@ -1,5 +1,66 @@
 
 
+export function injectNewElement(
+  appName: string,
+  elementId: string,
+  parent: Element,
+  onRegex: RegExp | string | null,
+  onOrNextToText: 'on_text' | 'next_to_text',
+  createNewElement: (parentElement: Element, text: string) => Element
+) {
+  // Check if this injection is already present, if so, dont inject it again
+  const linksInElement = parent.getElementsByClassName(appName + '-injection');
+  for (const existingLink of linksInElement) {
+    if (existingLink.classList.contains(appName + '-injection-' + elementId)) {
+      return;
+    }
+  }
+
+  // Match the pattern in the text, use DOM Range to find and manipulate the matched text while preserving DOM structure
+  const range = findTextRangeInElement(parent, onRegex);
+
+  // No match found means the pattern was not in the element text. In this case we dont insert anything
+  if (!range) return;
+
+  // Add class to new element for future duplicate checks
+  const newElem = createNewElement(parent, range.toString());
+  newElem.classList.add(appName + '-injection', appName + '-injection-' + elementId);
+
+  if (onOrNextToText === 'on_text') {
+    // Extract contents of range, wrap in link, and insert back
+    const contents = range.extractContents();
+    newElem.textContent = '';
+    newElem.appendChild(contents);
+    range.insertNode(newElem);
+  } else if (onOrNextToText === 'next_to_text') {
+    // Collapse range to its end and insert link after
+    range.collapse(false);
+    range.insertNode(newElem);
+  } else {
+    console.error('Invalid onOrNextToText value: ' + onOrNextToText);
+  }
+}
+
+export function injectNewElementOnRange(
+  appName: string,
+  elementId: string,
+  parent: Element,
+  range: Range,
+  createNewElem: () => Element
+) {
+  // Check if this injection is already present, if so, dont inject it again
+  const linksInElement = parent.getElementsByClassName(appName + '-injection');
+  for (const existingLink of linksInElement) {
+    if (existingLink.classList.contains(appName + '-injection-' + elementId)) {
+      return;
+    }
+  }
+  // Add class to new element for future duplicate checks
+  const newElem = createNewElem();
+  newElem.classList.add(appName + '-injection', appName + '-injection-' + elementId);
+  range.insertNode(newElem);
+}
+
 export function findTextRangeInElement(element: Element, regex: RegExp | string | null): Range | null {
   if (!regex) {
     // If there is no regex provided, they must mean the whole element

@@ -1,52 +1,31 @@
 import { formatLinkDisplayName, formatLinkHref } from '@/core/replacer';
-import { LinkWithConditions } from '@/core/types';
+import { LinkWithConditions, UserSettings } from '@/core/types';
 import linkemIconUrl from '~/assets/32.png';
 import { settingsStorage } from './storage/local_storage';
-import { findTextRangeInElement } from './utils/inject_tools';
+import { injectNewElement } from './utils/inject_tools';
 
 
 export async function applyLinkToElement(link: LinkWithConditions, element: Element): Promise<void> {
   const position = link.position === 'user_default'
-    ? (await settingsStorage.getItem<string>('default_link_position'))
+    ? (await settingsStorage.getItem<UserSettings['default_link_position']>('default_link_position'))
     : link.position;
 
-  // Check if the link is already injected in this element, if so, dont inject it again
-  const searchIn = element.parentElement || element;
-  const linksInElement = searchIn.getElementsByClassName('linkem-injected-link');
-  for (const existingLink of linksInElement) {
-    if (existingLink.classList.contains('link-' + link.id)) {
-      return;
-    }
+  if (!position) {
+    console.error('No position found for link', link, 'this should not be possible');
+    return;
   }
 
-  const text = element.textContent || '';
-  const href = formatLinkHref(link, text);
-
-  // Match the pattern in the text, use DOM Range to find and manipulate the matched text while preserving DOM structure
-  const range = findTextRangeInElement(element, link.on_selected_text_regex);
-
-  // No match found means the pattern was not in the element text. In this case we dont insert anything
-  if (!range) return;
-
-  if (position === 'on_text') {
-    // Extract contents of range, wrap in link, and insert back
-    const contents = range.extractContents();
-    const linkEl = createNewLinkElement(link.id, href, '', element);
-    linkEl.textContent = '';
-    linkEl.appendChild(contents);
-    range.insertNode(linkEl);
-  } else if (position === 'next_to_text') {
-    // Collapse range to its end and insert link after
-    const linkEl = createNewLinkElement(link.id, href, formatLinkDisplayName(link), element);
-    linkEl.style.marginLeft = '5px';
-    range.collapse(false);
-    range.insertNode(linkEl);
-  }
+  injectNewElement(
+    'linkem',
+    link.id,
+    element,
+    link.on_selected_text_regex,
+    position,
+    (parentElement, text) => createNewLinkElement(formatLinkHref(link, text), formatLinkDisplayName(link), parentElement)
+  )
 }
 
-
-
-function createNewLinkElement(linkId: string, href: string, text: string, parentElement?: Element): HTMLAnchorElement {
+function createNewLinkElement(href: string, text: string, parentElement?: Element): HTMLAnchorElement {
   // Determine the rought size
   let fontSize = 14;
   if (parentElement) {
@@ -68,8 +47,6 @@ function createNewLinkElement(linkId: string, href: string, text: string, parent
   a.style.gap = '4px';
   a.style.fontSize = fontSize + 'px';
   a.style.lineHeight = fontSize + 'px';
-  a.classList.add('linkem-injected-link');
-  a.classList.add('link-' + linkId);
   if (fontSize > 18) {
     a.style.verticalAlign = '6px';
   }
