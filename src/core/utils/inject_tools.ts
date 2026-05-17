@@ -9,9 +9,9 @@ export function injectNewElement(
   createNewElement: (parentElement: Element, text: string) => Element
 ) {
     // Check if this injection is already present, if so, dont inject it again
-    const linksInElement = parent.getElementsByClassName(appName + '-injection');
-    for (const existingLink of linksInElement) {
-      if (existingLink.classList.contains(appName + '-injection-' + elementId)) {
+    const injectionsInElement = parent.getElementsByClassName(appName + '-injection');
+    for (const existingInjection of injectionsInElement) {
+      if (existingInjection.classList.contains(appName + '-injection-' + elementId)) {
         return;
       }
     }
@@ -27,13 +27,13 @@ export function injectNewElement(
     newElem.classList.add(appName + '-injection', appName + '-injection-' + elementId);
   
     if (onOrNextToText === 'on_text') {
-      // Extract contents of range, wrap in link, and insert back
+      // Extract contents of range, wrap them in the new element, and insert back
       const contents = range.extractContents();
       newElem.textContent = '';
       newElem.appendChild(contents);
       range.insertNode(newElem);
     } else if (onOrNextToText === 'next_to_text') {
-      // Collapse range to its end and insert link after
+      // Collapse range to its end and insert new element after
       range.collapse(false);
       range.insertNode(newElem);
     } else {
