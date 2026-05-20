@@ -1,47 +1,45 @@
 
-
 export function injectNewElement(
   appName: string,
   elementId: string,
   parent: Element,
   onRegex: RegExp | string | null,
   onOrNextToText: 'on_text' | 'next_to_text',
-  createNewElement: (parentElement: Element, text: string) => Element
+  newElement: Element | ((parentElement: Element, text: string) => Element)
 ): boolean {
-    // Check if this injection is already present, if so, dont inject it again
-    const injectionsInElement = parent.getElementsByClassName(appName + '-injection');
-    for (const existingInjection of injectionsInElement) {
-      if (existingInjection.classList.contains(appName + '-injection-' + elementId)) {
-        return false;
-      }
-    }
-  
-    // Match the pattern in the text, use DOM Range to find and manipulate the matched text while preserving DOM structure
-    const range = findTextRangeInElement(parent, onRegex);
-  
-    // No match found means the pattern was not in the element text. In this case we dont insert anything
-    if (!range) return false;
-
-    // Add class to new element for future duplicate checks
-    const newElem = createNewElement(parent, range.toString());
-    newElem.classList.add(appName + '-injection', appName + '-injection-' + elementId);
-  
-    if (onOrNextToText === 'on_text') {
-      // Extract contents of range, wrap them in the new element, and insert back
-      const contents = range.extractContents();
-      newElem.textContent = '';
-      newElem.appendChild(contents);
-      range.insertNode(newElem);
-      return true;
-    } else if (onOrNextToText === 'next_to_text') {
-      // Collapse range to its end and insert new element after
-      range.collapse(false);
-      range.insertNode(newElem);
-      return true;
-    } else {
-      console.error('Invalid onOrNextToText value: ' + onOrNextToText);
+  // Check if this injection is already present, if so, dont inject it again
+  const injectionsInElement = parent.getElementsByClassName(appName + '-injection');
+  for (const existingInjection of injectionsInElement) {
+    if (existingInjection.classList.contains(appName + '-injection-' + elementId)) {
       return false;
     }
+  }
+
+  // Match the pattern in the text, use DOM Range to find and manipulate the matched text while preserving DOM structure
+  const range = findTextRangeInElement(parent, onRegex);
+
+  // No match found means the pattern was not in the element text. In this case we dont insert anything
+  if (!range) return false;
+
+  // Add class to new element for future duplicate checks
+  const newElem = typeof newElement === 'function' ? newElement(parent, range.toString()) : newElement;
+  newElem.classList.add(appName + '-injection', appName + '-injection-' + elementId);
+
+  if (onOrNextToText === 'on_text') {
+    // Extract contents of range, wrap them in the new element, and insert back
+    const contents = range.extractContents();
+    newElem.appendChild(contents);
+    range.insertNode(newElem);
+    return true;
+  } else if (onOrNextToText === 'next_to_text') {
+    // Collapse range to its end and insert new element after
+    range.collapse(false);
+    range.insertNode(newElem);
+    return true;
+  } else {
+    console.error('Invalid onOrNextToText value: ' + onOrNextToText);
+    return false;
+  }
 }
 
 export function findTextRangeInElement(element: Element, regex: RegExp | string | null): Range | null {

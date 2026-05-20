@@ -15,13 +15,15 @@ export async function applyLinkToElement(link: LinkWithConditions, element: Elem
     return false;
   }
 
+  const linkText = link.position === 'on_text' ? '' : formatLinkDisplayName(link);
+
   return injectNewElement(
     'linkem',
     link.id,
     element,
     link.on_selected_text_regex,
     position,
-    (parentElement, text) => createNewLinkElement(formatLinkHref(link, text), formatLinkDisplayName(link), parentElement)
+    (parentElement, text) => createNewLinkElement(formatLinkHref(link, text), linkText, parentElement)
   )
 }
 
