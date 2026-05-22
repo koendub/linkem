@@ -166,7 +166,7 @@ export default function LinksTab() {
 
       {/* Sliding edit panel */}
       <div ref={editPanelRef} className={`absolute inset-0 bg-white transition-transform duration-300 ease-in-out ${editingLink ? 'translate-x-0' : 'translate-x-full'}`}>
-        {editingLink && <EditLinkView link={editingLink} onClose={() => setEditingLink(null)} onSave={handleSaveEdit} />}
+        {editingLink && <EditLinkView initialLink={editingLink} onClose={() => setEditingLink(null)} onSave={handleSaveEdit} />}
       </div>
     </div>
   );

@@ -23,7 +23,7 @@ export function showCreateLinkModal(selectedText: string, url: string, xpath: st
       <div className='fixed top-0 left-0 w-full h-full bg-black/50 z-10000 flex items-center justify-center'>
         <div className='w-116 h-154 max-w-full max-h-full rounded-lg overflow-hidden shadow-lg'>
           <EditLinkView
-            link={initialLinkData}
+            initialLink={initialLinkData}
             onClose={handleClose}
             onSave={onSave}
           />

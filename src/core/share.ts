@@ -38,6 +38,12 @@ export async function exportToBase64(data: LinkPackage | LinkWithConditions): Pr
   return btoa(jsonString);
 }
 
+export async function exportToBase64ShareableLink(data: LinkPackage | LinkWithConditions): Promise<string> {
+  const base64 = await exportToBase64(data);
+  const messageTransformerPrefix = 'https://buffer-flow.github.io/#/msg?for=linkem&name=import-link&base64=';
+  return `${messageTransformerPrefix}${base64}`; // TODO: could still add redirect url option with query parameter &redirectUrl=
+}
+
 /////////////////////////////////////////////////////////// Importing / Exporting with Supabase
 
 export function fetchRemoteLinks(id: string) {

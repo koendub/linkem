@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LinkPackage, LinkWithConditions, LocalUserSettingsValues, UnstoredLinkPackage } from '@/core/types';
-import { exportToBase64 } from '@/core/share';
+import { exportToBase64, exportToBase64ShareableLink } from '@/core/share';
 import { Plus, Trash2, Copy, Check, Share, PencilLine, UploadCloud } from 'lucide-react';
 import { useStorageValue } from '@/components/hooks/useStorage';
 import { SupabaseStorage } from '@/core/storage/supabase_storage';
@@ -91,14 +91,28 @@ interface ShareablePackageProps {
 
 function ShareableView({ item }: ShareablePackageProps) {
   const [copiedBase64, setCopiedBase64] = useState(false);
+  const [copiedBase64Link, setCopiedBase64Link] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState<boolean | null>(null);
   const { value: settings } = useStorageValue(settingsStorage, {} as LocalUserSettingsValues);
 
   const handleCopyShareText = useCallback(async () => {
-    const useBase64 = await exportToBase64(item);
-    navigator.clipboard.writeText(useBase64);
-    setCopiedBase64(true);
-    setTimeout(() => setCopiedBase64(false), 2000);
+    try {
+      const useBase64 = await exportToBase64(item);
+      navigator.clipboard.writeText(useBase64);
+      setCopiedBase64(true);
+    } finally {
+      setTimeout(() => setCopiedBase64(false), 2000);
+    }
+  }, [item]);
+
+  const handleCopyShareLink = useCallback(async () => {
+    try {
+      const useBase64Link = await exportToBase64ShareableLink(item);
+      navigator.clipboard.writeText(useBase64Link);
+      setCopiedBase64Link(true);
+    } finally {
+      setTimeout(() => setCopiedBase64Link(false), 2000);
+    }
   }, [item]);
 
   const handleUpload = useCallback(async () => {
@@ -126,6 +140,13 @@ function ShareableView({ item }: ShareablePackageProps) {
         >
           {copiedBase64 ? <Check size={16} /> : <Copy size={16} />}
           {copiedBase64 ? 'Copied!' : 'Copy as Text'}
+        </button>
+        <button
+          onClick={() => handleCopyShareLink()}
+          className="flex-1 px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition flex items-center gap-1 whitespace-nowrap"
+        >
+          {copiedBase64Link ? <Check size={16} /> : <Copy size={16} />}
+          {copiedBase64Link ? 'Copied!' : 'Copy as Link'}
         </button>
         {settings.allowNetworking && (
           <button
