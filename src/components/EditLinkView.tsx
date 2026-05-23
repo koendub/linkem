@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { LinkWithConditions, UnstoredLinkWithConditions, Condition } from '@/core/types';
-import { Link, Plus, Trash2, X, Save, ChevronDown, InfoIcon } from 'lucide-react';
+import { LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
+import { Link, X, Save, ChevronDown } from 'lucide-react';
 import { Accordion } from '@base-ui/react';
 import { hasSupabaseConfig } from '@/core/storage/supabase_storage';
-import { HighlightTextField } from './HighlightTextField';
-import { hrefValueReplacers, regexFindAllTemplates } from '@/core/replacer';
+import { EditConditionsView } from './editing/ConditionsEditor';
+import { HrefFormatEditor } from './editing/HrefFormatEditor';
+import { DisplayEditor } from './editing/DisplayEditor';
 
 type LinkToEdit = LinkWithConditions | UnstoredLinkWithConditions;
 
@@ -15,14 +16,15 @@ interface EditLinkViewProps {
 }
 
 export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps) {
-  const [linkObj, setLinkObj] = useState<LinkToEdit>({ ...initialLink });
+  const [link, setLink] = useState<LinkToEdit>({ ...initialLink });
+  const [isSimpleMode, setIsSimpleMode] = useState(true);
 
   useEffect(() => {
-    setLinkObj({ ...initialLink });
+    setLink({ ...initialLink });
   }, [initialLink]);
 
   const handleSave = async () => {
-    onSave(linkObj);
+    onSave(link);
     onClose();
   };
 
@@ -31,21 +33,101 @@ export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps
       <div className="flex-1 pr-2">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
           <Link className="w-6 h-6 mr-3 text-blue-500" />
-          {'id' in linkObj ? 'Edit Link' : 'Create New Link'}
+          {'id' in link ? 'Edit Link' : 'Create New Link'}
         </h2>
         <div className="space-y-6">
           <div className="space-y-4">
             <div>
               <label>Name</label>
               <input
-                value={linkObj.name}
-                onChange={(e) => setLinkObj({ ...linkObj, name: e.target.value })}
+                value={link.name}
+                onChange={(e) => setLink({ ...link, name: e.target.value })}
                 placeholder="Enter link name"
               />
             </div>
-            <HrefFormatEditor link={linkObj} onChange={(updatedLink) => setLinkObj(updatedLink)} />
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label>Link URL Format</label>
+              </div>
+              <HrefFormatEditor link={link} onChange={(updatedLink) => setLink(updatedLink)} />
+            </div>
+            <div className="flex gap-2 bg-gray-200 rounded-lg p-1">
+              <button
+                onClick={() => setIsSimpleMode(true)}
+                className={`px-3 py-1 rounded transition-colors font-medium text-sm ${
+                  isSimpleMode
+                    ? 'bg-blue-500 text-white'
+                    : 'text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Simple
+              </button>
+              <button
+                onClick={() => setIsSimpleMode(false)}
+                className={`px-3 py-1 rounded transition-colors font-medium text-sm ${
+                  !isSimpleMode
+                    ? 'bg-blue-500 text-white'
+                    : 'text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Advanced
+              </button>
+            </div>
           </div>
-          <AdvancedModeEditor link={linkObj} setLink={(updatedLink) => setLinkObj(updatedLink)} />
+          <Accordion.Root multiple className="space-y-3">
+            {/* Link Location Accordion */}
+            <Accordion.Item value="location" className="border border-gray-300 rounded-lg bg-white">
+              <Accordion.Header>
+                <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
+                  Link Location
+                  <ChevronDown className="w-5 h-5 transition-transform duration-200" />
+                </Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel className="smooth-accordion-panel">
+                <DisplayEditor link={link} setLink={setLink} />
+              </Accordion.Panel>
+            </Accordion.Item>
+
+            {/* Conditions Accordion */}
+            <Accordion.Item value="conditions" className="border border-gray-300 rounded-lg bg-white">
+              <Accordion.Header>
+                <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
+                  Conditions
+                  <ChevronDown className="w-5 h-5 transition-transform duration-200" />
+                </Accordion.Trigger>
+              </Accordion.Header>
+              <Accordion.Panel className="smooth-accordion-panel">
+                <EditConditionsView conditions={link.conditions} onChange={(conditions) => setLink({ ...link, conditions })} simpleMode={isSimpleMode} />
+              </Accordion.Panel>
+            </Accordion.Item>
+
+            {/* Sharing Accordion */}
+            {hasSupabaseConfig() && (
+              <Accordion.Item value="sharing" className="border border-gray-300 rounded-lg bg-white">
+                <Accordion.Header>
+                  <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
+                    Sharing
+                    <ChevronDown className="w-5 h-5 transition-transform duration-200" />
+                  </Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Panel className="smooth-accordion-panel">
+                  <div className="px-4 py-3 space-y-3">
+                    <div>
+                      <label>Visibility</label>
+                      <select
+                        value={link.visibility}
+                        onChange={(e) => setLink({ ...link, visibility: e.target.value as any })}
+                      >
+                        <option value="private">Private</option>
+                        <option value="public">Public</option>
+                      </select>
+                    </div>
+                  </div>
+                </Accordion.Panel>
+              </Accordion.Item>
+            )}
+
+          </Accordion.Root>
         </div>
       </div>
       <div className="flex justify-end space-x-3 mt-2 pt-2 border-t border-gray-200">
@@ -67,202 +149,3 @@ export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps
     </div>
   );
 };
-
-
-function HrefFormatEditor({ link, onChange }: { link: LinkToEdit, onChange: (link: LinkToEdit) => void }) {
-  return (
-    <div>
-      <label>Link URL Format</label>
-      <HighlightTextField
-        value={link.href_format}
-        onChange={(nv) => onChange({ ...link, href_format: nv })}
-        highlights={regexFindAllTemplates}
-      />
-      <Accordion.Root>
-        <Accordion.Item value="template-explain">
-          <Accordion.Header>
-            <Accordion.Trigger className="w-full px-1 py-1 text-left text-sm text-gray-600 hover:bg-gray-50 rounded-lg transition-colors block">
-              Use templates like <span className="rounded font-mono bg-blue-200">{`{text-value}`}</span> to insert the selected text.
-              <InfoIcon className='ml-2 inline-block' size={14} />
-            </Accordion.Trigger>
-          </Accordion.Header>
-          <Accordion.Panel className="smooth-accordion-panel text-sm">
-              <ul>
-                {Object.entries(hrefValueReplacers).map(([key, replacer]) => (
-                  <li key={key}>
-                    <span className="rounded font-mono bg-blue-200">{`{${key}}`}</span> - {replacer.description}
-                  </li>
-                ))}
-              </ul>
-          </Accordion.Panel>
-        </Accordion.Item>
-      </Accordion.Root>
-    </div>
-  )
-}
-
-function SimpleModeEditor({ link, setLink }: { link: LinkToEdit, setLink: (link: LinkToEdit) => void }) {
-}
-
-function AdvancedModeEditor({ link, setLink }: { link: LinkToEdit, setLink: (link: LinkToEdit) => void }) {
-  return (
-    <Accordion.Root multiple className="space-y-3">
-      {/* Link Location Accordion */}
-      <Accordion.Item value="location" className="border border-gray-300 rounded-lg bg-white">
-        <Accordion.Header>
-          <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
-            Link Location
-            <ChevronDown className="w-5 h-5 transition-transform duration-200" />
-          </Accordion.Trigger>
-        </Accordion.Header>
-        <Accordion.Panel className="smooth-accordion-panel">
-          <div className="px-4 py-3 space-y-3">
-            <div>
-              <label>Position</label>
-              <select
-                value={link.position}
-                onChange={(e) => setLink({ ...link, position: e.target.value as any })}
-              >
-                <option value="user_default">User Default</option>
-                <option value="on_text">On Text</option>
-                <option value="next_to_text">Next to Text</option>
-              </select>
-            </div>
-            <div>
-              <label className='p-0 m-0'>Display Name</label>
-              <div className='text-xs text-gray-500 mb-1'>(for when position is 'Next to Text')</div>
-              <input
-                value={link.display_name || ''}
-                onChange={(e) => setLink({ ...link, display_name: e.target.value })}
-                placeholder="Enter display name"
-              />
-            </div>
-            <div>
-              <label>On Element XPath</label>
-              <input
-                value={link.on_xpath}
-                onChange={(e) => setLink({ ...link, on_xpath: e.target.value })}
-                placeholder="Enter element XPath (e.g. /html/body/div[1]/p[2])"
-              />
-            </div>
-            <div>
-              <label>On Text Regex</label>
-              <input
-                value={link.on_selected_text_regex || ''}
-                onChange={(e) => setLink({ ...link, on_selected_text_regex: e.target.value })}
-                placeholder='Enter text regex (use ".+" to match all text)'
-              />
-            </div>
-          </div>
-        </Accordion.Panel>
-      </Accordion.Item>
-
-      {/* Conditions Accordion */}
-      <Accordion.Item value="conditions" className="border border-gray-300 rounded-lg bg-white">
-        <Accordion.Header>
-          <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
-            Conditions
-            <ChevronDown className="w-5 h-5 transition-transform duration-200" />
-          </Accordion.Trigger>
-        </Accordion.Header>
-        <Accordion.Panel className="smooth-accordion-panel">
-          <ExactConditionsEditor conditions={link.conditions} onChange={(conditions) => setLink({ ...link, conditions })} />
-        </Accordion.Panel>
-      </Accordion.Item>
-
-      {/* Sharing Accordion */}
-      {hasSupabaseConfig() && (
-        <Accordion.Item value="sharing" className="border border-gray-300 rounded-lg bg-white">
-          <Accordion.Header>
-            <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
-              Sharing
-              <ChevronDown className="w-5 h-5 transition-transform duration-200" />
-            </Accordion.Trigger>
-          </Accordion.Header>
-          <Accordion.Panel className="smooth-accordion-panel">
-            <div className="px-4 py-3 space-y-3">
-              <div>
-                <label>Visibility</label>
-                <select
-                  value={link.visibility}
-                  onChange={(e) => setLink({ ...link, visibility: e.target.value as any })}
-                >
-                  <option value="private">Private</option>
-                  <option value="public">Public</option>
-                </select>
-              </div>
-            </div>
-          </Accordion.Panel>
-        </Accordion.Item>
-      )}
-
-    </Accordion.Root>
-  )
-}
-
-function ExactConditionsEditor({ conditions, onChange }: { conditions: Condition[], onChange: (conditions: Condition[]) => void }) {
-  const urlStartConditionIdx = conditions.findIndex(c => c.type === 'url_start');
-
-  const updateCondition = (index: number, condition: Condition) => {
-    const newConditions = [...conditions];
-    newConditions[index] = condition;
-    onChange(newConditions);
-  };
-
-  return (
-    <div className="px-4 py-3">
-      <p className='text-sm text-gray-800 mb-1'>A custom link will only be shown if all its conditions are met.</p>
-      <div className="space-y-2">
-        {conditions.map((cond, index) => (
-          <div key={index} className="flex flex-wrap gap-2 items-center p-2 bg-gray-50 border border-gray-200 rounded-lg">
-            <button
-              onClick={() => onChange(conditions.filter((_, i) => i !== index))}
-              className="p-2 bg-red-500 hover:bg-red-600 rounded-lg text-white transition-colors flex items-center justify-center w-auto!"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-            <select
-              value={cond.type}
-              onChange={(e) => updateCondition(index, { ...cond, type: e.target.value as any })}
-              className="w-auto!"
-            >
-              <option value="xpath_exists">XPath Exists</option>
-              <option value="value_match">Value Match</option>
-              <option value="url_contains">URL Contains</option>
-              <option value="text_contains">Text Contains</option>
-              {
-                // Only allow one url_start condition, so only show the option if there isn't
-                // already one or if this condition is the existing url_start condition
-                (urlStartConditionIdx === index || urlStartConditionIdx === -1) && (
-                  <option value="url_start">URL Starts With</option>
-                )
-              }
-            </select>
-            <input
-              value={cond.value}
-              onChange={(e) => updateCondition(index, { ...cond, value: e.target.value })}
-              placeholder="Condition value"
-              className='w-full'
-            />
-            {urlStartConditionIdx === index && cond.value.lastIndexOf('/') !== -1 && (
-              // For ease of use, we add a button to remove the last path element of the path for the url start condition
-              <button
-                onClick={(_) => updateCondition(index, { ...cond, value: cond.value.substring(0, cond.value.lastIndexOf('/')) })}
-                className='mt-1 px-4 py-1 mx-auto bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center transition-colors active:bg-blue-800'
-              >
-                Remove last part
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
-      <button
-        onClick={() => onChange([...conditions, { id: '', link_id: '', type: 'value_match', value: '', created_at: new Date().toISOString() }])}
-        className="mt-3 px-4 py-1 mx-auto bg-green-500 hover:bg-green-600 text-white rounded-lg flex items-center transition-colors"
-      >
-        <Plus className="w-4 h-4 mr-1" />
-        Add Condition
-      </button>
-    </div>
-  )
-}

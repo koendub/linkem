@@ -63,7 +63,7 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
 
     conditions: [
       { id: '', link_id: '', type: 'url_start', value: url?.split('?')[0] || '', created_at: '' },
-      { id: '', link_id: '', type: 'xpath_exists', value: totalTextXpath || '', created_at: '' }
+      // { id: '', link_id: '', type: 'xpath_exists', value: totalTextXpath || '', created_at: '' }
     ],
 
     // Link content
