@@ -3,9 +3,9 @@ import { LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
 import { Link, X, Save, ChevronDown } from 'lucide-react';
 import { Accordion } from '@base-ui/react';
 import { hasSupabaseConfig } from '@/core/storage/supabase_storage';
-import { EditConditionsView } from './editing/ConditionsEditor';
+import { ExactConditionsEditor, SimpleConditionsEditor, useOriginalUrl } from './editing/ConditionsEditor';
 import { HrefFormatEditor } from './editing/HrefFormatEditor';
-import { DisplayEditor } from './editing/DisplayEditor';
+import { ExactDisplayEditor, SimpleDisplayEditor } from './editing/DisplayEditor';
 
 type LinkToEdit = LinkWithConditions | UnstoredLinkWithConditions;
 
@@ -16,6 +16,7 @@ interface EditLinkViewProps {
 }
 
 export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps) {
+  const originalUrl = useOriginalUrl(initialLink.conditions);
   const [link, setLink] = useState<LinkToEdit>({ ...initialLink });
   const [isSimpleMode, setIsSimpleMode] = useState(true);
 
@@ -54,7 +55,7 @@ export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps
             <div className="flex gap-2 bg-gray-200 rounded-lg p-1">
               <button
                 onClick={() => setIsSimpleMode(true)}
-                className={`px-3 py-1 rounded transition-colors font-medium text-sm ${
+                className={`flex-1 px-3 py-1 rounded transition-colors font-medium text-sm ${
                   isSimpleMode
                     ? 'bg-blue-500 text-white'
                     : 'text-gray-700 hover:bg-gray-300'
@@ -64,7 +65,7 @@ export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps
               </button>
               <button
                 onClick={() => setIsSimpleMode(false)}
-                className={`px-3 py-1 rounded transition-colors font-medium text-sm ${
+                className={`flex-1 px-3 py-1 rounded transition-colors font-medium text-sm ${
                   !isSimpleMode
                     ? 'bg-blue-500 text-white'
                     : 'text-gray-700 hover:bg-gray-300'
@@ -74,60 +75,68 @@ export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps
               </button>
             </div>
           </div>
-          <Accordion.Root multiple className="space-y-3">
-            {/* Link Location Accordion */}
-            <Accordion.Item value="location" className="border border-gray-300 rounded-lg bg-white">
-              <Accordion.Header>
-                <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
-                  Link Location
-                  <ChevronDown className="w-5 h-5 transition-transform duration-200" />
-                </Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel className="smooth-accordion-panel">
-                <DisplayEditor link={link} setLink={setLink} />
-              </Accordion.Panel>
-            </Accordion.Item>
-
-            {/* Conditions Accordion */}
-            <Accordion.Item value="conditions" className="border border-gray-300 rounded-lg bg-white">
-              <Accordion.Header>
-                <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
-                  Conditions
-                  <ChevronDown className="w-5 h-5 transition-transform duration-200" />
-                </Accordion.Trigger>
-              </Accordion.Header>
-              <Accordion.Panel className="smooth-accordion-panel">
-                <EditConditionsView conditions={link.conditions} onChange={(conditions) => setLink({ ...link, conditions })} simpleMode={isSimpleMode} />
-              </Accordion.Panel>
-            </Accordion.Item>
-
-            {/* Sharing Accordion */}
-            {hasSupabaseConfig() && (
-              <Accordion.Item value="sharing" className="border border-gray-300 rounded-lg bg-white">
+          {isSimpleMode ? (
+            <div className='flex flex-col gap-2'>
+              <SimpleDisplayEditor link={link} setLink={setLink} />
+              <SimpleConditionsEditor conditions={link.conditions} onChange={(newConds) => setLink({ ...link, conditions: newConds })} originalUrl={originalUrl} />
+            </div>
+          ) : (
+            <Accordion.Root multiple className="space-y-3">
+              {/* Link Location Accordion */}
+              <Accordion.Item value="location" className="border border-gray-300 rounded-lg bg-white">
                 <Accordion.Header>
                   <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
-                    Sharing
+                    Link Location
                     <ChevronDown className="w-5 h-5 transition-transform duration-200" />
                   </Accordion.Trigger>
                 </Accordion.Header>
                 <Accordion.Panel className="smooth-accordion-panel">
-                  <div className="px-4 py-3 space-y-3">
-                    <div>
-                      <label>Visibility</label>
-                      <select
-                        value={link.visibility}
-                        onChange={(e) => setLink({ ...link, visibility: e.target.value as any })}
-                      >
-                        <option value="private">Private</option>
-                        <option value="public">Public</option>
-                      </select>
-                    </div>
-                  </div>
+                  <ExactDisplayEditor link={link} setLink={setLink} />
                 </Accordion.Panel>
               </Accordion.Item>
-            )}
 
-          </Accordion.Root>
+              {/* Conditions Accordion */}
+              <Accordion.Item value="conditions" className="border border-gray-300 rounded-lg bg-white">
+                <Accordion.Header>
+                  <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
+                    Conditions
+                    <ChevronDown className="w-5 h-5 transition-transform duration-200" />
+                  </Accordion.Trigger>
+                </Accordion.Header>
+                <Accordion.Panel className="smooth-accordion-panel">
+                  <ExactConditionsEditor conditions={link.conditions} onChange={(newConds) => setLink({ ...link, conditions: newConds })} originalUrl={originalUrl} />
+                </Accordion.Panel>
+              </Accordion.Item>
+
+              {/* Sharing Accordion */}
+              {hasSupabaseConfig() && (
+                <Accordion.Item value="sharing" className="border border-gray-300 rounded-lg bg-white">
+                  <Accordion.Header>
+                    <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
+                      Sharing
+                      <ChevronDown className="w-5 h-5 transition-transform duration-200" />
+                    </Accordion.Trigger>
+                  </Accordion.Header>
+                  <Accordion.Panel className="smooth-accordion-panel">
+                    <div className="px-4 py-3 space-y-3">
+                      <div>
+                        <label>Visibility</label>
+                        <select
+                          value={link.visibility}
+                          onChange={(e) => setLink({ ...link, visibility: e.target.value as any })}
+                        >
+                          <option value="private">Private</option>
+                          <option value="public">Public</option>
+                        </select>
+                      </div>
+                    </div>
+                  </Accordion.Panel>
+                </Accordion.Item>
+              )}
+
+            </Accordion.Root>
+          )}
+
         </div>
       </div>
       <div className="flex justify-end space-x-3 mt-2 pt-2 border-t border-gray-200">

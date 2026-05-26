@@ -5,7 +5,23 @@ interface  DisplayEditorProps {
   setLink: (link: LinkWithConditions | UnstoredLinkWithConditions) => void;
 }
 
-export function DisplayEditor({ link, setLink }: DisplayEditorProps) {
+export function SimpleDisplayEditor({ link, setLink }: DisplayEditorProps) {
+  return (
+    <div className="flex flex-col p-2 bg-white border border-gray-200 rounded-lg w-full">
+      <label className="p-1">Link Position</label>
+      <select
+        value={link.position}
+        onChange={(e) => setLink({ ...link, position: e.target.value as any })}
+      >
+        <option value="user_default">User Default</option>
+        <option value="on_text">On Text</option>
+        <option value="next_to_text">Next to Text</option>
+      </select>
+    </div>
+  );
+}
+
+export function ExactDisplayEditor({ link, setLink }: DisplayEditorProps) {
   return (
     <div className="px-4 py-3 space-y-3">
       <div>

@@ -4,24 +4,13 @@ import { Plus, Trash2 } from "lucide-react";
 interface EditConditionsViewProps {
   conditions: Condition[];
   onChange: (conditions: Condition[]) => void;
-  simpleMode: boolean;
-}
-
-interface InternalEditConditionsViewWithOriginalUrlProps {
-  conditions: Condition[];
-  onChange: (conditions: Condition[]) => void;
   originalUrl: string | undefined;
 }
 
-export function EditConditionsView({ conditions, onChange, simpleMode }: EditConditionsViewProps) {
+export function useOriginalUrl(conditions: Condition[]): string | undefined {
   const originalUrlStartCondition = useRef(conditions.find(c => c.type === 'url_start'));
   const originalUrl = originalUrlStartCondition.current?.value;
-  if (simpleMode) {
-    return <SimpleConditionsEditor conditions={conditions} onChange={onChange} originalUrl={originalUrl} />
-  } else {
-    return <ExactConditionsEditor conditions={conditions} onChange={onChange} originalUrl={originalUrl} />
-
-  }
+  return originalUrl;
 }
 
 function urlStartConditionFunctions(conditions: Condition[], onChange: (conditions: Condition[]) => void, originalUrl: string | undefined) {
@@ -32,6 +21,12 @@ function urlStartConditionFunctions(conditions: Condition[], onChange: (conditio
     const newConditions = [...conditions];
     newConditions[index] = condition;
     onChange(newConditions);
+  };
+
+  const setCurrentUrl = (newUrl: string) => {
+    if (!urlStartCondition) return;
+    const newCondition = { ...urlStartCondition, value: newUrl };
+    updateCondition(urlStartConditionIdx, newCondition);
   };
 
   const addUrlStartCondition = urlStartConditionIdx === -1 ? () => {
@@ -46,61 +41,72 @@ function urlStartConditionFunctions(conditions: Condition[], onChange: (conditio
     onChange([...conditions, newCondition]);
   } : undefined;
 
-  const decreaseUrlConditionLength = (urlStartCondition && urlStartCondition.value.lastIndexOf('/') !== -1 && !urlStartCondition.value.match(/[^\/]+:\/\/[^\/]+\/?/g)) ? () => {
+  const isHostOnly = urlStartCondition && urlStartCondition.value.match(/^[^\/]+:\/\/[^\/]+\/?$/);
+  const decreaseUrlConditionLength = (urlStartCondition && urlStartCondition.value.lastIndexOf('/') !== -1 && !isHostOnly) ? () => {
     const newUrl = urlStartCondition.value.substring(0, urlStartCondition.value.lastIndexOf('/'));
-    const newCondition = { ...urlStartCondition, value: newUrl };
-    updateCondition(urlStartConditionIdx, newCondition);
+    setCurrentUrl(newUrl);
   } : undefined;
 
   const increaseUrlConditionLength = (urlStartCondition && originalUrl && originalUrl.startsWith(urlStartCondition.value)) && urlStartCondition.value.length < originalUrl.length ? () => {
     const originalLeft = originalUrl.substring(urlStartCondition.value.length);
     const newPart = originalLeft.indexOf('/', 1) === -1 ? originalLeft : originalLeft.substring(0, originalLeft.indexOf('/', 1));
     const newUrl = urlStartCondition.value + newPart;
-    const newCondition = { ...urlStartCondition, value: newUrl };
-    updateCondition(urlStartConditionIdx, newCondition);
+    setCurrentUrl(newUrl);
   } : undefined;
 
   const currentUrl = urlStartCondition ? urlStartCondition.value : undefined;
-  return { currentUrl, addUrlStartCondition, decreaseUrlConditionLength, increaseUrlConditionLength };
+  return { currentUrl, setCurrentUrl, addUrlStartCondition, decreaseUrlConditionLength, increaseUrlConditionLength };
 }
 
-function SimpleConditionsEditor({ conditions, onChange, originalUrl }: InternalEditConditionsViewWithOriginalUrlProps) {
-  const { currentUrl, addUrlStartCondition, decreaseUrlConditionLength, increaseUrlConditionLength } = urlStartConditionFunctions(conditions, onChange, originalUrl);
+export function SimpleConditionsEditor({ conditions, onChange, originalUrl }: EditConditionsViewProps) {
+  const { currentUrl, setCurrentUrl, addUrlStartCondition, decreaseUrlConditionLength, increaseUrlConditionLength } = urlStartConditionFunctions(conditions, onChange, originalUrl);
+
   return (
-    <div className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg hover:border-blue-400 transition-colors">
+    <div className="flex flex-col p-2 bg-white border border-gray-200 rounded-lg w-full">
       {addUrlStartCondition ? (
-        <div className="flex-1">
-          <p className="font-medium text-gray-900">This link is enabled for ALL website everywhere!</p>
+        <>
+          <p className="font-medium text-gray-900 p-1">This link is enabled for ALL website everywhere!</p>
           <button
             onClick={addUrlStartCondition}
             className={`ml-3 px-4 py-1 rounded font-medium text-sm transition-colors`}
           >
             Add a URL start condition
           </button>
-        </div>
+        </>
       ) : (
-        <div className="flex-1">
-          <p className="font-medium text-gray-900">This link is currently enabled on:</p>
-          <p className="font-medium text-gray-900">{currentUrl}</p>
-          <button
-            onClick={decreaseUrlConditionLength}
-            className={`ml-3 px-4 py-1 rounded font-medium text-sm transition-colors`}
-          >
-            Make less specific
-          </button>
-          <button
-            onClick={increaseUrlConditionLength}
-            className={`ml-3 px-4 py-1 rounded font-medium text-sm transition-colors`}
-          >
-            Make more specific
-          </button>
-        </div>
+        <>
+          <p className="font-medium text-gray-900 p-1">This link is currently enabled on:</p>
+          <textarea
+            value={currentUrl}
+            onChange={(e) => setCurrentUrl(e.target.value)}
+            placeholder="Condition value"
+            className='w-full max-w-full field-sizing-content resize-none'
+          />
+          <div className="flex flex-row justify-between items-center gap-2">
+            {decreaseUrlConditionLength && (
+              <button
+                onClick={decreaseUrlConditionLength}
+                className='mt-1 px-4 py-1 mx-auto bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center flex-col transition-colors active:bg-blue-800 flex-1'
+              >
+                <div>Shorten</div>
+              </button>
+            )}
+            {increaseUrlConditionLength && (
+              <button
+                onClick={increaseUrlConditionLength}
+                className='mt-1 px-4 py-1 mx-auto bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center flex-col transition-colors active:bg-blue-800 flex-1'
+              >
+                <div>Restore</div>
+              </button>
+            )}
+          </div>
+        </>
       )}
     </div>
   );
 }
 
-function ExactConditionsEditor({ conditions, onChange, originalUrl }: InternalEditConditionsViewWithOriginalUrlProps) {
+export function ExactConditionsEditor({ conditions, onChange, originalUrl }: EditConditionsViewProps) { 
   const urlStartConditionIdx = conditions.findIndex(c => c.type === 'url_start');
   const { decreaseUrlConditionLength, increaseUrlConditionLength } = urlStartConditionFunctions(conditions, onChange, originalUrl);
 
@@ -139,11 +145,11 @@ function ExactConditionsEditor({ conditions, onChange, originalUrl }: InternalEd
                 )
               }
             </select>
-            <input
+            <textarea
               value={cond.value}
               onChange={(e) => updateCondition(index, { ...cond, value: e.target.value })}
               placeholder="Condition value"
-              className='w-full'
+              className='w-full max-w-full field-sizing-content resize-none'
             />
             {urlStartConditionIdx === index && (
               // Some extra buttons for ease of use
@@ -154,7 +160,6 @@ function ExactConditionsEditor({ conditions, onChange, originalUrl }: InternalEd
                   className='mt-1 px-4 py-1 mx-auto bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center flex-col transition-colors active:bg-blue-800 flex-1'
                 >
                   <div>Shorten</div>
-                  <div className="text-xs">the last part</div>
                 </button>
               )}
               {increaseUrlConditionLength && (
@@ -163,7 +168,6 @@ function ExactConditionsEditor({ conditions, onChange, originalUrl }: InternalEd
                   className='mt-1 px-4 py-1 mx-auto bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center flex-col transition-colors active:bg-blue-800 flex-1'
                 >
                   <div>Restore</div>
-                  <div className="text-xs">the last part</div>
                 </button>
               )}
               </>
