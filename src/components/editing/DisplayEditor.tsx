@@ -32,8 +32,9 @@ function useRemoteFindGeneralXPathFunc({ link, setLink }: DisplayEditorProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [matchCount, setMatchCount] = useState<number | undefined>();
   const [error, setError] = useState<string | undefined>();
+  if (!urlStartValue) return null;
   
-  const findMoreGeneralXPathFunc = urlStartValue ? async () => {
+  const findMoreGeneralXPathFunc = async () => {
     setIsProcessing(true);
     setError(undefined);
     try {
@@ -46,13 +47,35 @@ function useRemoteFindGeneralXPathFunc({ link, setLink }: DisplayEditorProps) {
     } finally {
       setIsProcessing(false);
     }
-  } : undefined;
+  };
 
   return { isProcessing, error, matchCount, findMoreGeneralXPathFunc };
 }
 
+function RemoteFindMoreGeneralXPathButton({ isProcessing, error, matchCount, findMoreGeneralXPathFunc }: NonNullable<ReturnType<typeof useRemoteFindGeneralXPathFunc>>) {
+  return (
+    <>
+      {matchCount && (<div>Similar elements found! Showing currently on {matchCount} elements on this page.</div>)}
+      <div className="flex items-center justify-center gap-2">
+        <button
+        disabled={isProcessing}
+        onClick={findMoreGeneralXPathFunc}
+        className="px-4 py-1 mx-auto bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors active:bg-blue-800 flex-1">
+          {isProcessing ? 'Finding similar elements...' : 'Show on more elements'}
+        </button>
+      </div>
+      {error && (
+        <div className="p-1 bg-red-400 m-1 rounded-lg flex justify-center items-center">
+          <XCircleIcon className="inline-block mr-2" width={16} />
+          {error}
+        </div>
+      )}
+    </>
+  )
+}
+
 export function SimpleDisplayEditor({ link, setLink }: DisplayEditorProps) {
-  const { isProcessing, error, matchCount, findMoreGeneralXPathFunc } = useRemoteFindGeneralXPathFunc({ link, setLink });
+  const generalXPathStuff = useRemoteFindGeneralXPathFunc({ link, setLink });
   return (
     <>
       <div className="flex flex-col p-2 bg-white border border-gray-200 rounded-lg w-full">
@@ -66,33 +89,20 @@ export function SimpleDisplayEditor({ link, setLink }: DisplayEditorProps) {
           <option value="next_to_text">Next to Text</option>
         </select>
       </div>
-      <div className="flex flex-col p-2 bg-white border border-gray-200 rounded-lg w-full">
-        {findMoreGeneralXPathFunc && (
+      {generalXPathStuff && (
+        <div className="flex flex-col p-2 bg-white border border-gray-200 rounded-lg w-full">
           <div className="w-full pt-2">
             <label className="p-1">Need this link to show on all similar elements on this page?</label>
-            {matchCount && (<div>Similar elements found. Showing currently on {matchCount} elements on this page!</div>)}
-            <div className="flex items-center justify-center gap-2">
-              <button
-              disabled={isProcessing}
-              onClick={findMoreGeneralXPathFunc}
-              className="px-4 py-1 mx-auto bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors active:bg-blue-800 flex-1">
-                {isProcessing ? 'Finding similar elements...' : 'Show on more elements'}
-              </button>
-            </div>
-            {error && (
-              <div className="p-1 bg-red-400 m-1 rounded-lg flex justify-center items-center">
-                <XCircleIcon className="inline-block mr-2" width={16} />
-                {error}
-              </div>
-            )}
+            <RemoteFindMoreGeneralXPathButton {...generalXPathStuff} />
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </>
   );
 }
 
 export function ExactDisplayEditor({ link, setLink }: DisplayEditorProps) {
+  const generalXPathStuff = useRemoteFindGeneralXPathFunc({ link, setLink });
   return (
     <div className="px-4 py-3 space-y-3">
       <div>
@@ -121,7 +131,9 @@ export function ExactDisplayEditor({ link, setLink }: DisplayEditorProps) {
           value={link.on_xpath}
           onChange={(e) => setLink({ ...link, on_xpath: e.target.value })}
           placeholder="Enter element XPath (e.g. /html/body/div[1]/p[2])"
+          className="mb-1"
         />
+        {generalXPathStuff && <RemoteFindMoreGeneralXPathButton {...generalXPathStuff} />}
       </div>
       <div>
         <label>On Text Regex</label>
