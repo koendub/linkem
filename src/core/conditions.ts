@@ -40,19 +40,3 @@ export function getFailingPostMatchConditions(link: LinkWithConditions, matchedE
     && !postMatchConditions[c.type as keyof typeof postMatchConditions]!.check(c, matchedElement)
   ));
 }
-
-export function getFailingConditions(link: LinkWithConditions): string[] {
-  const failingPre = getFailingPreMatchConditions(link);
-  if (failingPre.length > 0) {
-    return failingPre.map(c => preMatchConditions[c.type as keyof typeof preMatchConditions]!.explanation(c));
-  }
-  const inElement = getElementByXPath(link.on_xpath);
-  if (!inElement) {
-    return [`No element found for XPath "${link.on_xpath}".`];
-  }
-  const failingPost = getFailingPostMatchConditions(link, inElement);
-  if (failingPost.length > 0) {
-    return failingPost.map(c => postMatchConditions[c.type as keyof typeof postMatchConditions]!.explanation(c, inElement));
-  }
-  return [];
-}

@@ -121,12 +121,6 @@ export default function LinksTab() {
                       </button>
                     </div>
                   </div>
-                  {/* Debug triangle */}
-                  {/* <div className="absolute right-0 bottom-0 w-0 h-0 border-4 border-t-transparent border-l-transparent border-b-blue-500 border-r-blue-500 group">
-                    <div className='hidden group-hover:block absolute right-0 bottom-0 bg-blue-100 rounded-lg max-w-60 p-1'>
-                      {getFailingConditions(link)}
-                    </div>
-                  </div> */}
                 </li>
               ))}
             </ul>

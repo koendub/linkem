@@ -1,4 +1,4 @@
-import { getElementByXPath, getXPath } from '@/core/utils/xpath';
+import { getElementsByXPath, getXPath } from '@/core/utils/xpath';
 import { showCreateLinkModal } from './EditLinkModal';
 import { applyLinkToElement } from '@/core/inject';
 import { importFromBase64 } from '@/core/share';
@@ -9,7 +9,7 @@ import { injectCaller } from '@/core/utils/inject_caller';
 let lastXPath = '';
 
 document.addEventListener('contextmenu', (event) => {
-  lastXPath = getXPath(event.target as Element);
+  lastXPath = getXPath(event.target as Element, false);
 });
 
 async function injectLinks() {
@@ -18,10 +18,12 @@ async function injectLinks() {
     const allLinks = Object.values(await linksStorage.getValue());
     for (const link of allLinks) {
       if (getFailingPreMatchConditions(link).length === 0) {
-        const inElement = getElementByXPath(link.on_xpath);
-        if (inElement && getFailingPostMatchConditions(link, inElement).length === 0) {
-          const thisInjected = await applyLinkToElement(link, inElement);
-          anyInjected = anyInjected || thisInjected;
+        const inElements = getElementsByXPath(link.on_xpath);
+        for (const inElem of inElements) {
+          if (getFailingPostMatchConditions(link, inElem).length === 0) {
+            const thisInjected = await applyLinkToElement(link, inElem);
+            anyInjected = anyInjected || thisInjected;
+          }
         }
       }
     }
