@@ -58,7 +58,13 @@ export function moveXPathUp(xpath: string, element?: Element): [string, Element 
 }
 
 export function findMoreGeneralXPath(initialXPath: string): { newXPath: string, matchCount: number } | undefined {
-  const count = (xp: string) => document.evaluate(xp, document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
+  const count = (xp: string) => {
+    try {
+      return document.evaluate(xp, document, null, XPathResult.UNORDERED_NODE_SNAPSHOT_TYPE, null).snapshotLength;
+    } catch {
+      return 0;
+    }
+  }
   let bestXpath = null;
   let mostMatches = count(initialXPath);
   for (const match of [...initialXPath.matchAll(/[0-9]+/g)].reverse()) {
