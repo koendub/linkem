@@ -1,31 +1,39 @@
 
-export function getXPath(element: Element, useIds: boolean): string {
+export function getXPath(element: Element, preferIds: boolean): string {
   if (element === document.body) return '/html/body';
   let path: string[] = [];
+  let fallbackIdPath: string[] = [];
   while (element && element.nodeType === Node.ELEMENT_NODE) {
     let selector = element.nodeName.toLowerCase();
+    // If we reach the base of the tree, return that
     if (element === document.body) {
-      selector = '/html/body';
-      break;
-    } else if (element.id && useIds) {
-      selector = `/${selector}[@id="${element.id}"]`;
-      path.unshift(selector);
-      break;
-    } else {
-      let sibling = element.previousSibling;
-      let nth = 1;
-      while (sibling) {
-        if (sibling.nodeType === Node.ELEMENT_NODE && sibling.nodeName.toLowerCase() === selector) {
-          nth++;
-        }
-        sibling = sibling.previousSibling;
-      }
-      selector += `[${nth}]`;
-      path.unshift(selector);
-      element = element.parentNode as Element;
+      path.unshift('/html/body');
+      return path.length ? '/' + path.join('/') : '';
     }
+    // We element has an id, keep it as fallback, or return if prefered
+    if (element.id) {
+      const idSelector = `/${selector}[@id="${element.id}"]`;
+      fallbackIdPath = [idSelector, ...path]
+      if (preferIds) {
+        return fallbackIdPath.join('/');
+      }
+    }
+    // Otherwise, add this parent as the first node in the path
+    let sibling = element.previousSibling;
+    let nth = 1;
+    while (sibling) {
+      if (sibling.nodeType === Node.ELEMENT_NODE && sibling.nodeName.toLowerCase() === selector) {
+        nth++;
+      }
+      sibling = sibling.previousSibling;
+    }
+    selector += `[${nth}]`;
+    path.unshift(selector);
+    element = element.parentNode as Element;
   }
-  return path.length ? '/' + path.join('/') : '';
+  // If we ended up here, then we never found the root of the document
+  // in that case, lets use the last fallback id path we found if possible
+  return fallbackIdPath.length ? '/' + fallbackIdPath.join('/') : '';
 }
 
 export function getElementByXPath(xpath: string): Element | null {
