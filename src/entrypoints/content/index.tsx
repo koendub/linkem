@@ -41,7 +41,8 @@ export default defineContentScript({
     browser.runtime.onMessage.addListener((message) => {
       // Listen for messages from background to create a new link
       if (message.action === 'linkem-create-new-link') {
-        showCreateLinkModal(message.selectedText, message.url, lastXPath, async (link) => {
+        const url = message.url || window.location.href;
+        showCreateLinkModal(message.selectedText, url, lastXPath, async (link) => {
           await linksStorage.updateLinks([link]);
           await injectLinks()
         });
