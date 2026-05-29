@@ -7,6 +7,7 @@ export default defineConfig({
   srcDir: "src",
   manifest: {
     permissions: ['storage', 'contextMenus'],
+    optional_host_permissions: ["*://*/*"],
     browser_specific_settings: {
       gecko: {
         id: '@linkem',

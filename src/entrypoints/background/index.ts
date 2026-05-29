@@ -1,5 +1,5 @@
 
-export default defineBackground(() => {
+function registerContextMenu() {
   // Create context menu
   browser.contextMenus.create({
     id: 'create-link',
@@ -18,4 +18,8 @@ export default defineBackground(() => {
       });
     }
   });
+}
+
+export default defineBackground(() => {
+  registerContextMenu();
 });
