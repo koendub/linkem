@@ -1,24 +1,12 @@
-import { getXPath } from '@/core/utils/xpath';
 import { showCreateLinkModal } from './createLinkModal';
 import { importFromBase64 } from '@/core/share';
-import { linksStorage } from '@/core/storage/local_storage';
-import { checkInjectLinks } from './injectLinks';
 
-let lastXPath = '';
-
-document.addEventListener('contextmenu', (event) => {
-  lastXPath = getXPath(event.target as Element, false);
-});
 
 export function registerMessageListeners() {
   browser.runtime.onMessage.addListener((message) => {
     // Listen for messages from background to create a new link
     if (message.action === 'linkem-create-new-link') {
-      const url = message.url || window.location.href;
-      showCreateLinkModal(message.selectedText, url, lastXPath, async (link) => {
-        await linksStorage.updateLinks([link]);
-        await checkInjectLinks()
-      });
+      showCreateLinkModal(message.selectedText, message.url);
     }
   });
 

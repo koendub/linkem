@@ -3,11 +3,29 @@ import ReactDOM from 'react-dom/client';
 import { EditLinkView } from '@/components/EditLinkView';
 import styleText from '@/components/style.css?inline';
 import { LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
-import { getElementByXPath, moveXPathUp } from '@/core/utils/xpath';
+import { getElementByXPath, getXPath, moveXPathUp } from '@/core/utils/xpath';
+import { linksStorage } from '@/core/storage/local_storage';
+import { checkInjectLinks } from './injectLinks';
 
 
-export function showCreateLinkModal(selectedText: string, url: string, xpath: string, onSave: (link: LinkWithConditions | UnstoredLinkWithConditions) => void) {
-  const initialLinkData = createInitialLinkData(selectedText, url, xpath);
+let lastXPath = '';
+
+document.addEventListener('contextmenu', (event) => {
+  lastXPath = getXPath(event.target as Element, false);
+});
+
+async function defaultOnLinkSave(link: LinkWithConditions | UnstoredLinkWithConditions) {
+  await linksStorage.updateLinks([link]);
+  await checkInjectLinks()
+}
+
+export function showCreateLinkModal(
+  selectedText: string,
+  url: string | undefined = undefined,
+  xpath: string | undefined = undefined,
+  onSave: (link: LinkWithConditions | UnstoredLinkWithConditions) => void = defaultOnLinkSave
+) {
+  const initialLinkData = createInitialLinkData(selectedText, url || window.location.href, xpath || lastXPath);
 
   const [documentShadowContainer, modalReactRoot] = createShadowRootContainer();
   document.body.appendChild(documentShadowContainer);
@@ -57,7 +75,7 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
 
   return {
     // Basic info
-    name: `Link on ${selectedText}`,
+    name: selectedText ? `Link on ${selectedText}` : 'New Link',
     visibility: 'private',
     icon: null,
 
