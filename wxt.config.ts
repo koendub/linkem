@@ -6,7 +6,7 @@ export default defineConfig({
   modules: ['@wxt-dev/module-react'],
   srcDir: "src",
   manifest: {
-    permissions: ['storage', 'contextMenus'],
+    permissions: ['storage', 'contextMenus', 'scripting', 'tabs'],
     optional_host_permissions: ["*://*/*"],
     browser_specific_settings: {
       gecko: {

@@ -3,11 +3,13 @@ import { registerMessageListeners } from "./messageListeners";
 
 
 export function contentMain() {
+  console.log('Running content script!');
   registerInjectLinks();
   registerMessageListeners();
 }
 
 export default defineContentScript({
-  matches: ['*://*/*'],
+  // matches: ['*://*/*'],
+  registration: 'runtime',
   main: contentMain
 });

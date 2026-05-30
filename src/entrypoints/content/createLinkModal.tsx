@@ -8,7 +8,7 @@ import { linksStorage } from '@/core/storage/local_storage';
 import { checkInjectLinks } from './injectLinks';
 
 
-let lastXPath = '';
+let lastXPath: string | undefined = undefined;
 
 document.addEventListener('contextmenu', (event) => {
   lastXPath = getXPath(event.target as Element, false);
@@ -25,7 +25,9 @@ export function showCreateLinkModal(
   xpath: string | undefined = undefined,
   onSave: (link: LinkWithConditions | UnstoredLinkWithConditions) => void = defaultOnLinkSave
 ) {
-  const initialLinkData = createInitialLinkData(selectedText, url || window.location.href, xpath || lastXPath);
+  const useXpath = xpath || lastXPath || getXPath(window.getSelection()?.anchorNode?.parentElement as Element, false);
+  if (!useXpath || useXpath.length === 0) throw Error('No initial XPath found for the new link');
+  const initialLinkData = createInitialLinkData(selectedText, url || window.location.href, useXpath);
 
   const [documentShadowContainer, modalReactRoot] = createShadowRootContainer();
   document.body.appendChild(documentShadowContainer);

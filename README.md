@@ -20,12 +20,6 @@ Made with NPM + WXT + React + TypeScript + TailwindCSS
  3. You can also run the plugin in development mode using `npm run dev`, this enables hot reloading.
 (these instructions were tested on Windows, but should work on any system that supports `npm` as it does not use any native dependencies)
 
-# Demo Ideas
-
- - IMDB to streaming service search
- - Books on Amazon to Goodreads links
- - Amazon to Google reviews link
- - Goodreads to bol.com
 
 # Usage
 
@@ -55,6 +49,13 @@ When they are installed, all active links in that library are added to the users
 FUTURE IDEA: Users can search and upvote/downvote these libraries, and install them.
 Every day the installed libraries get queried for changes to their links,
 though these should not be automatically installed! (for security reasons)
+
+## Demo Ideas
+
+ - IMDB to streaming service search
+ - Books on Amazon to Goodreads links
+ - Amazon to Google reviews link
+ - Goodreads to bol.com
 
 # How To
 

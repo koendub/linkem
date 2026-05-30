@@ -1,6 +1,17 @@
 import { LinkWithConditions, Condition } from '@/core/types';
 import { getElementByXPath } from './utils/xpath';
 
+const urlMatchConditions = {
+  'url_start': {
+    check: (c: Condition, url: string) => url.startsWith(c.value),
+    explanation: (c: Condition, url: string) => `URL does not start with "${c.value}".`
+  },
+  'url_contains': {
+    check: (c: Condition, url: string) => url.includes(c.value),
+    explanation: (c: Condition, url: string) => `URL does not contain "${c.value}".`
+  },
+}
+
 const preMatchConditions = {
   'url_start': {
     check: (c: Condition) => window.location.href.startsWith(c.value),
@@ -25,6 +36,13 @@ const postMatchConditions = {
     check: (c: Condition, match: Element) => match.textContent.includes(c.value),
     explanation: (c: Condition, _: Element) => `The matched element did not contain text "${c.value}"`,
   }
+}
+
+export function getFailingUrlConditions(link: LinkWithConditions, url: string): Condition[] {
+  return link.conditions.filter(c => (
+    c.type.startsWith('url')
+    && !urlMatchConditions[c.type as keyof typeof urlMatchConditions]!.check(c, url)
+  ));
 }
 
 export function getFailingPreMatchConditions(link: LinkWithConditions): Condition[] {

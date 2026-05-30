@@ -7,6 +7,10 @@ export class LocalStorage<T> {
   async getValue(forceReload: boolean = false): Promise<T | null> {
     if (!this.value || forceReload) {
       const stored = await browser.storage.local.get<{ [key: string]: T }>(this.storageKey);
+      browser.storage.local.onChanged.addListener((changes) => {
+        const change = changes[this.storageKey];
+        if (change) this.value = change.newValue as T;
+      });
       this.value = stored[this.storageKey] || null;
     }
     return this.value;
