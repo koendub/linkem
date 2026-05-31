@@ -6,7 +6,7 @@ import { linksStorage, packagesStorage } from "./storage/local_storage";
 
 type CanBase64Import = LinkPackageWithLinks | LinkWithConditions;
 
-export async function importFromBase64(encoded: string) {
+export async function importFromBase64(encoded: string): Promise<LinkWithConditions[]> {
   // Decode base64 and parse JSON
   let data: CanBase64Import | null = null;
   try {
@@ -23,8 +23,11 @@ export async function importFromBase64(encoded: string) {
     const pkg = data as LinkPackageWithLinks;
     await linksStorage.updateLinks(pkg.links);
     await packagesStorage.savePackage(pkg);
+    return pkg.links;
   } else if ('conditions' in data && Array.isArray((data as any).conditions)) {
-    await linksStorage.updateLinks([data as LinkWithConditions]);
+    const lnk = data as LinkWithConditions;
+    await linksStorage.updateLinks([lnk]);
+    return [lnk];
   } else {
     throw new Error('Invalid format: must be a link package or single link');
   }

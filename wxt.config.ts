@@ -8,6 +8,13 @@ export default defineConfig({
   manifest: {
     permissions: ['storage', 'contextMenus', 'scripting', 'tabs'],
     optional_host_permissions: ["*://*/*"],
+    content_scripts: [
+      {
+        matches: ['https://buffer-flow.github.io/*'],
+        js: ['content-scripts/inject.js'],
+        run_at: 'document_end'
+      }
+    ],
     browser_specific_settings: {
       gecko: {
         id: '@linkem',
