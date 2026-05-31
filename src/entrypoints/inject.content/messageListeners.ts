@@ -1,4 +1,4 @@
-import { showCreateLinkModal } from './createLinkModal';
+import { showCreateLinkModal } from '../createLink.content/createLinkModal';
 import { importFromBase64 } from '@/core/share';
 
 
@@ -23,6 +23,11 @@ export function registerMessageListeners() {
     // Pong the pings to test for installation
     if (message.action === 'linkem-ping') {
       window.postMessage({ action: 'linkem-pong' });
+    }
+    if (message.action === 'linkem-version') {
+      // @ts-ignore
+      const linkemVersion = __APP_VERSION__;
+      window.postMessage({ action: 'linkem-version-completed', data: linkemVersion }); 
     }
   });
 }

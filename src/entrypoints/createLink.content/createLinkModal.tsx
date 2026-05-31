@@ -5,7 +5,7 @@ import styleText from '@/components/style.css?inline';
 import { LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
 import { getElementByXPath, getXPath, moveXPathUp } from '@/core/utils/xpath';
 import { linksStorage } from '@/core/storage/local_storage';
-import { checkInjectLinks } from './injectLinks';
+import { checkInjectLinks } from '../inject.content/injectLinks';
 
 
 let lastXPath: string | undefined = undefined;
@@ -20,14 +20,16 @@ async function defaultOnLinkSave(link: LinkWithConditions | UnstoredLinkWithCond
 }
 
 export function showCreateLinkModal(
-  selectedText: string,
+  selectedText: string | undefined = undefined,
   url: string | undefined = undefined,
   xpath: string | undefined = undefined,
   onSave: (link: LinkWithConditions | UnstoredLinkWithConditions) => void = defaultOnLinkSave
 ) {
+  const useSelectedText = selectedText || window.getSelection()?.toString();
+  if (!useSelectedText || useSelectedText.length === 0) throw Error('No selected text found for the new link');
   const useXpath = xpath || lastXPath || getXPath(window.getSelection()?.anchorNode?.parentElement as Element, false);
   if (!useXpath || useXpath.length === 0) throw Error('No initial XPath found for the new link');
-  const initialLinkData = createInitialLinkData(selectedText, url || window.location.href, useXpath);
+  const initialLinkData = createInitialLinkData(useSelectedText, url || window.location.href, useXpath);
 
   const [documentShadowContainer, modalReactRoot] = createShadowRootContainer();
   document.body.appendChild(documentShadowContainer);
