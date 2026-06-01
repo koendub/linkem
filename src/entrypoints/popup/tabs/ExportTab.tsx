@@ -167,7 +167,7 @@ const ExportTab: React.FC = () => {
   const [showShareId, setShowShareId] = useState<string | null>(null);
   const { value: allLinks } = useStorageValue(linksStorage, {});
 
-  const { value: packages, refresh: refreshPackages, isLoading } = useStorageValue(packagesStorage, {}, async (pkgs) => {
+  const { value: packages, isLoading } = useStorageValue(packagesStorage, {}, async (pkgs) => {
     const myUserId = await settingsStorage.getItem('localUserId');
     const filteredPkgs = {} as { [id: string]: LinkPackage };
     Object.values(pkgs).forEach((pkg) => {
@@ -180,7 +180,6 @@ const ExportTab: React.FC = () => {
 
   const handleDeletePackage = async (packageId: string) => {
     await packagesStorage.removeItem(packageId);
-    await refreshPackages();
   };
 
   if (isLoading) {
@@ -214,7 +213,6 @@ const ExportTab: React.FC = () => {
             initialPkg={editingPackage} onClose={async (updatedPkg) => {
             setEditingPackage(null);
             await packagesStorage.savePackage(updatedPkg);
-            await refreshPackages();
           }} />
         )}
 

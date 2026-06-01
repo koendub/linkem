@@ -4,48 +4,43 @@ import { LocalStorage } from "@/core/utils/storage_dict";
 export function useStorageValue<V>(
   storage: LocalStorage<V>,
   defaultValue: V,
-  changed?: (val: V) => Promise<V | null>
-): { value: V; isLoading: boolean; refresh: () => Promise<void>; setValue: (newValueOrUpdater: V | ((val: V | null) => V)) => void };
+  transform?: (val: V) => Promise<V | null>
+): { value: V; isLoading: boolean };
 
 export function useStorageValue<V>(
   storage: LocalStorage<V>,
   defaultValue: null,
-  changed?: (val: V) => Promise<V | null>
-): { value: V | null; isLoading: boolean; refresh: () => Promise<void>; setValue: (newValueOrUpdater: V | ((val: V | null) => V)) => void };
+  transform?: (val: V) => Promise<V | null>
+): { value: V | null; isLoading: boolean };
 
 export function useStorageValue<V>(
   storage: LocalStorage<V>,
   defaultValue: V | null = null,
-  changed?: (val: V) => Promise<V | null>
+  transform?: (val: V) => Promise<V | null>
 ) {
   const [storageValue, setStorageValue] = useState<{ value: V } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const refresh = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const val = await storage.getValue();
-      const changedVal = val && changed ? await changed(val) : val;
-      setStorageValue(changedVal ? { value: changedVal } : null);
-    } finally {
-      setIsLoading(false);
+  useEffect(() => {
+    async function load() {
+      setIsLoading(true);
+      try {
+        const val = await storage.getValue();
+        const transformedVal = val && transform ? await transform(val) : val;
+        setStorageValue(transformedVal ? { value: transformedVal } : null);
+      } finally {
+        setIsLoading(false);
+      }
     }
+    load();
   }, [storage]);
 
   useEffect(() => {
-    refresh();
-  }, [refresh]);
-
-  const setValue = useCallback(async (newValueOrUpdater: V | ((val: V | null) => V)) => {
-    const newValue = typeof newValueOrUpdater === 'function'
-      ? (newValueOrUpdater as (val: V | null) => V)(storageValue?.value || defaultValue)
-      : newValueOrUpdater;
-    setStorageValue({ value: newValue });
-    storage.setValue(newValue)
-      .catch(err => {
-        console.error('Failed to save value to storage:', err);
-      });
+    return storage.addChangeListener(async (newValue) => {
+      const transformedVal = newValue && transform ? await transform(newValue) : newValue;
+      setStorageValue(transformedVal ? { value: transformedVal } : null);
+    });
   }, [storage]);
 
-  return { value: storageValue ? storageValue.value : defaultValue, isLoading, refresh, setValue };
+  return { value: storageValue ? storageValue.value : defaultValue, isLoading };
 }

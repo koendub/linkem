@@ -168,7 +168,7 @@ function SupabaseSignInOut() {
 }
 
 const SettingsTab: React.FC = () => {
-  const { value: settings, setValue: setSettings } = useStorageValue(settingsStorage, {} as LocalUserSettingsValues);
+  const { value: settings } = useStorageValue(settingsStorage, {} as LocalUserSettingsValues);
 
   if (!settings) {
     return <div className="p-5 h-full box-border">Loading...</div>;
@@ -190,7 +190,7 @@ const SettingsTab: React.FC = () => {
               type="radio"
               value="on_text"
               checked={settings.default_link_position === 'on_text'}
-              onChange={() => setSettings({ ...settings, default_link_position: 'on_text' })}
+              onChange={() => settingsStorage.updateItems({ default_link_position: 'on_text' })}
               className="mr-2"
             />
             <div>
@@ -203,7 +203,7 @@ const SettingsTab: React.FC = () => {
               type="radio"
               value="next_to_text"
               checked={settings.default_link_position === 'next_to_text'}
-              onChange={() => setSettings({ ...settings, default_link_position: 'next_to_text' })}
+              onChange={() => settingsStorage.updateItems({ default_link_position: 'next_to_text' })}
               className="mr-2"
             />
             <div>
@@ -227,7 +227,7 @@ const SettingsTab: React.FC = () => {
               <input
                 type="checkbox"
                 checked={settings.allowNetworking}
-                onChange={(e) => setSettings({ ...settings, allowNetworking: e.target.checked })}
+                onChange={(e) => settingsStorage.updateItems({ allowNetworking: e.target.checked })}
                 className="mr-2"
               />
               <span className="text-sm text-gray-800">Enable networking features</span>
