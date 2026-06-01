@@ -7,10 +7,7 @@ export class LocalStorage<T> {
   async getValue(forceReload: boolean = false): Promise<T | null> {
     if (!this.value || forceReload) {
       const stored = await browser.storage.local.get<{ [key: string]: T }>(this.storageKey);
-      browser.storage.local.onChanged.addListener((changes) => {
-        const change = changes[this.storageKey];
-        if (change) this.value = change.newValue as T;
-      });
+      this.addChangeListener((nv) => { this.value = nv; });
       this.value = stored[this.storageKey] || null;
     }
     return this.value;
@@ -23,6 +20,15 @@ export class LocalStorage<T> {
 
   private async writeValue(): Promise<void> {
     await browser.storage.local.set({ [this.storageKey]: this.value });
+  }
+
+  addChangeListener(listener: (newValue: T) => void): () => void {
+    const wrapper = (changes: { [key: string]: Browser.storage.StorageChange }) => {
+      const change = changes[this.storageKey];
+      if (change) listener(change.newValue as T);
+    };
+    browser.storage.local.onChanged.addListener(wrapper);
+    return () => browser.storage.local.onChanged.removeListener(wrapper);
   }
 }
 

@@ -8,13 +8,6 @@ export default defineConfig({
   manifest: {
     permissions: ['storage', 'contextMenus', 'scripting', 'tabs'],
     optional_host_permissions: ["*://*/*"],
-    content_scripts: [
-      {
-        matches: ['https://buffer-flow.github.io/*'],
-        js: ['content-scripts/inject.js'],
-        run_at: 'document_end'
-      }
-    ],
     browser_specific_settings: {
       gecko: {
         id: '@linkem',
@@ -26,6 +19,8 @@ export default defineConfig({
   },
   webExt: {
     startUrls: [
+      'https://buffer-flow.github.io/#/linkem',
+      
       // OSRS
       // 'https://oldschool.runescape.wiki/w/Uncut_sapphire',
       // 'https://oldschool.runescape.wiki/w/Toktz-xil-ak',

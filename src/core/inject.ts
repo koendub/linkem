@@ -1,9 +1,32 @@
 import { formatLinkDisplayName, formatLinkHref } from '@/core/replacer';
 import { LinkWithConditions, UserSettings } from '@/core/types';
 import linkemIconUrl from '~/assets/32.png';
-import { settingsStorage } from './storage/local_storage';
+import { linksStorage, settingsStorage } from './storage/local_storage';
 import { injectNewElement } from './utils/inject_tools';
+import { getFailingPostMatchConditions, getFailingPreMatchConditions } from './conditions';
+import { getElementsByXPath } from './utils/xpath';
 
+
+export async function checkInjectLinks() {
+  let anyInjected = false;
+  try {
+    const allLinks = Object.values(await linksStorage.getValue());
+    for (const link of allLinks) {
+      if (getFailingPreMatchConditions(link).length === 0) {
+        const inElements = getElementsByXPath(link.on_xpath);
+        for (const inElem of inElements) {
+          if (getFailingPostMatchConditions(link, inElem).length === 0) {
+            const thisInjected = await applyLinkToElement(link, inElem);
+            anyInjected = anyInjected || thisInjected;
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Failed to inject links:', error);
+  }
+  return anyInjected;
+}
 
 export async function applyLinkToElement(link: LinkWithConditions, element: Element): Promise<boolean> {
   const position = link.position === 'user_default'

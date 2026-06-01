@@ -1,15 +1,7 @@
-import { showCreateLinkModal } from '../createLink.content/createLinkModal';
 import { importFromBase64 } from '@/core/share';
 
 
-export function registerMessageListeners() {
-  browser.runtime.onMessage.addListener((message) => {
-    // Listen for messages from background to create a new link
-    if (message.action === 'linkem-create-new-link') {
-      showCreateLinkModal(message.selectedText, message.url);
-    }
-  });
-
+function registerMessageListeners() {
   window.addEventListener('message', (event) => {
     if (event.source !== window) return;
     const message = event.data;
@@ -31,3 +23,8 @@ export function registerMessageListeners() {
     }
   });
 }
+
+export default defineContentScript({
+  matches: ['https://buffer-flow.github.io/*'],
+  main: registerMessageListeners
+});

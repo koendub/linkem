@@ -5,7 +5,7 @@ import styleText from '@/components/style.css?inline';
 import { LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
 import { getElementByXPath, getXPath, moveXPathUp } from '@/core/utils/xpath';
 import { linksStorage } from '@/core/storage/local_storage';
-import { checkInjectLinks } from '../inject.content/injectLinks';
+import { checkInjectLinks } from '@/core/inject';
 
 
 let lastXPath: string | undefined = undefined;
@@ -19,7 +19,7 @@ async function defaultOnLinkSave(link: LinkWithConditions | UnstoredLinkWithCond
   await checkInjectLinks()
 }
 
-export function showCreateLinkModal(
+function showCreateLinkModal(
   selectedText: string | undefined = undefined,
   url: string | undefined = undefined,
   xpath: string | undefined = undefined,
@@ -134,3 +134,8 @@ function createShadowRootContainer(): [HTMLDivElement, HTMLDivElement] {
   // and the container inside the shadow root where the React app should be rendered
   return [shadowRootContainer, modalContainer];
 }
+
+export default defineContentScript({
+  registration: 'runtime',
+  main: () => showCreateLinkModal()
+});

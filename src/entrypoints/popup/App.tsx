@@ -5,6 +5,7 @@ import LinksTab from './tabs/LinksTab';
 import ImportTab from './tabs/ImportTab';
 import ExportTab from './tabs/ExportTab';
 import SettingsTab from './tabs/SettingsTab';
+import { ProblemsButton } from '@/components/ProblemsButton';
 
 const App: React.FC = () => {
   return (
@@ -23,6 +24,7 @@ const App: React.FC = () => {
           <Tabs.Tab value="settings" className="border-none cursor-pointer p-2 rounded-md text-gray-500 transition-all duration-200 flex items-center justify-center data-active:bg-blue-500 data-active:text-white">
             <Settings size={20} />
           </Tabs.Tab>
+          <ProblemsButton />
         </Tabs.List>
         <Tabs.Panel value="links" className="flex-1 overflow-auto">
           <LinksTab />
