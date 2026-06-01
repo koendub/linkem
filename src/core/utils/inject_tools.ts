@@ -5,24 +5,26 @@ export function injectNewElement(
   parent: Element,
   onRegex: RegExp | string | null,
   onOrNextToText: 'on_text' | 'next_to_text',
-  newElement: Element | ((parentElement: Element, text: string) => Element)
+  newElement: Element | ((parentElement: Element, text: string) => Element),
+  updateExistingElement?: (element: Element, text: string) => void
 ): boolean {
-  // Check if this injection is already present, if so, dont inject it again
-  const injectionsInElement = parent.getElementsByClassName(appName + '-injection');
-  for (const existingInjection of injectionsInElement) {
-    if (existingInjection.classList.contains(appName + '-injection-' + elementId)) {
-      return false;
-    }
-  }
-
   // Match the pattern in the text, use DOM Range to find and manipulate the matched text while preserving DOM structure
   const range = findTextRangeInElement(parent, onRegex);
 
   // No match found means the pattern was not in the element text. In this case we dont insert anything
   if (!range) return false;
 
+  // Check if this injection is already present, if so, dont inject it again
+  const injectionsInElement = parent.getElementsByClassName(appName + '-injection');
+  for (const existingInjection of injectionsInElement) {
+    if (existingInjection.classList.contains(appName + '-injection-' + elementId)) {
+      updateExistingElement?.(existingInjection, getRangeText(range));
+      return false;
+    }
+  }
+
   // Add class to new element for future duplicate checks
-  const newElem = typeof newElement === 'function' ? newElement(parent, range.toString()) : newElement;
+  const newElem = typeof newElement === 'function' ? newElement(parent, getRangeText(range)) : newElement;
   newElem.classList.add(appName + '-injection', appName + '-injection-' + elementId);
 
   if (onOrNextToText === 'on_text') {
@@ -35,6 +37,7 @@ export function injectNewElement(
     // Collapse range to its end and insert new element after
     range.collapse(false);
     range.insertNode(newElem);
+    newElem.classList.add('skip-injection-text');
     return true;
   } else {
     console.error('Invalid onOrNextToText value: ' + onOrNextToText);
@@ -42,7 +45,13 @@ export function injectNewElement(
   }
 }
 
-export function findTextRangeInElement(element: Element, regex: RegExp | string | null): Range | null {
+function getRangeText(range: Range): string {
+  const rangeClone = range.cloneContents()
+  rangeClone.querySelectorAll('.skip-injection-text').forEach(el => el.remove());
+  return rangeClone.textContent || '';
+}
+
+function findTextRangeInElement(element: Element, regex: RegExp | string | null): Range | null {
   if (!regex) {
     // If there is no regex provided, they must mean the whole element
     const nodeRange = document.createRange();
@@ -59,7 +68,7 @@ export function findTextRangeInElement(element: Element, regex: RegExp | string 
   return findTextOffsetRangeInElement(element, match.index || 0, match[0].length);
 }
 
-export function findTextOffsetRangeInElement(element: Element, startOffset: number, length: number): Range | null {
+function findTextOffsetRangeInElement(element: Element, startOffset: number, length: number): Range | null {
   let charCount = 0;
   let startNode: Node | null = null;
   let startNodeOffset = 0;
