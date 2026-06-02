@@ -3,6 +3,7 @@ import { Download, Trash2, AlertCircle, CheckCircle } from 'lucide-react';
 import { importFromBase64 } from '@/core/share';
 import { LinkPackage } from '@/core/types';
 import { linksStorage, packagesStorage, settingsStorage } from '@/core/storage/local_storage';
+import { getLinkHostUrl } from '@/core/permissions';
 
 
 function ImportForm({ onImport }: { onImport: () => void }) {
@@ -31,7 +32,10 @@ function ImportForm({ onImport }: { onImport: () => void }) {
 
     setIsLoading(true);
     try {
-      importFromBase64(input.trim());
+      importFromBase64(input.trim(), async (links) => {
+        const newUrls = links.map(getLinkHostUrl);
+        browser.runtime.sendMessage({ action: 'linkem-ask-permissions', data: newUrls });
+      });
       setSuccessMsg('Successfully imported links!');
       setInput('');
       setShowImportForm(false);

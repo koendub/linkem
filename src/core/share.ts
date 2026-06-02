@@ -6,7 +6,7 @@ import { linksStorage, packagesStorage } from "./storage/local_storage";
 
 type CanBase64Import = LinkPackageWithLinks | LinkWithConditions;
 
-export async function importFromBase64(encoded: string): Promise<LinkWithConditions[]> {
+export async function importFromBase64(encoded: string, beforeStorage?: (links: LinkWithConditions[]) => void): Promise<LinkWithConditions[]> {
   // Decode base64 and parse JSON
   let data: CanBase64Import | null = null;
   try {
@@ -21,11 +21,17 @@ export async function importFromBase64(encoded: string): Promise<LinkWithConditi
   // Then actually import the package or link
   if ('links' in data && Array.isArray((data as any).links)) {
     const pkg = data as LinkPackageWithLinks;
+    if (beforeStorage) {
+      beforeStorage(pkg.links);
+    }
     await linksStorage.updateLinks(pkg.links);
     await packagesStorage.savePackage(pkg);
     return pkg.links;
   } else if ('conditions' in data && Array.isArray((data as any).conditions)) {
     const lnk = data as LinkWithConditions;
+    if (beforeStorage) {
+      beforeStorage([lnk]);
+    }
     await linksStorage.updateLinks([lnk]);
     return [lnk];
   } else {

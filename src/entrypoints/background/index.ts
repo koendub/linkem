@@ -52,9 +52,41 @@ function siteInjectListener() {
     if (info.status !== "complete" || !tab.url) return;
     await checkForLinksToInjectInTab(tab);
   });
+
+  // Also check already open tabs on startup
+  function checkAllTabsForInjection() {
+    browser.tabs.query({}).then(tabs => {
+      tabs.forEach(async tab => {
+        if (tab.url) await checkForLinksToInjectInTab(tab);
+      });
+    });
+  };
+  checkAllTabsForInjection();
+
+  // Finally also check to inject when a browser message asks for it
+  browser.runtime.onMessage.addListener(async (message, sender) => {
+    if (message.action === 'linkem-check-inject-links') {
+      checkAllTabsForInjection();
+    }
+  });
+}
+
+function backgroundMessageListeners() {
+  browser.runtime.onMessage.addListener(async (message, sender) => {
+    if (message.action === 'linkem-ask-permissions') {
+      const hosts = message.data;
+      if (!hosts || !Array.isArray(hosts)) {
+        console.error('Received linkem-ask-permissions message without valid hosts data');
+        return;
+      }
+      await requestHostPermissions(hosts);
+      browser.runtime.sendMessage({ action: 'linkem-check-inject-links' });
+    }
+  });
 }
 
 export default defineBackground(() => {
   registerContextMenu();
   siteInjectListener();
+  backgroundMessageListeners();
 });
