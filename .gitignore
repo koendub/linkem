@@ -27,3 +27,9 @@ web-ext.config.ts
 
 .env
 .env.submit
+
+# Test artifacts
+/test-results/
+/playwright-report/
+/blob-report/
+

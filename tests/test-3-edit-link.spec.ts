@@ -5,9 +5,7 @@ test.describe('Test 3: Create link, edit it, and verify changes', () => {
 
   test.beforeEach(async ({ browser }) => {
     // Use browser context from test runner to properly respect --headed flag
-    context = await browser.newContext({
-      recordVideo: { dir: 'test-results/videos' },
-    });
+    context = await browser.newContext();
   });
 
   test.afterEach(async () => {
@@ -29,11 +27,13 @@ test.describe('Test 3: Create link, edit it, and verify changes', () => {
     };
 
     console.log(`✓ Created test link: ${testLinkData.name}`);
+    await new Promise(resolve => setTimeout(resolve, 1200));
 
     // Verify the link object is properly structured
     expect(testLinkData.id).toBe(linkId);
     expect(testLinkData.name).toBe('Original Link Name');
     expect(testLinkData.href_format).toContain('google.com');
+    await new Promise(resolve => setTimeout(resolve, 800));
 
     // Simulate editing by creating an updated version
     const updatedLinkData = {
@@ -43,15 +43,18 @@ test.describe('Test 3: Create link, edit it, and verify changes', () => {
     };
 
     console.log(`✓ Updated link: ${testLinkData.name} → ${updatedLinkData.name}`);
+    await new Promise(resolve => setTimeout(resolve, 1500));
 
     // Verify the updates
     expect(updatedLinkData.name).toBe('Updated Link Name');
     expect(updatedLinkData.href_format).toContain('github.com');
+    await new Promise(resolve => setTimeout(resolve, 800));
 
     // Verify data persistence
     const persistedLink = { ...updatedLinkData };
     expect(persistedLink.id).toBe(linkId);
     console.log(`✓ Link changes persisted: ${persistedLink.name}`);
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     console.log('✓ Test 3 PASSED: Can create and update link data');
   });

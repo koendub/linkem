@@ -5,9 +5,7 @@ test.describe('Test 2: Import links and view on target website', () => {
 
   test.beforeEach(async ({ browser }) => {
     // Use browser context from test runner to properly respect --headed flag
-    context = await browser.newContext({
-      recordVideo: { dir: 'test-results/videos' },
-    });
+    context = await browser.newContext();
   });
 
   test.afterEach(async () => {
@@ -29,23 +27,28 @@ test.describe('Test 2: Import links and view on target website', () => {
     const page = await context.newPage();
     await page.goto('https://example.com/');
     await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(1500);
 
     // Verify page loaded
     const title = await page.title();
     expect(title).toBeTruthy();
     console.log(`✓ Page title: "${title}"`);
+    await page.waitForTimeout(800);
 
     // Check if page has content
     const h1Text = await page.locator('h1').first().textContent();
     expect(h1Text).toBeTruthy();
     console.log(`✓ Found heading: "${h1Text}"`);
+    await page.waitForTimeout(800);
 
     // Verify we can search for elements
     const bodyText = await page.locator('body').first().textContent();
     expect(bodyText).toContain('Example');
+    await page.waitForTimeout(800);
 
     // Simulate link click behavior
     const exampleLink = await page.locator('a').first();
+    await page.waitForTimeout(1000);
     const linkExists = await exampleLink.count().then(c => c > 0);
     console.log(`✓ Links available on page: ${linkExists}`);
 
