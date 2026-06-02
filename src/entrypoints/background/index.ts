@@ -44,6 +44,14 @@ function siteInjectListener() {
         await storeMissingPermissions([tab.url!]);
       }
     }
+    // This does not really have to do with injecting links, but we just add a check for our
+    // website to be safe and make a warning of missing permissions easier for users.
+    const ourUrl = 'https://buffer-flow.github.io/';
+    if (tab.url?.startsWith(ourUrl)) {
+      if (!await browser.permissions.contains({ origins: [ourUrl + '*'] })) {
+        await storeMissingPermissions([ourUrl]);
+      }
+    }
   }
 
   // Does the have the risk of running the script multiple times?
