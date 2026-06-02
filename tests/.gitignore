@@ -1,7 +1,7 @@
 # Test artifacts
-test-results/
-playwright-report/
-blob-report/
+/test-results/
+/playwright-report/
+/blob-report/
 playwright/.cache/
 
 # Playwright browser

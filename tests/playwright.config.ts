@@ -7,15 +7,16 @@ const extensionPath = path.join(__dirname, '../.output/chrome-mv3');
 
 export default defineConfig({
   testDir: '.',
-  testMatch: '*.spec.ts',
+  testMatch: 'test-*.spec.ts',
   fullyParallel: false,
   forbidOnly: process.env.CI ? true : false,
   retries: process.env.CI ? 2 : 0,
   workers: 1,
-  reporter: [
-    ['html', { outputFolder: 'playwright-report' }],
-    ['json', { outputFile: 'test-results/results.json' }],
-  ],
+  // reporter: [
+  //   ['html', { outputFolder: 'playwright-report' }],
+  //   ['json', { outputFile: 'test-results/results.json' }],
+  //   ['list'],
+  // ],
   use: {
     baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
