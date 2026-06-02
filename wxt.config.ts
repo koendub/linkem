@@ -7,6 +7,8 @@ export default defineConfig({
   srcDir: "src",
   manifest: {
     permissions: ['storage', 'contextMenus', 'scripting', 'tabs'],
+    // @ts-ignore
+    optional_permissions: ["*://*/*"],
     optional_host_permissions: ["*://*/*"],
     browser_specific_settings: {
       gecko: {
@@ -36,7 +38,10 @@ export default defineConfig({
 
       // Random sites
       'https://www.target.com/',
-      'https://www.amazon.com/'
+      'https://www.amazon.com/',
+
+      // Dev tools
+      // 'about:debugging#/runtime/this-firefox'
     ]
   },
   vite: () => ({
