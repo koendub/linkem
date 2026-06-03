@@ -1,4 +1,4 @@
-import { expect, test } from "./fixtures";
+import { expect, test } from "../fixtures";
 
 
 test('Test 2: Import links and view on target website', async ({ page }) => {

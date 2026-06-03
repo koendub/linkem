@@ -1,4 +1,4 @@
-import { expect, test } from "./fixtures";
+import { expect, test } from "../fixtures";
 
 
 test('Test 1: Create a link using context menu and allow permissions', async ({ page }) => {

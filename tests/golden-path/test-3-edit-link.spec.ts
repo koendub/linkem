@@ -1,4 +1,4 @@
-import { expect, test } from "./fixtures";
+import { expect, test } from "../fixtures";
 
 test('Test 3: Create link, edit it, and verify changes', async ({ page }) => {
   console.log('Starting Test 3: Create and edit link');
