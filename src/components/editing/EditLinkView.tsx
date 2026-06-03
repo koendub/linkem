@@ -3,9 +3,9 @@ import { LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
 import { Link, X, Save, ChevronDown } from 'lucide-react';
 import { Accordion } from '@base-ui/react';
 import { hasSupabaseConfig } from '@/core/storage/supabase_storage';
-import { ExactConditionsEditor, SimpleConditionsEditor, useOriginalUrl } from './editing/ConditionsEditor';
-import { HrefFormatEditor } from './editing/HrefFormatEditor';
-import { ExactDisplayEditor, SimpleDisplayEditor } from './editing/DisplayEditor';
+import { ExactConditionsEditor, SimpleConditionsEditor, useOriginalUrl } from './ConditionsEditor';
+import { HrefFormatEditor } from './HrefFormatEditor';
+import { ExactDisplayEditor, SimpleDisplayEditor } from './DisplayEditor';
 
 type LinkToEdit = LinkWithConditions | UnstoredLinkWithConditions;
 

@@ -2,6 +2,7 @@ import { hrefValueReplacers, regexFindAllTemplates } from "@/core/replacer";
 import { LinkWithConditions, UnstoredLinkWithConditions } from "@/core/types";
 import { Accordion } from "@base-ui/react";
 import { InfoIcon } from "lucide-react";
+import { HighlightTextField } from "./HighlightTextField";
 
 
 interface HrefFormatEditorProps {

@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { EditLinkView } from '@/components/EditLinkView';
+import { EditLinkView } from '@/components/editing/EditLinkView';
 import styleText from '@/components/style.css?inline';
 import { LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
 import { getElementByXPath, getXPath, moveXPathUp } from '@/core/utils/xpath';

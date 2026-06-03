@@ -1,8 +1,8 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { LinkWithConditions, Condition, UnstoredLinkWithConditions } from '@/core/types';
-import { EditLinkView } from '../../../components/EditLinkView';
 import { Edit, Trash2 } from 'lucide-react';
 import { linksStorage } from '@/core/storage/local_storage';
+import { EditLinkView } from '@/components/editing/EditLinkView';
 
 
 export default function LinksTab() {

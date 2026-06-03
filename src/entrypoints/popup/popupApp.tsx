@@ -6,6 +6,8 @@ import ImportTab from './tabs/ImportTab';
 import ExportTab from './tabs/ExportTab';
 import SettingsTab from './tabs/SettingsTab';
 import { ProblemsButton } from '@/components/ProblemsButton';
+import ReactDOM from 'react-dom/client';
+import '@/components/style.css';
 
 const App: React.FC = () => {
   return (
@@ -43,4 +45,8 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>,
+);
