@@ -12,7 +12,7 @@ Supabase managed login and uses row level security to control access
 Structure:
  - Migrations are stored in the `supabase/migrations` folder
  - Types are generated from the migrations automatically. To generate these you need
- to be logged in to supabase. Then run `npx supabase gen types typescript > src/types/supabase.ts`.
+ to be logged in to supabase. Then run `npx supabase gen types typescript > src/core/types/supabase.ts`.
 
 To perform any database operations (including viewing / type generation):
  - Use `npx supabase login` to login to supabase

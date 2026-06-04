@@ -82,6 +82,7 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
     name: selectedText ? `Link on ${selectedText}` : 'New Link',
     visibility: 'private',
     icon: null,
+    color: null,
 
     conditions: [
       { id: '', link_id: '', type: 'url_start', value: url?.split('?')[0] || '', created_at: '' },

@@ -9,6 +9,7 @@ CREATE TABLE links (
   position TEXT NOT NULL CHECK (position IN ('on_text', 'next_to_text', 'user_default')),
   display_name TEXT,
   icon TEXT,
+  color TEXT,
   visibility TEXT NOT NULL DEFAULT 'private' CHECK (visibility IN ('local', 'private', 'public')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()

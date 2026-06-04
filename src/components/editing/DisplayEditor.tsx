@@ -1,6 +1,8 @@
+import { DEFAULT_LINK_COLOR } from "@/core/inject";
 import { LinkWithConditions, UnstoredLinkWithConditions } from "@/core/types";
 import { findMoreGeneralXPath } from "@/core/utils/xpath";
 import { XCircleIcon } from "lucide-react";
+import { HexColorPicker } from "react-colorful";
 
 interface  DisplayEditorProps {
   link: LinkWithConditions | UnstoredLinkWithConditions;
@@ -124,6 +126,21 @@ export function ExactDisplayEditor({ link, setLink }: DisplayEditorProps) {
           onChange={(e) => setLink({ ...link, display_name: e.target.value })}
           placeholder="Enter display name"
         />
+      </div>
+      <div>
+        <label className='p-0 m-0'>Display Color</label>
+        <button
+          onClick={() => setLink({ ...link, color: link.color ? null : DEFAULT_LINK_COLOR })}
+          className={`px-3 py-1 rounded transition-colors font-medium text-sm mb-1 bg-blue-500 text-white hover:bg-blue-600`}
+        >
+          {link.color ? 'Unset custom color' : 'Set custom color'}
+        </button>
+        {link.color && (
+          <>
+            <div>Current color {link.color}</div>
+            <HexColorPicker color={link.color} onChange={(v) => setLink({ ...link, color: v })} />
+          </>
+        )}
       </div>
       <div>
         <label>On Element XPath</label>
