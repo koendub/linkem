@@ -62,25 +62,27 @@ function siteInjectListener() {
   });
 
   // Also check already open tabs on startup
-  function checkAllTabsForInjection() {
+  function checkAllTabsForInjection(filterHosts?: string[]) {
     browser.tabs.query({}).then(tabs => {
       tabs.forEach(async tab => {
-        if (tab.url) await checkForLinksToInjectInTab(tab);
+        if (tab.url && (!filterHosts || filterHosts.some(host => tab.url!.startsWith(host)))) {
+          await checkForLinksToInjectInTab(tab);
+        }
       });
     });
   };
   checkAllTabsForInjection();
 
   // Finally also check to inject when a browser message asks for it
-  browser.runtime.onMessage.addListener(async (message, sender) => {
+  browser.runtime.onMessage.addListener(async (message, _) => {
     if (message.action === 'linkem-check-inject-links') {
-      checkAllTabsForInjection();
+      checkAllTabsForInjection(message.hosts);
     }
   });
 }
 
 function backgroundMessageListeners() {
-  browser.runtime.onMessage.addListener(async (message, sender) => {
+  browser.runtime.onMessage.addListener(async (message, _) => {
     if (message.action === 'linkem-ask-permissions') {
       const hosts = message.data;
       if (!hosts || !Array.isArray(hosts)) {
@@ -88,7 +90,7 @@ function backgroundMessageListeners() {
         return;
       }
       await requestHostPermissions(hosts);
-      browser.runtime.sendMessage({ action: 'linkem-check-inject-links' });
+      browser.runtime.sendMessage({ action: 'linkem-check-inject-links', hosts: hosts });
     }
   });
 }

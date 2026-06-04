@@ -47,7 +47,7 @@ export async function askForMissingPermissions(): Promise<boolean> {
     const newPermissions = await evaluateMissingPermissions();
     if (newPermissions.length > 0) {
       // Tell the background script to check for links to inject now that we have new permissions
-      await browser.runtime.sendMessage({ action: 'linkem-check-inject-links' });
+      await browser.runtime.sendMessage({ action: 'linkem-check-inject-links', hosts: newPermissions });
     }
   }
   return gottem;
