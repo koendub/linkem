@@ -10,6 +10,7 @@ export async function requestHostPermissions(urls: string[]): Promise<boolean> {
     console.log(`Permission for origins ${origins.join(', ')} ` + (permission ? 'granted!' : 'rejected!'));
     return permission;
   } catch (e) {
+    await storeMissingPermissions(urls);
     console.error(`Failed to request permissions:`, e);
     return false;
   }
