@@ -2,7 +2,7 @@
   "name": "Link'em",
   "description": "Add links to web pages wherever you want!",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.3.1",
   "type": "module",
   "scripts": {
     "dev": "wxt",
