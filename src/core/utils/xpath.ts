@@ -56,10 +56,10 @@ export function moveXPathUp(xpath: string, element?: Element): [string, Element 
     // We just also quickly check for consistency
     const newXPathViaElement = getXPath(element.parentElement!, false);
     if (newXPathViaElement !== newXPathViaSplit) {
-      console.warn('Moving up in XPath resulted in inconsistent XPaths!');
+      console.warn('Moving up in XPath resulted in inconsistent XPaths!', { newXPathViaSplit, newXPathViaElement });
     }
     if (newElement !== element.parentElement) {
-      console.warn('Moving up in XPath resulted in inconsistent elements!')
+      console.warn('Moving up in XPath resulted in inconsistent elements!', { newElement, element });
     }
   }
   return [newXPathViaSplit, newElement];

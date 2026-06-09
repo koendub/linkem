@@ -50,5 +50,5 @@ export function injectCaller(injector: InjectFunction) {
 
   // Also inject on dynamic content changes
   const observer = new MutationObserver(injectorWrapper);
-  observer.observe(document.body, { childList: true, subtree: true });
+  observer.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true });
 }

@@ -2,7 +2,7 @@ import { formatLinkDisplayName, formatLinkHref } from '@/core/replacer';
 import { LinkWithConditions, UserSettings } from '@/core/types';
 import linkIcon from '~/assets/link-icon.svg?raw';
 import { linksStorage, settingsStorage } from './storage/local_storage';
-import { injectNewElement } from './utils/inject_tools';
+import { injectNewElements } from './utils/inject_tools';
 import { getFailingPostMatchConditions, getFailingPreMatchConditions } from './conditions';
 import { getElementsByXPath } from './utils/xpath';
 import { RgbaColor } from 'react-colorful';
@@ -43,12 +43,13 @@ export async function applyLinkToElement(link: LinkWithConditions, element: Elem
 
   const linkText = link.position === 'on_text' ? '' : formatLinkDisplayName(link);
 
-  return injectNewElement(
+  return injectNewElements(
     'linkem',
     link.id,
     element,
     link.on_selected_text_regex,
     position,
+    false,
     (parentElement, text) => createNewLinkElement(link, formatLinkHref(link, text), linkText, parentElement),
     (existingElement, text) => {
       if (!('href' in existingElement)) throw new Error('Existing element is not a link, cannot update href');
@@ -114,6 +115,7 @@ function createNewLinkElement(link: LinkWithConditions, href: string, text: stri
   a.style.fontSize = fontSize + 'px';
   a.style.lineHeight = fontSize + 'px';
   a.style.margin = `0px ${Math.floor((fontSize-5)/2)}px`;
+  a.style.cursor = 'pointer';
   if (fontSize > 18) {
     a.style.verticalAlign = '6px';
   }

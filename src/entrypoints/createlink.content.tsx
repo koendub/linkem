@@ -57,6 +57,7 @@ function showCreateLinkModal(
 
 function createInitialLinkData(selectedText: string, url: string, xpath: string): UnstoredLinkWithConditions {
   // Try to guess the most applicable regex for the selected text
+  selectedText = selectedText.trim();
   let selectedTextRe = selectedText;
 
   // If the xpath element does not have all the selected text, move up in xpath until it does
