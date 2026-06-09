@@ -160,6 +160,14 @@ export function ExactDisplayEditor({ link, setLink }: DisplayEditorProps) {
           placeholder='Enter text regex (use ".+" to match all text)'
         />
       </div>
+      <div>
+        <label>Allow Multiple Injections Per Element</label>
+        <input
+          type="checkbox"
+          checked={link.allow_multiple_injections_per_element || false}
+          onChange={(e) => setLink({ ...link, allow_multiple_injections_per_element: e.target.checked })}
+        />
+      </div>
     </div>
   )
 }

@@ -84,6 +84,7 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
     visibility: 'private',
     icon: null,
     color: null,
+    allow_multiple_injections_per_element: false,
 
     conditions: [
       { id: '', link_id: '', type: 'url_start', value: url?.split('?')[0] || '', created_at: '' },

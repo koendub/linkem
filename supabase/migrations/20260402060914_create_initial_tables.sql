@@ -10,6 +10,7 @@ CREATE TABLE links (
   display_name TEXT,
   icon TEXT,
   color TEXT,
+  allow_multiple_injections_per_element BOOLEAN,
   visibility TEXT NOT NULL DEFAULT 'private' CHECK (visibility IN ('local', 'private', 'public')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()

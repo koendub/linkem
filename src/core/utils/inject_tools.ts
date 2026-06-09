@@ -79,15 +79,16 @@ function getRangeText(range: Range): string {
 }
 
 function findTextRangeInElement(element: Element, regex: RegExp | string | null): Range[] | null {
+  const elementRange = document.createRange();
+  elementRange.selectNodeContents(element);
+
   if (!regex) {
     // If there is no regex provided, they must mean the whole element
-    const nodeRange = document.createRange();
-    nodeRange.selectNodeContents(element);
-    return [nodeRange];
+    return [elementRange];
   }
 
   const regexExp = regex instanceof RegExp ? regex : new RegExp(regex, 'g');
-  const matches = (element.textContent || '').matchAll(regexExp);
+  const matches = getRangeText(elementRange).matchAll(regexExp);
 
   if (!matches) return null;
 
@@ -124,6 +125,11 @@ function findTextOffsetRangeInElement(element: Element, startOffset: number, len
       charCount = nodeEnd;
     } else if (node.nodeType === Node.ELEMENT_NODE) {
       for (const child of node.childNodes) {
+        // @ts-ignore
+        if (('classList' in child) && child.classList.contains('skip-injection-text')) {
+          // Skip nodes that are marked to be skipped (e.g. already injected elements)
+          continue;
+        }
         if (walkNodes(child)) {
           return true;
         }

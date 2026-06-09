@@ -49,7 +49,7 @@ export async function applyLinkToElement(link: LinkWithConditions, element: Elem
     element,
     link.on_selected_text_regex,
     position,
-    false,
+    link.allow_multiple_injections_per_element || false,
     (parentElement, text) => createNewLinkElement(link, formatLinkHref(link, text), linkText, parentElement),
     (existingElement, text) => {
       if (!('href' in existingElement)) throw new Error('Existing element is not a link, cannot update href');
