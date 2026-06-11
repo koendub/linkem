@@ -7,7 +7,7 @@ export function injectNewElements(
   onOrNextToText: 'on_text' | 'next_to_text',
   allowMultipleInjections: boolean,
   newElement: Element | ((parentElement: Element, text: string) => Element),
-  updateExistingElement?: (element: Element, text: string) => void
+  updateExistingElement?: (element: Element, text: string) => boolean
 ): boolean {
   // Match the pattern in the text, use DOM Range to find and manipulate the matched text while preserving DOM structure
   const ranges = findTextRangeInElement(parent, onRegex);
@@ -39,14 +39,13 @@ function injectNewElementInRange(
   range: Range,
   onOrNextToText: 'on_text' | 'next_to_text',
   newElement: Element | ((parentElement: Element, text: string) => Element),
-  updateExistingElement?: (element: Element, text: string) => void
+  updateExistingElement?: (element: Element, text: string) => boolean
 ): boolean {
   // Check if this injection is already present, if so, dont inject it again
   const injectionsInElement = parent.getElementsByClassName(appName + '-injection');
   for (const existingInjection of injectionsInElement) {
     if (existingInjection.classList.contains(appName + '-injection-' + injectionId)) {
-      updateExistingElement?.(existingInjection, getRangeText(range));
-      return false;
+      return updateExistingElement?.(existingInjection, getRangeText(range)) ?? false;
     }
   }
 

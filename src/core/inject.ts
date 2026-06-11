@@ -54,6 +54,7 @@ export async function applyLinkToElement(link: LinkWithConditions, element: Elem
     (existingElement, text) => {
       if (!('href' in existingElement)) throw new Error('Existing element is not a link, cannot update href');
       existingElement.href = formatLinkHref(link, text);
+      return true; // Return true to indicate that we updated an existing element
     }
   )
 }

@@ -19,23 +19,24 @@ export function injectCaller(injector: InjectFunction) {
         backoffCounter = 1;
       }
 
-      // Exponential backoff (after the first 10 injections to improve user experience on page load)
-      if (injectionCount > 10) {
-        const backoffTime = backoffCounter * backoffCounter;
+      // Exponential backoff (after the first 3 injections to improve user experience on page load)
+      if (injectionCount > 3) {
+        const backoffTime = 10 * (backoffCounter * backoffCounter);
+        backoffCounter += 1;
         const wait = backoffTime - since;
         if (wait > 0) {
           await new Promise(resolve => setTimeout(resolve, wait));
-          backoffCounter += 1;
         }
       }
 
-      // Reset backoff if it's been a while since the last injection
+      // Inject and store the injection count and time for backoff logic
       const didInjectPromise = injector();
       const didInject = didInjectPromise instanceof Promise ? await didInjectPromise : didInjectPromise;
-      if (didInject) {
-        injectionCount += 1;
-        lastInjectionTime = Date.now();
-      }
+      console.log(`Injector called. ${didInject ? 'Did inject' : 'Did not inject'}. Injection count: ${injectionCount}, Backoff counter: ${backoffCounter}`);
+      // if (didInject) {
+      injectionCount += 1;
+      lastInjectionTime = Date.now();
+      // }
     } finally {
       injectionInProgress = false;
     }

@@ -50,12 +50,14 @@ FUTURE IDEA: Users can search and upvote/downvote these libraries, and install t
 Every day the installed libraries get queried for changes to their links,
 though these should not be automatically installed! (for security reasons)
 
-## Demo Ideas
+## Demo Script
 
- - IMDB to streaming service search
- - Books on Amazon to Goodreads links
- - Amazon to Google reviews link
- - Goodreads to bol.com
+ 1. Select some text and right-click to create a custom link in seconds
+ 2. Link your favourite websites in any way you want
+ 3. Show links on all similar pages, or on all similar element in a page
+ 4. Custom links can use the selected text or other page data in their url
+ 5. Customize how and where your custom links shows up
+ 6. Easily share your custom links with your friends or your team
 
 # How To
 
