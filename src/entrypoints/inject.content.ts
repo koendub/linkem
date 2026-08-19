@@ -1,5 +1,6 @@
 import { checkInjectLinks } from '@/core/inject';
 import { injectCaller } from '@/core/utils/inject_caller';
+import { registerAuthLoginListener } from '@/core/auth';
 
 
 function registerInjectLinks() {
@@ -15,6 +16,7 @@ function registerInjectLinks() {
   (window as any).__linkemInjectRegistered = true;
 
   injectCaller(checkInjectLinks);
+  registerAuthLoginListener();
 }
 
 export default defineContentScript({

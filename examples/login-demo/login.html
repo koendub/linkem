@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<!--
+  Fake SSO login page for the Link'em login-flow demo (see subpage.html and
+  src/core/auth.ts). The extension's background script opens this in a new
+  tab when subpage.html asks to log in.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Link'em login demo - fake SSO</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 1.5rem; max-width: 28rem; }
+    button { padding: 0.5rem 1rem; font-size: 1rem; }
+    #done { color: #1f6f2b; display: none; }
+  </style>
+</head>
+<body>
+  <h1>Demo SSO</h1>
+  <p>This stands in for a real login page. Clicking below sets a demo session cookie for this site.</p>
+  <button id="login">Log in as Demo User</button>
+  <p id="done">Logged in! This tab will close automatically.</p>
+  <p id="warning" style="display: none; color: #7a1f1f;"></p>
+
+  <script>
+    document.getElementById('login').addEventListener('click', () => {
+      const token = Math.random().toString(36).slice(2);
+
+      // SameSite=None is required for the cookie to be sent on requests the
+      // subpage iframe makes from inside a *different* top-level site - a
+      // plain/Lax cookie is never sent cross-site no matter how faithfully
+      // linkem copies it afterward. SameSite=None requires Secure, which in
+      // turn requires a secure context - Chrome (and recent Firefox) treat
+      // http://localhost as secure for this purpose, so this works there
+      // without needing real TLS, but will silently fail to set on any
+      // other plain http origin.
+      document.cookie = `linkem_demo_session=${encodeURIComponent(token)}; Path=/; Max-Age=3600; SameSite=None; Secure`;
+
+      const gotIt = document.cookie.includes('linkem_demo_session=');
+      if (!gotIt) {
+        // Secure cookies silently fail to be set on non-secure-context origins.
+        document.getElementById('warning').style.display = 'block';
+        document.getElementById('warning').textContent =
+          `Could not set a SameSite=None cookie on ${location.origin} - that requires a secure context ` +
+          `(https, or http://localhost). Serve this demo from http://localhost instead of a plain IP/hostname, ` +
+          `or over https, then try again.`;
+        return;
+      }
+
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('done').style.display = 'block';
+
+      // background.ts watches for this tab navigating to a URL ending in
+      // this hash and treats it as "login finished", closing the tab for us.
+      location.hash = 'linkem-login-complete';
+    });
+  </script>
+</body>
+</html>
