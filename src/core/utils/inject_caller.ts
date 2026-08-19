@@ -32,11 +32,11 @@ export function injectCaller(injector: InjectFunction) {
       // Inject and store the injection count and time for backoff logic
       const didInjectPromise = injector();
       const didInject = didInjectPromise instanceof Promise ? await didInjectPromise : didInjectPromise;
-      console.log(`Injector called. ${didInject ? 'Did inject' : 'Did not inject'}. Injection count: ${injectionCount}, Backoff counter: ${backoffCounter}`);
-      // if (didInject) {
-      injectionCount += 1;
-      lastInjectionTime = Date.now();
-      // }
+      console.log(`Injector: ${didInject ? 'Did inject' : 'Did not inject'}. Injection ${injectionCount}, Backoff ${backoffCounter}`);
+      if (didInject) {
+        injectionCount += 1;
+        lastInjectionTime = Date.now();
+      }
     } finally {
       injectionInProgress = false;
     }
@@ -49,7 +49,13 @@ export function injectCaller(injector: InjectFunction) {
     injectorWrapper();
   }
 
-  // Also inject on dynamic content changes
-  const observer = new MutationObserver(injectorWrapper);
-  observer.observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true });
+  // Also inject on dynamic content changes, debounced so bursts of mutations
+  // (e.g. a page still hydrating right after load) settle before we scan,
+  // rather than running a full check mid-way through every single mutation.
+  let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  const observer = new MutationObserver(() => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(injectorWrapper, 100);
+  });
+  observer.observe(document.body, { childList: true, subtree: true, characterData: true });
 }

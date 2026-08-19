@@ -54,7 +54,9 @@ export async function applyLinkToElement(link: LinkWithConditions, element: Elem
       link.allow_multiple_injections_per_element || false,
       (parentElement, text) => createNewTextElement(link, position === 'on_text' ? '' : formatTextContent(link, text), parentElement),
       (existingElement, text) => {
-        existingElement.textContent = formatTextContent(link, text);
+        const newText = position === 'on_text' ? '' : formatTextContent(link, text);
+        if (existingElement.textContent === newText) return false;
+        existingElement.textContent = newText;
         return true;
       }
     )
@@ -71,7 +73,10 @@ export async function applyLinkToElement(link: LinkWithConditions, element: Elem
       (parentElement, text) => createNewSubpageElement(link, formatUrlFormat(link, text), parentElement),
       (existingElement, text) => {
         if (!('src' in existingElement)) throw new Error('Existing element is not an iframe, cannot update src');
-        existingElement.src = formatUrlFormat(link, text);
+        const newSrc = formatUrlFormat(link, text);
+        const resolvedNewSrc = new URL(newSrc, document.baseURI).href;
+        if (existingElement.src === resolvedNewSrc) return false;
+        existingElement.src = newSrc;
         return true;
       }
     )
@@ -89,8 +94,11 @@ export async function applyLinkToElement(link: LinkWithConditions, element: Elem
     (parentElement, text) => createNewLinkElement(link, formatUrlFormat(link, text), linkText, parentElement),
     (existingElement, text) => {
       if (!('href' in existingElement)) throw new Error('Existing element is not a link, cannot update href');
-      existingElement.href = formatUrlFormat(link, text);
-      return true; // Return true to indicate that we updated an existing element
+      const newHref = formatUrlFormat(link, text);
+      const resolvedNewHref = new URL(newHref, document.baseURI).href;
+      if (existingElement.href === resolvedNewHref) return false;
+      existingElement.href = newHref;
+      return true;
     }
   )
 }

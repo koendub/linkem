@@ -58,6 +58,7 @@ function injectNewElementInRange(
     const contents = range.extractContents();
     newElem.appendChild(contents);
     range.insertNode(newElem);
+    newElem.classList.add('skip-injection-text');
     return true;
   } else if (onOrNextToText === 'next_to_text') {
     // Collapse range to its end and insert new element after
