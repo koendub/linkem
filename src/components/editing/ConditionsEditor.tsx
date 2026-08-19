@@ -65,7 +65,7 @@ export function SimpleConditionsEditor({ conditions, onChange, originalUrl }: Ed
     <div className="flex flex-col p-2 bg-white border border-gray-200 rounded-lg w-full">
       {addUrlStartCondition ? (
         <>
-          <p className="font-medium text-gray-900 p-1">This link is enabled for ALL website everywhere!</p>
+          <p className="font-medium text-gray-900 p-1">This element is enabled for ALL website everywhere!</p>
           <button
             onClick={addUrlStartCondition}
             className={`ml-3 px-4 py-1 rounded font-medium text-sm transition-colors`}
@@ -75,7 +75,7 @@ export function SimpleConditionsEditor({ conditions, onChange, originalUrl }: Ed
         </>
       ) : (
         <>
-          <p className="font-medium text-gray-900 p-1">This link is currently enabled on:</p>
+          <p className="font-medium text-gray-900 p-1">This element is currently enabled on:</p>
           <textarea
             value={currentUrl}
             onChange={(e) => setCurrentUrl(e.target.value)}
@@ -118,7 +118,7 @@ export function ExactConditionsEditor({ conditions, onChange, originalUrl }: Edi
 
   return (
     <div className="px-4 py-3">
-      <p className='text-sm text-gray-800 mb-1'>A custom link will only be shown if all its conditions are met.</p>
+      <p className='text-sm text-gray-800 mb-1'>A custom element will only be shown if all its conditions are met.</p>
       <div className="space-y-2">
         {conditions.map((cond, index) => (
           <div key={index} className="flex flex-wrap gap-2 items-center p-2 bg-gray-50 border border-gray-200 rounded-lg">

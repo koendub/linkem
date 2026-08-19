@@ -14,26 +14,24 @@ const OPTIONS: { type: LinkType; icon: typeof Link; title: string; description: 
 
 export function SelectElementTypeView({ onSelect, onClose }: SelectElementTypeViewProps) {
   return (
-    <div className="text-md bg-white text-gray-900 p-4 w-full h-full overflow-y-auto border-l border-gray-200 flex flex-col">
-      <div className="flex-1 pr-2">
-        <h2 className="text-2xl font-bold text-gray-900 mb-6">What do you want to add?</h2>
-        <div className="space-y-3">
-          {OPTIONS.map(({ type, icon: Icon, title, description }) => (
-            <button
-              key={type}
-              onClick={() => onSelect(type)}
-              className="w-full flex items-center gap-4 p-4 border border-gray-300 rounded-lg bg-white hover:bg-blue-50 hover:border-blue-400 transition-colors text-left"
-            >
-              <Icon className="w-8 h-8 text-blue-500 shrink-0" />
-              <div>
-                <div className="font-semibold text-gray-900">{title}</div>
-                <div className="text-sm text-gray-500">{description}</div>
-              </div>
-            </button>
-          ))}
-        </div>
+    <div className="text-md bg-white text-gray-900 p-4 w-full">
+      <h2 className="text-2xl font-bold text-gray-900 mb-6">What do you want to add?</h2>
+      <div className="space-y-3">
+        {OPTIONS.map(({ type, icon: Icon, title, description }) => (
+          <button
+            key={type}
+            onClick={() => onSelect(type)}
+            className="w-full flex items-center gap-4 p-4 border border-gray-300 rounded-lg bg-white hover:bg-blue-50 hover:border-blue-400 transition-colors text-left"
+          >
+            <Icon className="w-8 h-8 text-blue-500 shrink-0" />
+            <div>
+              <div className="font-semibold text-gray-900">{title}</div>
+              <div className="text-sm text-gray-500">{description}</div>
+            </div>
+          </button>
+        ))}
       </div>
-      <div className="flex justify-end mt-2 pt-2 border-t border-gray-200">
+      <div className="flex justify-end mt-6 pt-4 border-t border-gray-200">
         <button
           onClick={onClose}
           className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 rounded-lg flex items-center transition-colors"

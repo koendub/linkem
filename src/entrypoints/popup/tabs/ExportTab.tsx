@@ -255,11 +255,11 @@ const ExportTab: React.FC = () => {
 
       {/* Single Links Section */}
       <div className="border-t border-gray-200 pt-6">
-        <h3 className="text-lg font-semibold mb-4 text-gray-900">Export Single Links</h3>
+        <h3 className="text-lg font-semibold mb-4 text-gray-900">Export Single Elements</h3>
 
         {Object.values(allLinks).length === 0 ? (
           <div className="text-center py-8">
-            <p className="text-gray-500">No links available to export</p>
+            <p className="text-gray-500">No elements available to export</p>
           </div>
         ) : (
           <div className="space-y-3">

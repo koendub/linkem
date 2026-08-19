@@ -36,15 +36,21 @@ function CreateElementFlow({
   const [type, setType] = useState<LinkType | null>(null);
 
   if (!type) {
-    return <SelectElementTypeView onSelect={setType} onClose={onClose} />;
+    return (
+      <div className='w-116 max-w-full max-h-full rounded-lg overflow-hidden shadow-lg'>
+        <SelectElementTypeView onSelect={setType} onClose={onClose} />
+      </div>
+    );
   }
 
   return (
-    <EditLinkView
-      initialLink={createInitialLinkData(type, selectedText, url, xpath)}
-      onClose={onClose}
-      onSave={onSave}
-    />
+    <div className='w-116 h-154 max-w-full max-h-full rounded-lg overflow-hidden shadow-lg'>
+      <EditLinkView
+        initialLink={createInitialLinkData(type, selectedText, url, xpath)}
+        onClose={onClose}
+        onSave={onSave}
+      />
+    </div>
   );
 }
 
@@ -72,15 +78,13 @@ function showCreateLinkModal(
   root.render(
     <React.StrictMode>
       <div className='fixed top-0 left-0 w-full h-full bg-black/50 z-10000 flex items-center justify-center'>
-        <div className='w-116 h-154 max-w-full max-h-full rounded-lg overflow-hidden shadow-lg'>
-          <CreateElementFlow
-            selectedText={useSelectedText}
-            url={useUrl}
-            xpath={useXpath}
-            onClose={handleClose}
-            onSave={onSave}
-          />
-        </div>
+        <CreateElementFlow
+          selectedText={useSelectedText}
+          url={useUrl}
+          xpath={useXpath}
+          onClose={handleClose}
+          onSave={onSave}
+        />
       </div>
     </React.StrictMode>
   );

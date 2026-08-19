@@ -103,7 +103,7 @@ export default function LinksTab() {
         <div className="relative mb-4">
           <input
             type="text"
-            placeholder="Search links..."
+            placeholder="Search elements..."
             value={searchTerm}
             onChange={e => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg box-border bg-white shadow-sm outline-none"
@@ -114,7 +114,7 @@ export default function LinksTab() {
         </div>
         {filteredLinks.currentPageLinks.length > 0 && (
           <>
-            <h3 className="my-4 text-md text-gray-500 uppercase tracking-wider font-semibold">Current Page Links</h3>
+            <h3 className="my-4 text-md text-gray-500 uppercase tracking-wider font-semibold">Current Page Elements</h3>
             <ul className="list-none p-0 m-0">
               {filteredLinks.currentPageLinks.map(link => (
                 <li key={link.id} className="relative mb-2 border border-gray-300 rounded-lg p-3 bg-white shadow-sm transition-shadow duration-200 cursor-pointer hover:shadow-md">
@@ -139,7 +139,7 @@ export default function LinksTab() {
         )}
         {filteredLinks.otherLinks.length > 0 && (
           <>
-            <h3 className="my-4 text-md text-gray-500 uppercase tracking-wider font-semibold">All Links</h3>
+            <h3 className="my-4 text-md text-gray-500 uppercase tracking-wider font-semibold">All Elements</h3>
             <ul className="list-none p-0 m-0">
               {filteredLinks.otherLinks.map(link => (
                 <li key={link.id} className="mb-2 border border-gray-300 rounded-lg p-3 bg-white shadow-sm transition-shadow duration-200 cursor-pointer hover:shadow-md">
@@ -164,7 +164,7 @@ export default function LinksTab() {
         )}
         {filteredLinks.currentPageLinks.length === 0 && filteredLinks.otherLinks.length === 0 && (
           <div className="text-center py-10 px-5 text-gray-500">
-            No links found.
+            No elements found.
           </div>
         )}
       </div>

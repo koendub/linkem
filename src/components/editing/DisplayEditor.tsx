@@ -12,11 +12,11 @@ interface  DisplayEditorProps {
 async function remoteFindMoreGeneralXPath(onUrl: string, currentXpath: string) {
   if (window?.location?.href && window.location.href.startsWith('http')) {
     // if we are running in the content page itself, we dont have to do the remote call
-    if (!window.location.href.startsWith(onUrl)) throw Error('Content href is not link href. Please report this as a bug.');
+    if (!window.location.href.startsWith(onUrl)) throw Error('Content href is not element href. Please report this as a bug.');
     return findMoreGeneralXPath(currentXpath);
   }
   const tabs = await browser.tabs.query({ url: onUrl });
-  if (tabs.length === 0) throw Error('Cannot find more elements to show when the url of this link is not open.');
+  if (tabs.length === 0) throw Error('Cannot find more elements to show when the url of this element is not open.');
   if (tabs.length > 1) console.warn('Multiple tabs have this url open, using the first one to search for best xpath');
   const targetTab = tabs[0]!;
   const callResult = await browser.scripting.executeScript({
@@ -81,7 +81,7 @@ export function SimpleDisplayEditor({ link, setLink }: DisplayEditorProps) {
   return (
     <>
       <div className="flex flex-col p-2 bg-white border border-gray-200 rounded-lg w-full">
-        <label className="p-1">Link Position</label>
+        <label className="p-1">Position</label>
         <select
           value={link.position}
           onChange={(e) => setLink({ ...link, position: e.target.value as any })}
@@ -94,7 +94,7 @@ export function SimpleDisplayEditor({ link, setLink }: DisplayEditorProps) {
       {generalXPathStuff && (
         <div className="flex flex-col p-2 bg-white border border-gray-200 rounded-lg w-full">
           <div className="w-full pt-2">
-            <label className="p-1">Need this link to show on all similar elements on this page?</label>
+            <label className="p-1">Need this element to show on all similar elements on this page?</label>
             <RemoteFindMoreGeneralXPathButton {...generalXPathStuff} />
           </div>
         </div>

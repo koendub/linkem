@@ -52,7 +52,7 @@ export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps
               <input
                 value={link.name}
                 onChange={(e) => setLink({ ...link, name: e.target.value })}
-                placeholder="Enter link name"
+                placeholder={`Enter ${typeMeta.label.toLowerCase()} name`}
               />
             </div>
             {link.type !== 'text' && (
@@ -97,7 +97,7 @@ export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps
               <Accordion.Item value="location" className="border border-gray-300 rounded-lg bg-white">
                 <Accordion.Header>
                   <Accordion.Trigger className="w-full px-4 py-3 text-left font-semibold text-gray-900 hover:bg-gray-50 rounded-lg flex items-center justify-between transition-colors">
-                    Link Location
+                    {typeMeta.label} Location
                     <ChevronDown className="w-5 h-5 transition-transform duration-200" />
                   </Accordion.Trigger>
                 </Accordion.Header>
