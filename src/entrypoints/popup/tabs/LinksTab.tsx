@@ -1,8 +1,19 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
 import { LinkWithConditions, Condition, UnstoredLinkWithConditions } from '@/core/types';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Link as LinkIcon, Type, AppWindow } from 'lucide-react';
 import { linksStorage } from '@/core/storage/local_storage';
 import { EditLinkView } from '@/components/editing/EditLinkView';
+
+const TYPE_ICONS = { link: LinkIcon, text: Type, subpage: AppWindow } as const;
+
+function LinkTypeIcon({ link }: { link: LinkWithConditions }) {
+  const Icon = TYPE_ICONS[link.type] || LinkIcon;
+  return <Icon size={14} className="text-gray-400 shrink-0" />;
+}
+
+function linkSubtitle(link: LinkWithConditions): string {
+  return link.type === 'text' ? (link.display_name || '(empty text)') : (link.url_format || '');
+}
 
 
 export default function LinksTab() {
@@ -109,8 +120,8 @@ export default function LinksTab() {
                 <li key={link.id} className="relative mb-2 border border-gray-300 rounded-lg p-3 bg-white shadow-sm transition-shadow duration-200 cursor-pointer hover:shadow-md">
                   <div className="flex justify-between items-center">
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-gray-900 mb-1 truncate">{link.name}</div>
-                      <div className="text-sm text-gray-500 truncate">{link.href_format}</div>
+                      <div className="font-semibold text-gray-900 mb-1 truncate flex items-center gap-1"><LinkTypeIcon link={link} />{link.name}</div>
+                      <div className="text-sm text-gray-500 truncate">{linkSubtitle(link)}</div>
                     </div>
                     <div className="flex gap-1">
                       <button onClick={() => handleEdit(link)} className="btn-icon btn-blue">
@@ -134,8 +145,8 @@ export default function LinksTab() {
                 <li key={link.id} className="mb-2 border border-gray-300 rounded-lg p-3 bg-white shadow-sm transition-shadow duration-200 cursor-pointer hover:shadow-md">
                   <div className="flex justify-between items-center">
                     <div className="flex-1 min-w-0">
-                      <div className="font-semibold text-gray-900 mb-1 truncate">{link.name}</div>
-                      <div className="text-sm text-gray-500 truncate">{link.href_format}</div>
+                      <div className="font-semibold text-gray-900 mb-1 truncate flex items-center gap-1"><LinkTypeIcon link={link} />{link.name}</div>
+                      <div className="text-sm text-gray-500 truncate">{linkSubtitle(link)}</div>
                     </div>
                     <div className="flex gap-1 ml-1">
                       <button onClick={() => handleEdit(link)} className="btn-icon btn-blue">

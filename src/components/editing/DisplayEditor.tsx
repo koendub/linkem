@@ -105,6 +105,8 @@ export function SimpleDisplayEditor({ link, setLink }: DisplayEditorProps) {
 
 export function ExactDisplayEditor({ link, setLink }: DisplayEditorProps) {
   const generalXPathStuff = useRemoteFindGeneralXPathFunc({ link, setLink });
+  const isText = link.type === 'text';
+  const isSubpage = link.type === 'subpage';
   return (
     <div className="px-4 py-3 space-y-3">
       <div>
@@ -118,30 +120,54 @@ export function ExactDisplayEditor({ link, setLink }: DisplayEditorProps) {
           <option value="next_to_text">Next to Text</option>
         </select>
       </div>
-      <div>
-        <label className='p-0 m-0'>Display Name</label>
-        <div className='text-xs text-gray-500 mb-1'>(for when position is 'Next to Text')</div>
-        <input
-          value={link.display_name || ''}
-          onChange={(e) => setLink({ ...link, display_name: e.target.value })}
-          placeholder="Enter display name"
-        />
-      </div>
-      <div>
-        <label className='p-0 m-0'>Display Color</label>
-        <button
-          onClick={() => setLink({ ...link, color: link.color ? null : DEFAULT_LINK_COLOR })}
-          className={`px-3 py-1 rounded transition-colors font-medium text-sm mb-1 bg-blue-500 text-white hover:bg-blue-600`}
-        >
-          {link.color ? 'Unset custom color' : 'Set custom color'}
-        </button>
-        {link.color && (
-          <>
-            <div>Current color {link.color}</div>
-            <HexColorPicker color={link.color} onChange={(v) => setLink({ ...link, color: v })} />
-          </>
-        )}
-      </div>
+      {!isSubpage && (
+        <div>
+          <label className='p-0 m-0'>{isText ? 'Text Content' : 'Display Name'}</label>
+          <div className='text-xs text-gray-500 mb-1'>{isText ? "(the text that is shown, for when position is 'Next to Text')" : "(for when position is 'Next to Text')"}</div>
+          <input
+            value={link.display_name || ''}
+            onChange={(e) => setLink({ ...link, display_name: e.target.value })}
+            placeholder={isText ? 'Enter text content' : 'Enter display name'}
+          />
+        </div>
+      )}
+      {(link.type === 'link' || isText) && (
+        <div>
+          <label className='p-0 m-0'>Display Color</label>
+          <button
+            onClick={() => setLink({ ...link, color: link.color ? null : DEFAULT_LINK_COLOR })}
+            className={`px-3 py-1 rounded transition-colors font-medium text-sm mb-1 bg-blue-500 text-white hover:bg-blue-600`}
+          >
+            {link.color ? 'Unset custom color' : 'Set custom color'}
+          </button>
+          {link.color && (
+            <>
+              <div>Current color {link.color}</div>
+              <HexColorPicker color={link.color} onChange={(v) => setLink({ ...link, color: v })} />
+            </>
+          )}
+        </div>
+      )}
+      {isSubpage && (
+        <div className="flex gap-2">
+          <div className="flex-1">
+            <label className='p-0 m-0'>Width</label>
+            <input
+              value={link.iframe_width || ''}
+              onChange={(e) => setLink({ ...link, iframe_width: e.target.value || null })}
+              placeholder="e.g. 400px, 100% (default if empty)"
+            />
+          </div>
+          <div className="flex-1">
+            <label className='p-0 m-0'>Height</label>
+            <input
+              value={link.iframe_height || ''}
+              onChange={(e) => setLink({ ...link, iframe_height: e.target.value || null })}
+              placeholder="e.g. 300px, 50vh (default if empty)"
+            />
+          </div>
+        </div>
+      )}
       <div>
         <label>On Element XPath</label>
         <input

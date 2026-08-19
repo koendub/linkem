@@ -7,7 +7,7 @@ function registerContextMenu() {
   // Create context menu
   browser.contextMenus.create({
     id: 'create-link',
-    title: 'Link\'em: Create New Link',
+    title: 'Link\'em: Add New Element',
     contexts: ['selection']
   });
 

@@ -1,21 +1,21 @@
-import { hrefValueReplacers, regexFindAllTemplates } from "@/core/replacer";
+import { urlValueReplacers, regexFindAllTemplates } from "@/core/replacer";
 import { LinkWithConditions, UnstoredLinkWithConditions } from "@/core/types";
 import { Accordion } from "@base-ui/react";
 import { InfoIcon } from "lucide-react";
 import { HighlightTextField } from "./HighlightTextField";
 
 
-interface HrefFormatEditorProps {
+interface UrlFormatEditorProps {
   link: LinkWithConditions | UnstoredLinkWithConditions;
   onChange: (link: LinkWithConditions | UnstoredLinkWithConditions) => void;
 }
 
-export function HrefFormatEditor({ link, onChange }: HrefFormatEditorProps) {
+export function UrlFormatEditor({ link, onChange }: UrlFormatEditorProps) {
   return (
     <div>
       <HighlightTextField
-        value={link.href_format}
-        onChange={(nv) => onChange({ ...link, href_format: nv })}
+        value={link.url_format || ''}
+        onChange={(nv) => onChange({ ...link, url_format: nv })}
         highlights={regexFindAllTemplates}
       />
       <Accordion.Root>
@@ -28,7 +28,7 @@ export function HrefFormatEditor({ link, onChange }: HrefFormatEditorProps) {
           </Accordion.Header>
           <Accordion.Panel className="smooth-accordion-panel text-sm">
               <ul>
-                {Object.entries(hrefValueReplacers).map(([key, replacer]) => (
+                {Object.entries(urlValueReplacers).map(([key, replacer]) => (
                   <li key={key}>
                     <span className="rounded font-mono bg-blue-200">{`{${key}}`}</span> - {replacer.description}
                   </li>

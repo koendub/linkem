@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import { EditLinkView } from '@/components/editing/EditLinkView';
+import { SelectElementTypeView } from '@/components/editing/SelectElementTypeView';
 import styleText from '@/components/style.css?inline';
-import { LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
+import { LinkType, LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
 import { getElementByXPath, getXPath, moveXPathUp } from '@/core/utils/xpath';
 import { linksStorage } from '@/core/storage/local_storage';
-import { checkInjectLinks } from '@/core/inject';
+import { checkInjectLinks, DEFAULT_LINK_COLOR } from '@/core/inject';
 
 
 let lastXPath: string | undefined = undefined;
@@ -19,6 +20,34 @@ async function defaultOnLinkSave(link: LinkWithConditions | UnstoredLinkWithCond
   await checkInjectLinks()
 }
 
+function CreateElementFlow({
+  selectedText,
+  url,
+  xpath,
+  onSave,
+  onClose,
+}: {
+  selectedText: string;
+  url: string;
+  xpath: string;
+  onSave: (link: LinkWithConditions | UnstoredLinkWithConditions) => void;
+  onClose: () => void;
+}) {
+  const [type, setType] = useState<LinkType | null>(null);
+
+  if (!type) {
+    return <SelectElementTypeView onSelect={setType} onClose={onClose} />;
+  }
+
+  return (
+    <EditLinkView
+      initialLink={createInitialLinkData(type, selectedText, url, xpath)}
+      onClose={onClose}
+      onSave={onSave}
+    />
+  );
+}
+
 function showCreateLinkModal(
   selectedText: string | undefined = undefined,
   url: string | undefined = undefined,
@@ -29,7 +58,7 @@ function showCreateLinkModal(
   if (!useSelectedText || useSelectedText.length === 0) throw Error('No selected text found for the new link');
   const useXpath = xpath || lastXPath || getXPath(window.getSelection()?.anchorNode?.parentElement as Element, false);
   if (!useXpath || useXpath.length === 0) throw Error('No initial XPath found for the new link');
-  const initialLinkData = createInitialLinkData(useSelectedText, url || window.location.href, useXpath);
+  const useUrl = url || window.location.href;
 
   const [documentShadowContainer, modalReactRoot] = createShadowRootContainer();
   document.body.appendChild(documentShadowContainer);
@@ -44,8 +73,10 @@ function showCreateLinkModal(
     <React.StrictMode>
       <div className='fixed top-0 left-0 w-full h-full bg-black/50 z-10000 flex items-center justify-center'>
         <div className='w-116 h-154 max-w-full max-h-full rounded-lg overflow-hidden shadow-lg'>
-          <EditLinkView
-            initialLink={initialLinkData}
+          <CreateElementFlow
+            selectedText={useSelectedText}
+            url={useUrl}
+            xpath={useXpath}
             onClose={handleClose}
             onSave={onSave}
           />
@@ -55,7 +86,7 @@ function showCreateLinkModal(
   );
 }
 
-function createInitialLinkData(selectedText: string, url: string, xpath: string): UnstoredLinkWithConditions {
+function createInitialLinkData(type: LinkType, selectedText: string, url: string, xpath: string): UnstoredLinkWithConditions {
   // Try to guess the most applicable regex for the selected text
   selectedText = selectedText.trim();
   let selectedTextRe = selectedText;
@@ -78,26 +109,39 @@ function createInitialLinkData(selectedText: string, url: string, xpath: string)
   // Replace all sequences of digits with \d+, since I assume the user does not care about the specific number
   selectedTextRe = selectedTextRe.replace(/\d+/g, '\\d+');
 
-  return {
+  const typeLabel = type === 'text' ? 'Text' : type === 'subpage' ? 'Subpage' : 'Link';
+
+  const base = {
     // Basic info
-    name: selectedText ? `Link on ${selectedText}` : 'New Link',
+    type,
+    name: selectedText ? `${typeLabel} on ${selectedText}` : `New ${typeLabel}`,
     visibility: 'private',
     icon: null,
     color: null,
     allow_multiple_injections_per_element: false,
 
     conditions: [
-      { id: '', link_id: '', type: 'url_start', value: url?.split('?')[0] || '', created_at: '' },
-      // { id: '', link_id: '', type: 'xpath_exists', value: totalTextXpath || '', created_at: '' }
+      { id: '', link_id: '', type: 'url_start' as const, value: url?.split('?')[0] || '', created_at: '' },
+      // { id: '', link_id: '', type: 'xpath_exists' as const, value: totalTextXpath || '', created_at: '' }
     ],
 
-    // Link content
-    href_format: 'https://www.google.com/search?q={text-value}',
     on_xpath: totalTextXpath || '',
     on_selected_text_regex: selectedTextRe,
-    position: 'next_to_text',
-    display_name: '{href-host.prettify()}',
+    position: 'next_to_text' as const,
+    url_format: null as string | null,
+    display_name: null as string | null,
+    iframe_width: null as string | null,
+    iframe_height: null as string | null,
   };
+
+  if (type === 'text') {
+    return { ...base, display_name: '{text-value}', color: DEFAULT_LINK_COLOR };
+  }
+  if (type === 'subpage') {
+    return { ...base, url_format: '' };
+  }
+  // link
+  return { ...base, url_format: 'https://www.google.com/search?q={text-value}', display_name: '{href-host.prettify()}' };
 }
 
 function createShadowRootContainer(): [HTMLDivElement, HTMLDivElement] {

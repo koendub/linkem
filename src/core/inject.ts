@@ -1,4 +1,4 @@
-import { formatLinkDisplayName, formatLinkHref } from '@/core/replacer';
+import { formatLinkDisplayName, formatTextContent, formatUrlFormat } from '@/core/replacer';
 import { LinkWithConditions, UserSettings } from '@/core/types';
 import linkIcon from '~/assets/link-icon.svg?raw';
 import { linksStorage, settingsStorage } from './storage/local_storage';
@@ -41,6 +41,42 @@ export async function applyLinkToElement(link: LinkWithConditions, element: Elem
     return false;
   }
 
+  // Links stored before the 'type' field existed don't have one, treat them as regular links
+  const elementType = link.type || 'link';
+
+  if (elementType === 'text') {
+    return injectNewElements(
+      'linkem',
+      link.id,
+      element,
+      link.on_selected_text_regex,
+      position,
+      link.allow_multiple_injections_per_element || false,
+      (parentElement, text) => createNewTextElement(link, position === 'on_text' ? '' : formatTextContent(link, text), parentElement),
+      (existingElement, text) => {
+        existingElement.textContent = formatTextContent(link, text);
+        return true;
+      }
+    )
+  }
+
+  if (elementType === 'subpage') {
+    return injectNewElements(
+      'linkem',
+      link.id,
+      element,
+      link.on_selected_text_regex,
+      position,
+      link.allow_multiple_injections_per_element || false,
+      (parentElement, text) => createNewSubpageElement(link, formatUrlFormat(link, text), parentElement),
+      (existingElement, text) => {
+        if (!('src' in existingElement)) throw new Error('Existing element is not an iframe, cannot update src');
+        existingElement.src = formatUrlFormat(link, text);
+        return true;
+      }
+    )
+  }
+
   const linkText = link.position === 'on_text' ? '' : formatLinkDisplayName(link);
 
   return injectNewElements(
@@ -50,10 +86,10 @@ export async function applyLinkToElement(link: LinkWithConditions, element: Elem
     link.on_selected_text_regex,
     position,
     link.allow_multiple_injections_per_element || false,
-    (parentElement, text) => createNewLinkElement(link, formatLinkHref(link, text), linkText, parentElement),
+    (parentElement, text) => createNewLinkElement(link, formatUrlFormat(link, text), linkText, parentElement),
     (existingElement, text) => {
       if (!('href' in existingElement)) throw new Error('Existing element is not a link, cannot update href');
-      existingElement.href = formatLinkHref(link, text);
+      existingElement.href = formatUrlFormat(link, text);
       return true; // Return true to indicate that we updated an existing element
     }
   )
@@ -139,4 +175,42 @@ function createNewLinkElement(link: LinkWithConditions, href: string, text: stri
   textSpan.textContent = text;
   a.appendChild(textSpan);
   return a;
+}
+
+function createNewTextElement(link: LinkWithConditions, text: string, parentElement?: Element): HTMLSpanElement {
+  // Determine the rought size
+  let fontSize = 14;
+  if (parentElement) {
+    const parentStyle = window.getComputedStyle(parentElement);
+    const parentFontSize = parseFloat(parentStyle.fontSize);
+    fontSize = Math.min(Math.max(parentFontSize, 12), 20);
+  }
+
+  const bgColor = link.color || DEFAULT_LINK_COLOR;
+  const textColor = getTextColorForBackgroundHex(bgColor);
+
+  const span = document.createElement('span');
+  span.textContent = text;
+  span.style.backgroundColor = bgColor;
+  span.style.color = textColor;
+  span.style.padding = `${Math.floor((fontSize-10)/2)}px ${Math.floor(fontSize/2)}px`;
+  span.style.borderRadius = '5px';
+  span.style.display = 'inline-block';
+  span.style.fontSize = fontSize + 'px';
+  span.style.lineHeight = fontSize + 'px';
+  span.style.margin = `0px ${Math.floor((fontSize-5)/2)}px`;
+  if (fontSize > 18) {
+    span.style.verticalAlign = '6px';
+  }
+  return span;
+}
+
+function createNewSubpageElement(link: LinkWithConditions, src: string, _parentElement?: Element): HTMLIFrameElement {
+  const iframe = document.createElement('iframe');
+  iframe.src = src;
+  iframe.style.border = 'none';
+  iframe.style.display = 'block';
+  if (link.iframe_width) iframe.style.width = link.iframe_width;
+  if (link.iframe_height) iframe.style.height = link.iframe_height;
+  return iframe;
 }

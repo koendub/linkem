@@ -167,12 +167,15 @@ export class SupabaseStorage {
         .from('links')
         .update({
           name: link.name,
-          href_format: link.href_format,
+          type: link.type,
+          url_format: link.url_format,
           on_xpath: link.on_xpath,
           on_selected_text_regex: link.on_selected_text_regex,
           position: link.position,
           display_name: link.display_name,
           icon: link.icon,
+          iframe_width: link.iframe_width,
+          iframe_height: link.iframe_height,
           visibility: link.visibility,
           updated_at: new Date().toISOString()
         })
@@ -193,12 +196,15 @@ export class SupabaseStorage {
         .insert({
           user_id: user.id,
           name: link.name,
-          href_format: link.href_format,
+          type: link.type,
+          url_format: link.url_format,
           on_xpath: link.on_xpath,
           on_selected_text_regex: link.on_selected_text_regex,
           position: link.position,
           display_name: link.display_name,
           icon: link.icon,
+          iframe_width: link.iframe_width,
+          iframe_height: link.iframe_height,
           visibility: link.visibility
         })
         .select()

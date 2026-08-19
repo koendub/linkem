@@ -94,9 +94,9 @@ function replaceTemplate<ExtraValues>(text: string, valueReplacers: TemplateValu
 }
 
 /**
- * The available replacers that can be used in the hrefPathTemplate of a link.
+ * The available replacers that can be used in the URL format of a link/subpage, or the text content of a text element.
  */
-export const hrefValueReplacers: TemplateValueReplacers<string> = {
+export const urlValueReplacers: TemplateValueReplacers<string> = {
   "text-value": {
     description: "The text at the link location",
     replace: (_inlineArgs: string | null, selectedText: string) => selectedText,
@@ -131,21 +131,29 @@ export const hrefValueReplacers: TemplateValueReplacers<string> = {
   }
 }
 
-export function formatLinkHref(link: Link, selectedText: string) {
-  return replaceTemplate(link.href_format, hrefValueReplacers, selectedText);
+export function formatUrlFormat(link: Link, selectedText: string) {
+  return replaceTemplate(link.url_format || '', urlValueReplacers, selectedText);
 }
 
 /**
- * The available replacers for the name of a link.
+ * The available replacers for the name of a link or subpage.
  */
 const linkDisplayNameValueReplacers: TemplateValueReplacers<Link> = {
   "href-host": {
     description: "The host part of the link URL",
-    replace: (_inlineArgs: string | null, link: Link) => new URL(link.href_format).host,
+    replace: (_inlineArgs: string | null, link: Link) => new URL(link.url_format || '').host,
   },
 }
 
 export function formatLinkDisplayName(link: Link) {
   if (!link.display_name) return link.name;
   return replaceTemplate(link.display_name, linkDisplayNameValueReplacers, link);
+}
+
+/**
+ * The content of a text element, templated the same way a URL format is (can reference the selected text or host page URL parts).
+ */
+export function formatTextContent(link: Link, selectedText: string) {
+  if (!link.display_name) return selectedText || link.name;
+  return replaceTemplate(link.display_name, urlValueReplacers, selectedText);
 }

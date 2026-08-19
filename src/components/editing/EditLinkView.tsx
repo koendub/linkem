@@ -1,13 +1,19 @@
 import { useState, useEffect } from 'react';
 import { LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
-import { Link, X, Save, ChevronDown } from 'lucide-react';
+import { Link, Type, AppWindow, X, Save, ChevronDown } from 'lucide-react';
 import { Accordion } from '@base-ui/react';
 import { hasSupabaseConfig } from '@/core/storage/supabase_storage';
 import { ExactConditionsEditor, SimpleConditionsEditor, useOriginalUrl } from './ConditionsEditor';
-import { HrefFormatEditor } from './HrefFormatEditor';
+import { UrlFormatEditor } from './UrlFormatEditor';
 import { ExactDisplayEditor, SimpleDisplayEditor } from './DisplayEditor';
 
 type LinkToEdit = LinkWithConditions | UnstoredLinkWithConditions;
+
+const TYPE_META = {
+  link: { icon: Link, label: 'Link', urlLabel: 'Link URL Format' },
+  text: { icon: Type, label: 'Text', urlLabel: '' },
+  subpage: { icon: AppWindow, label: 'Subpage', urlLabel: 'Subpage URL Format' },
+} as const;
 
 interface EditLinkViewProps {
   initialLink: LinkToEdit;
@@ -29,12 +35,15 @@ export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps
     onClose();
   };
 
+  const typeMeta = TYPE_META[link.type] || TYPE_META.link;
+  const TypeIcon = typeMeta.icon;
+
   return (
     <div className="text-md bg-white text-gray-900 p-4 w-full h-full overflow-y-auto border-l border-gray-200 flex flex-col">
       <div className="flex-1 pr-2">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-          <Link className="w-6 h-6 mr-3 text-blue-500" />
-          {'id' in link ? 'Edit Link' : 'Create New Link'}
+          <TypeIcon className="w-6 h-6 mr-3 text-blue-500" />
+          {'id' in link ? `Edit ${typeMeta.label}` : `Create New ${typeMeta.label}`}
         </h2>
         <div className="space-y-6">
           <div className="space-y-4">
@@ -46,12 +55,14 @@ export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps
                 placeholder="Enter link name"
               />
             </div>
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label>Link URL Format</label>
+            {link.type !== 'text' && (
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label>{typeMeta.urlLabel}</label>
+                </div>
+                <UrlFormatEditor link={link} onChange={(updatedLink) => setLink(updatedLink)} />
               </div>
-              <HrefFormatEditor link={link} onChange={(updatedLink) => setLink(updatedLink)} />
-            </div>
+            )}
             <div className="flex gap-2 bg-gray-200 rounded-lg p-1">
               <button
                 onClick={() => setIsSimpleMode(true)}
@@ -152,7 +163,7 @@ export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps
           className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg flex items-center transition-colors"
         >
           <Save className="w-4 h-4 mr-2" />
-          Save Link
+          Save {typeMeta.label}
         </button>
       </div>
     </div>
