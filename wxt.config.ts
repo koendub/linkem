@@ -6,7 +6,7 @@ export default defineConfig({
   modules: ['@wxt-dev/module-react'],
   srcDir: "src",
   manifest: {
-    permissions: ['storage', 'contextMenus', 'scripting', 'tabs'],
+    permissions: ['storage', 'contextMenus', 'scripting', 'tabs', 'cookies'],
     // @ts-ignore
     optional_permissions: ["*://*/*"],
     optional_host_permissions: ["*://*/*"],

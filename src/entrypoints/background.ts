@@ -1,3 +1,4 @@
+import { loginFlowListener } from "@/core/auth";
 import { getFailingUrlConditions } from "@/core/conditions";
 import { requestHostPermissions, storeMissingPermissions } from "@/core/permissions";
 import { linksStorage } from "@/core/storage/local_storage";
@@ -99,4 +100,5 @@ export default defineBackground(() => {
   registerContextMenu();
   siteInjectListener();
   backgroundMessageListeners();
+  loginFlowListener();
 });

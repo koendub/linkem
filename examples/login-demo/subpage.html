@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<!--
+  Example "subpage" target for a Link'em subpage-type link, used to test the
+  postMessage-based login flow (see src/core/auth.ts).
+
+  Serve this folder over http(s) (not file://) - e.g. `npx serve examples/login-demo`
+  - then create a subpage link in linkem pointing at this file's URL and
+  inject it on any page you have access to. On load this page checks for a
+  demo session cookie; if it's missing it asks the extension to log it in via
+  login.html, which is what actually sets the cookie.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Link'em login demo - subpage</title>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; padding: 1.5rem; }
+    .logged-out { color: #7a1f1f; }
+    .logged-in { color: #1f6f2b; }
+    .pending { color: #7a5c1f; }
+    button { margin-top: 0.75rem; margin-right: 0.5rem; padding: 0.4rem 0.9rem; }
+    #log { margin-top: 1rem; font-size: 0.85rem; color: #555; white-space: pre-wrap; }
+  </style>
+</head>
+<body>
+  <div id="status">Checking login state...</div>
+  <div>
+    <button id="logout" style="display: none;">Log out (clear demo cookie)</button>
+    <button id="recheck" style="display: none;">I already logged in - check again</button>
+    <button id="retry-login" style="display: none;">Ask linkem to log in again</button>
+  </div>
+  <div id="log"></div>
+
+  <script>
+    const COOKIE_NAME = 'linkem_demo_session';
+    let requestSentAt = 0;
+    let stallTimer = null;
+
+    function getCookie(name) {
+      return document.cookie
+        .split('; ')
+        .find((row) => row.startsWith(name + '='))
+        ?.split('=')[1];
+    }
+
+    function log(message) {
+      const el = document.getElementById('log');
+      el.textContent += `[${new Date().toLocaleTimeString()}] ${message}\n`;
+    }
+
+    function setButtons({ logout, recheck, retryLogin }) {
+      document.getElementById('logout').style.display = logout ? 'inline-block' : 'none';
+      document.getElementById('recheck').style.display = recheck ? 'inline-block' : 'none';
+      document.getElementById('retry-login').style.display = retryLogin ? 'inline-block' : 'none';
+    }
+
+    function render() {
+      clearTimeout(stallTimer);
+      const session = getCookie(COOKIE_NAME);
+      const statusEl = document.getElementById('status');
+
+      if (session) {
+        statusEl.className = 'logged-in';
+        statusEl.textContent = `✅ Logged in! Session token: ${decodeURIComponent(session)}`;
+        log('Found the session cookie - login succeeded.');
+        setButtons({ logout: true, recheck: false, retryLogin: false });
+        return;
+      }
+
+      statusEl.className = 'logged-out';
+      statusEl.textContent = 'Not logged in.';
+      requestLogin();
+    }
+
+    function requestLogin() {
+      const statusEl = document.getElementById('status');
+      statusEl.className = 'pending';
+      statusEl.textContent = 'Not logged in - asking linkem to open the login tab...';
+      setButtons({ logout: false, recheck: false, retryLogin: false });
+      log('Posting a linkem-login-request message to the parent page.');
+
+      window.parent.postMessage({
+        action: 'linkem-login-request',
+        loginUrl: new URL('login.html', location.href).href,
+        cookieDomain: location.hostname,
+      }, '*');
+
+      requestSentAt = Date.now();
+      // This page has no way to know linkem actually received the message
+      // (it's a fire-and-forget postMessage), so after a few seconds without
+      // this iframe being reloaded, assume something upstream isn't wired up
+      // and surface manual fallback controls instead of leaving the user
+      // staring at "asking linkem..." forever.
+      stallTimer = setTimeout(() => {
+        statusEl.textContent =
+          'Still not logged in after asking linkem. Either the login tab is still open (finish logging in there), ' +
+          'or linkem never picked up the request - check the extension\'s console/background logs, and that it has ' +
+          `permission for ${location.origin}.`;
+        setButtons({ logout: false, recheck: true, retryLogin: true });
+      }, 8000);
+    }
+
+    document.getElementById('logout').addEventListener('click', () => {
+      document.cookie = `${COOKIE_NAME}=; Path=/; Max-Age=0; SameSite=None; Secure`;
+      log('Cleared the demo cookie.');
+      render();
+    });
+    document.getElementById('recheck').addEventListener('click', () => {
+      log('Manually re-checking for the session cookie.');
+      render();
+    });
+    document.getElementById('retry-login').addEventListener('click', () => {
+      requestLogin();
+    });
+
+    log('Page loaded.');
+    render();
+  </script>
+</body>
+</html>
