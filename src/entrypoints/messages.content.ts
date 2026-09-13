@@ -1,4 +1,4 @@
-import { getLinkHostUrl, requestHostPermissions } from '@/core/permissions';
+import { getLinkHostUrl } from '@/core/permissions';
 import { importFromBase64 } from '@/core/share';
 
 
