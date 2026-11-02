@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
+import { LinkType, LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
 import { Link, Type, AppWindow, X, Save, ChevronDown } from 'lucide-react';
-import { Accordion } from '@base-ui/react';
+import { Accordion, Menu } from '@base-ui/react';
 import { hasSupabaseConfig } from '@/core/storage/supabase_storage';
 import { ExactConditionsEditor, SimpleConditionsEditor, useOriginalUrl } from './ConditionsEditor';
 import { UrlFormatEditor } from './UrlFormatEditor';
@@ -19,9 +19,11 @@ interface EditLinkViewProps {
   initialLink: LinkToEdit;
   onSave: (link: LinkToEdit) => void;
   onClose: () => void;
+  onChangeType?: (type: LinkType) => LinkToEdit;
+  portalContainer?: HTMLElement | null;
 }
 
-export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps) {
+export function EditLinkView({ initialLink, onClose, onSave, onChangeType, portalContainer }: EditLinkViewProps) {
   const originalUrl = useOriginalUrl(initialLink.conditions);
   const [link, setLink] = useState<LinkToEdit>({ ...initialLink });
   const [isSimpleMode, setIsSimpleMode] = useState(true);
@@ -43,7 +45,40 @@ export function EditLinkView({ initialLink, onClose, onSave }: EditLinkViewProps
       <div className="flex-1 pr-2">
         <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
           <TypeIcon className="w-6 h-6 mr-3 text-blue-500" />
-          {'id' in link ? `Edit ${typeMeta.label}` : `Create New ${typeMeta.label}`}
+          {'id' in link ? (
+            <>Edit {typeMeta.label}</>
+          ) : onChangeType ? (
+            <>
+              Create New{' '}
+              <Menu.Root>
+                <Menu.Trigger className="inline-flex items-center gap-1 ml-2 px-2 py-0.5 rounded hover:bg-blue-50 text-blue-600">
+                  {typeMeta.label}
+                  <ChevronDown className="w-4 h-4" />
+                </Menu.Trigger>
+                <Menu.Portal container={portalContainer}>
+                  <Menu.Positioner sideOffset={4} className="z-10001">
+                    <Menu.Popup className="bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-36 text-base font-normal">
+                      {(Object.keys(TYPE_META) as LinkType[]).map((optionType) => {
+                        const OptionIcon = TYPE_META[optionType].icon;
+                        return (
+                          <Menu.Item
+                            key={optionType}
+                            className="flex items-center gap-2 px-3 py-2 text-gray-900 hover:bg-blue-50 cursor-pointer data-[highlighted]:bg-blue-50"
+                            onClick={() => setLink(onChangeType(optionType))}
+                          >
+                            <OptionIcon className="w-4 h-4 text-blue-500" />
+                            {TYPE_META[optionType].label}
+                          </Menu.Item>
+                        );
+                      })}
+                    </Menu.Popup>
+                  </Menu.Positioner>
+                </Menu.Portal>
+              </Menu.Root>
+            </>
+          ) : (
+            <>Create New {typeMeta.label}</>
+          )}
         </h2>
         <div className="space-y-6">
           <div className="space-y-4">

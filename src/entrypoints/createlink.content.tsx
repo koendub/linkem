@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { EditLinkView } from '@/components/editing/EditLinkView';
-import { SelectElementTypeView } from '@/components/editing/SelectElementTypeView';
 import styleText from '@/components/style.css?inline';
 import { LinkType, LinkWithConditions, UnstoredLinkWithConditions } from '@/core/types';
 import { getElementByXPath, getXPath, moveXPathUp } from '@/core/utils/xpath';
@@ -26,29 +25,23 @@ function CreateElementFlow({
   xpath,
   onSave,
   onClose,
+  portalContainer,
 }: {
   selectedText: string;
   url: string;
   xpath: string;
   onSave: (link: LinkWithConditions | UnstoredLinkWithConditions) => void;
   onClose: () => void;
+  portalContainer: HTMLElement;
 }) {
-  const [type, setType] = useState<LinkType | null>(null);
-
-  if (!type) {
-    return (
-      <div className='w-116 max-w-full max-h-full rounded-lg overflow-hidden shadow-lg'>
-        <SelectElementTypeView onSelect={setType} onClose={onClose} />
-      </div>
-    );
-  }
-
   return (
     <div className='w-116 h-154 max-w-full max-h-full rounded-lg overflow-hidden shadow-lg'>
       <EditLinkView
-        initialLink={createInitialLinkData(type, selectedText, url, xpath)}
+        initialLink={createInitialLinkData('link', selectedText, url, xpath)}
         onClose={onClose}
         onSave={onSave}
+        onChangeType={(type) => createInitialLinkData(type, selectedText, url, xpath)}
+        portalContainer={portalContainer}
       />
     </div>
   );
@@ -84,6 +77,7 @@ function showCreateLinkModal(
           xpath={useXpath}
           onClose={handleClose}
           onSave={onSave}
+          portalContainer={modalReactRoot}
         />
       </div>
     </React.StrictMode>
